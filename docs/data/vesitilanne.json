@@ -1,5 +1,5 @@
 {
- "paivitetty": "2026-10-21T18:57:04Z",
+ "paivitetty": "2026-10-21T19:31:49Z",
  "joet": [],
  "geometriat": [],
  "lahteet": [
@@ -7,5 +7,7 @@
   "Ilmatieteen laitos, avoin data (CC BY 4.0)",
   "Uomat © OpenStreetMapin tekijät (ODbL)"
  ],
- "loki": []
+ "loki": [
+  "Jäänpaksuus: 0 asemaa, joilla mittaus 30 vrk sisällä"
+ ]
 }
