@@ -1,4 +1,5 @@
-# Kalastus: päivittää jokien vesitilanteen (docs/data/vesitilanne.json) kerran päivässä.
+# Kalastus: päivittää jokien vesitilanteen (docs/data/vesitilanne.json) ja jäänpaksuudet (docs/data/jaa.json)
+# kerran päivässä sekä piirrettyjen kalastusalueiden (areas/kalastus) tasot, joet ja syvyysalueet niiden muuttuessa.
 # Vain julkisia rajapintoja (Syke, Ilmatieteen laitos, OpenStreetMap), ei salaisuuksia eikä avaimia.
 name: Vesitilanne
 on:
@@ -8,7 +9,9 @@ on:
   push:
     branches: [main]
     paths:
+      - "areas/kalastus/**"
       - "pipeline/vesitilanne.py"
+      - "pipeline/syvyys.py"
       - "pipeline/joet.json"
       - ".github/workflows/vesitilanne.yml"
 permissions:
@@ -19,18 +22,20 @@ concurrency:
 jobs:
   paivita:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
-      - name: Laske vesitilanne
+      - name: Syvyysalueet piirretyille alueille
+        run: python3 pipeline/syvyys.py
+      - name: Laske vesitilanne ja jäänpaksuus
         run: python3 pipeline/vesitilanne.py
       - name: Tallenna muutokset
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/vesitilanne.json docs/layers/*-joet.geojson
+          git add -A docs/data/vesitilanne.json docs/data/jaa.json docs/layers
           git commit -m "Vesitilanne päivitetty" || exit 0
           for i in 1 2 3; do
             git pull --rebase -X theirs -q origin main && git push && exit 0

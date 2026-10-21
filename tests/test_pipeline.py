@@ -66,3 +66,58 @@ assert len(out["laavut"]) == 1 and "Tulisija." in out["laavut"][0]["properties"]
 assert len(out["tulipaikat"]) == 1 and out["tulipaikat"][0]["properties"]["osm"] == "node/3", out["tulipaikat"]
 assert len(out["tuvat"]) == 1 and out["tuvat"][0]["properties"]["tyyppi"] == "autiotupa", out["tuvat"]
 print("laavujen ja tulipaikkojen käsittely läpi")
+
+# Piirretyt kalastusalueet, jäänpaksuus ja syvyysalueet
+import json  # noqa: E402
+import tempfile  # noqa: E402
+assert v.dms(690302) == round(69 + 3 / 60 + 2 / 3600, 5)
+assert v.dms("612959") == round(61 + 29 / 60 + 59 / 3600, 5)
+assert v.dms(616100) is None and v.dms(None) is None
+assert v.slugify("Ylä-Ounasjoen Alue!") == "yla-ounasjoen-alue"
+sq = [[24.0, 65.0], [24.1, 65.0], [24.1, 65.1], [24.0, 65.1], [24.0, 65.0]]
+gj = {"type": "FeatureCollection", "features": [
+    {"type": "Feature", "properties": {"nimi": "Testijoki"}, "geometry": {"type": "Polygon", "coordinates": [sq]}},
+    {"type": "Feature", "properties": {"poista": True}, "geometry": {"type": "Polygon", "coordinates": [sq]}},
+    {"type": "Feature", "properties": {}, "geometry": {"type": "Point", "coordinates": [24, 65]}}]}
+assert len(v.outer_rings(gj)) == 1
+with tempfile.TemporaryDirectory() as tmp:
+    old = v.DRAWN
+    v.DRAWN = tmp
+    open(os.path.join(tmp, "Testi Alue.geojson"), "w").write(json.dumps(gj))
+    open(os.path.join(tmp, "rikki.geojson"), "w").write("{ei json")
+    open(os.path.join(tmp, "piste.geojson"), "w").write(json.dumps({"type": "Point", "coordinates": [1, 2]}))
+    d = v.read_drawn()
+    v.DRAWN = old
+assert len(d) == 1 and d[0]["id"] == "testi-alue" and d[0]["nimi"] == "Testijoki" and d[0]["piirretty"], d
+assert d[0]["bbox_latlon"] == [65.0, 24.0, 65.1, 24.1] and len(d[0]["hash"]) == 12
+pf = v.poly_filter(d[0]["rings"][0])
+assert pf.split()[:2] == ["65.00000", "24.00000"], pf
+long_ring = [[24 + 0.001 * i, 65 + 0.0001 * (i % 7)] for i in range(500)] + [[24, 65]]
+assert len(v.poly_filter(long_ring, 50).split()) <= 100
+assert len(v.poly_filter(sq).split()) >= 8
+print("piirretyt alueet läpi")
+
+import syvyys as s  # noqa: E402
+assert s.depth_class("3-6") == (3.0, 6.0) and s.depth_class("20-") == (20.0, None)
+assert s.inside((24.05, 65.05), sq) and not s.inside((24.2, 65.05), sq)
+lake_in = {"type": "Feature", "properties": {"jarvitunnus": "1.1", "syvmittausaluenimi": "Sisäjärvi", "syvyysvali_m": "0-3"},
+           "geometry": {"type": "MultiPolygon", "coordinates": [[[[24.02, 65.02], [24.04, 65.02], [24.04, 65.04], [24.02, 65.04], [24.02, 65.02]]]]}}
+lake_in2 = {"type": "Feature", "properties": {"jarvitunnus": "1.1", "syvmittausaluenimi": "Sisäjärvi", "syvyysvali_m": "3-6"},
+            "geometry": {"type": "MultiPolygon", "coordinates": [[[[24.09, 65.02], [24.12, 65.02], [24.12, 65.03], [24.09, 65.03], [24.09, 65.02]]]]}}
+lake_out = {"type": "Feature", "properties": {"jarvitunnus": "2.2", "syvmittausaluenimi": "Ulkojärvi", "syvyysvali_m": "0-3"},
+            "geometry": {"type": "MultiPolygon", "coordinates": [[[[24.3, 65.3], [24.4, 65.3], [24.4, 65.4], [24.3, 65.4], [24.3, 65.3]]]]}}
+k_in = {"type": "Feature", "properties": {"syvyyskayra_m": "3"},
+        "geometry": {"type": "MultiLineString", "coordinates": [[[24.03, 65.03], [24.035, 65.035]]]}}
+k_out = {"type": "Feature", "properties": {"syvyyskayra_m": "3"},
+         "geometry": {"type": "MultiLineString", "coordinates": [[[24.35, 65.35], [24.36, 65.36]]]}}
+out, txt = s.build(d[0], [lake_in, lake_in2, lake_out], [k_in, k_out])
+types = [f["properties"]["tyyppi"] for f in out["features"]]
+assert out["properties"]["jarvia"] == 1 and out["properties"]["jarvet"] == ["Sisäjärvi"], out["properties"]
+assert types.count("syvyysalue") == 2 and types.count("syvyyskayra") == 1, types
+assert out["properties"]["alue_hash"] == d[0]["hash"] and json.loads(txt)["properties"]["jarvia"] == 1
+print("syvyysalueet läpi")
+circle = [[24 + 0.1 * __import__("math").cos(i / 50), 65 + 0.05 * __import__("math").sin(i / 50)] for i in range(315)]
+circle.append(circle[0])
+cf = v.poly_filter(circle, 60).split()
+assert 16 <= len(cf) <= 120, len(cf)
+print("renkaan yksinkertaistus läpi")

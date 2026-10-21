@@ -17,3 +17,9 @@
 
 /data/vesitilanne.json
   Cache-Control: no-cache
+
+/data/jaa.json
+  Cache-Control: no-cache
+
+/layers/index.json
+  Cache-Control: no-cache

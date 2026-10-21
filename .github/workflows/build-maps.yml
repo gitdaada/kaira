@@ -74,8 +74,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Vain metsäkartat: muu data (kohteet, vesitilanne, perhot) päivittyy omissa ajoissaan.
-          git add -A -- docs/data ':!docs/data/kohteet' ':!docs/data/vesitilanne.json' ':!docs/data/perhot.json'
+          # Vain metsäkartat: muu data (kohteet, vesitilanne, jää, perhot) päivittyy omissa ajoissaan.
+          git add -A -- docs/data ':!docs/data/kohteet' ':!docs/data/vesitilanne.json' ':!docs/data/perhot.json' ':!docs/data/jaa.json'
           if git diff --cached --quiet; then
             echo "Ei muutoksia karttoihin."
             exit 0

@@ -1,9 +1,15 @@
-"""Joki guide: jokien vesitilanne kartalle.
+"""Kaira / Kalastus: jokien vesitilanne ja jäänpaksuus kartalle.
 
 Ajetaan GitHub Actionsissa kerran päivässä (.github/workflows/vesitilanne.yml). Käyttää vain julkisia rajapintoja
 ilman avaimia, ja tulokset tallennetaan repoon:
-  - docs/layers/<alue>-joet.geojson  jokien uomat (OpenStreetMap, ODbL), haetaan vain kun tiedosto puuttuu
+  - docs/layers/<alue>-joet.geojson  jokien uomat (OpenStreetMap, ODbL), haetaan kun tiedosto puuttuu tai alue muuttuu
+  - docs/layers/<alue>.geojson       piirretyn kalastusalueen raja (areas/kalastus/<alue>.geojson)
+  - docs/layers/index.json           kalastusalueiden luettelo sovellukselle
   - docs/data/vesitilanne.json       luokka joelle: alhainen / normaali / korkea
+  - docs/data/jaa.json               Syken jäänpaksuusmittaukset (viimeiset 30 vrk) koko maasta
+
+Alueet: pipeline/joet.json (käsin määritellyt joet) ja areas/kalastus/*.geojson (sovelluksessa piirretyt alueet,
+joiden nimetyt joet ja purot haetaan OpenStreetMapista automaattisesti).
 
 Luokka lasketaan ensisijaisesti Syken mitatusta virtaamasta tai vedenkorkeudesta: arvoa verrataan saman
 vuodenajan (±7 vrk) arvoihin aiempina vuosina. Alle 25 %:n = alhainen, yli 75 %:n = korkea, muuten normaali.
@@ -22,11 +28,15 @@ import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 
-UA = "joki-opas/0.2 (+https://github.com/gitdaada/joki-opas)"
+UA = "kaira/0.1 (+https://github.com/gitdaada/kaira)"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG = os.path.join(ROOT, "pipeline", "joet.json")
 OUT = os.path.join(ROOT, "docs", "data", "vesitilanne.json")
 LAYERS = os.path.join(ROOT, "docs", "layers")
+DRAWN = os.path.join(ROOT, "areas", "kalastus")
+ICE_OUT = os.path.join(ROOT, "docs", "data", "jaa.json")
+ICE_DAYS = 30
+MAX_RIVERS = 15
 SYKE = "https://rajapinnat.ymparisto.fi/api/Hydrologiarajapinta/1.2/odata"
 FMI = "https://opendata.fmi.fi/wfs"
 OVERPASS = "https://overpass-api.de/api/interpreter"
@@ -341,6 +351,203 @@ def rain_status(river, gj, today):
             "vuodet": len(sums), "jakso": [start.isoformat(), end.isoformat()], "luokka": classify(total, p25, p75)}
 
 
+
+# --- Piirretyt kalastusalueet (areas/kalastus) -------------------------------------
+
+def slugify(name):
+    s = name.lower().replace("ä", "a").replace("ö", "o").replace("å", "a")
+    s = re.sub(r"[^a-z0-9]+", "-", s).strip("-")
+    return s[:60] or "alue"
+
+
+def outer_rings(gj):
+    """GeoJSON -> ulkorenkaat [(lon, lat), ...]. Polygonit, joilla on ominaisuus poista=true, ohitetaan."""
+    rings = []
+    feats = gj.get("features", []) if gj.get("type") == "FeatureCollection" else [gj]
+    for f in feats:
+        g = f.get("geometry") or {}
+        if (f.get("properties") or {}).get("poista") in (True, "true"):
+            continue
+        if g.get("type") == "Polygon":
+            rings.append(g["coordinates"][0])
+        elif g.get("type") == "MultiPolygon":
+            rings += [p[0] for p in g["coordinates"]]
+    out = []
+    for r in rings:
+        pts = [(float(c[0]), float(c[1])) for c in r if len(c) >= 2 and -180 <= float(c[0]) <= 180 and -90 <= float(c[1]) <= 90]
+        if len(pts) >= 4:
+            out.append(pts)
+    return out
+
+
+def read_drawn():
+    """areas/kalastus/*.geojson -> [{id, nimi, rings, bbox_latlon, hash}]."""
+    import hashlib
+    out = []
+    if not os.path.isdir(DRAWN):
+        return out
+    for fn in sorted(os.listdir(DRAWN)):
+        if not fn.endswith((".geojson", ".json")) or fn.startswith(("_", ".")):
+            continue
+        raw = open(os.path.join(DRAWN, fn), "rb").read()
+        try:
+            gj = json.loads(raw)
+            rings = outer_rings(gj)
+        except Exception as e:  # noqa
+            note("%s: virheellinen GeoJSON (%r)" % (fn, e))
+            continue
+        if not rings:
+            note("%s: ei aluetta (polygonia)" % fn)
+            continue
+        props = (gj.get("features") or [{}])[0].get("properties") or {} if gj.get("type") == "FeatureCollection" else gj.get("properties") or {}
+        stem = os.path.splitext(fn)[0]
+        name = str(props.get("nimi") or props.get("name") or stem.replace("-", " ").capitalize())[:60]
+        lons = [p[0] for r in rings for p in r]
+        lats = [p[1] for r in rings for p in r]
+        out.append({"id": slugify(stem), "nimi": name, "rings": rings, "piirretty": True,
+                    "bbox_latlon": [min(lats), min(lons), max(lats), max(lons)],
+                    "hash": hashlib.sha1(raw).hexdigest()[:12]})
+    return out
+
+
+def simplify_ring(ring, tol):
+    """Suljettu rengas: Douglas-Peucker kahtena puolikkaana, koska alku- ja loppupiste ovat samat."""
+    if len(ring) < 5:
+        return ring
+    far = max(range(len(ring)), key=lambda i: (ring[i][0] - ring[0][0]) ** 2 + (ring[i][1] - ring[0][1]) ** 2)
+    return simplify(ring[:far + 1], tol)[:-1] + simplify(ring[far:], tol)
+
+
+def poly_filter(ring, max_pts=120):
+    """Overpassin poly-suodatin: "lat lon lat lon ..." (rengas yksinkertaistettuna)."""
+    pts = ring
+    tol = 0.0002
+    while len(pts) > max_pts:
+        pts = simplify_ring(ring, tol)
+        tol *= 2
+    return " ".join("%.5f %.5f" % (p[1], p[0]) for p in pts)
+
+
+def fetch_drawn_rivers(area):
+    """Nimetyt joet ja purot piirretyn alueen sisällä. Palauttaa (GeoJSON, joet)."""
+    parts = []
+    for r in area["rings"]:
+        pf = poly_filter(r)
+        parts.append('way["waterway"="river"]["name"](poly:"%s");way["waterway"="stream"]["name"](poly:"%s");' % (pf, pf))
+    q = "[out:json][timeout:120];(" + "".join(parts) + ");out geom tags;"
+    j = json.loads(get(OVERPASS, data=urllib.parse.urlencode({"data": q}).encode(), timeout=180))
+    lengths, ways = {}, {}
+    for el in j.get("elements", []):
+        name = (el.get("tags", {}).get("name") or "").strip()
+        geom = el.get("geometry") or []
+        if not name or len(geom) < 2:
+            continue
+        pts = [(round(p["lon"], 5), round(p["lat"], 5)) for p in geom]
+        length = sum(dist_km(pts[i - 1][1], pts[i - 1][0], pts[i][1], pts[i][0]) for i in range(1, len(pts)))
+        lengths[name] = lengths.get(name, 0) + length
+        ways.setdefault(name, []).append(pts)
+    names = sorted(lengths, key=lambda n: -lengths[n])[:MAX_RIVERS]
+    joet, feats = [], []
+    for name in names:
+        jid = (area["id"] + "-" + slugify(name))[:80]
+        joet.append({"id": jid, "nimi": name, "osm": name})
+        for pts in ways[name]:
+            feats.append({"type": "Feature", "properties": {"nimi": name, "tyyppi": "joki", "joki_id": jid},
+                          "geometry": {"type": "LineString", "coordinates": [list(p) for p in simplify(pts, 0.00004)]}})
+    gj = {"type": "FeatureCollection", "features": feats,
+          "properties": {"lahde": "© OpenStreetMapin tekijät, ODbL", "alue_hash": area["hash"], "joet": joet}}
+    return gj, joet
+
+
+def area_layer(area):
+    """Piirretyn alueen raja kalastustasoksi."""
+    feats = [{"type": "Feature", "properties": {"nimi": area["nimi"], "tyyppi": "alue"},
+              "geometry": {"type": "Polygon", "coordinates": [[list(p) for p in r]]}} for r in area["rings"]]
+    return {"type": "FeatureCollection", "features": feats, "properties": {"alue_hash": area["hash"]}}
+
+
+def update_index(drawn):
+    """docs/layers/index.json: käsin lisätyt tasot säilyvät, piirretyt päivittyvät."""
+    path = os.path.join(LAYERS, "index.json")
+    try:
+        idx = json.load(open(path, encoding="utf-8"))
+    except Exception:  # noqa
+        idx = {"tasot": []}
+    manual = [t for t in idx.get("tasot", []) if not t.get("piirretty")]
+    ids = {t["id"] for t in manual}
+    for a in drawn:
+        if a["id"] in ids:
+            continue
+        entry = {"id": a["id"], "nimi": a["nimi"], "tiedosto": a["id"] + ".geojson", "piirretty": True}
+        dpath = os.path.join(LAYERS, a["id"] + "-syvyys.geojson")
+        try:
+            dprops = json.load(open(dpath, encoding="utf-8")).get("properties") or {}
+            if dprops.get("alue_hash") == a["hash"] and dprops.get("jarvia"):
+                entry["syvyys"] = a["id"] + "-syvyys.geojson"
+        except Exception:  # noqa
+            pass
+        manual.append(entry)
+    idx["tasot"] = manual
+    json.dump(idx, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    # Poistetun alueen tiedostot pois
+    keep = {a["id"] for a in drawn}
+    old = [t["id"] for t in json.load(open(path, encoding="utf-8")).get("tasot", [])]
+    for fn in os.listdir(LAYERS):
+        m = re.match(r"^(.+?)(-joet|-syvyys)?\.geojson$", fn)
+        if not m:
+            continue
+        base = m.group(1)
+        marker = os.path.join(LAYERS, fn)
+        try:
+            props = json.load(open(marker, encoding="utf-8")).get("properties") or {}
+        except Exception:  # noqa
+            continue
+        if props.get("alue_hash") and base not in keep and base not in old:
+            os.remove(marker)
+            note("Poistettu %s (alue poistettu)" % fn)
+
+
+# --- Jäänpaksuus (Syke) -------------------------------------------------------------
+
+def dms(v):
+    """Syken KoordLat/KoordLong muodossa AASSVV (esim. 690302) -> desimaaliasteet."""
+    try:
+        v = int(v)
+    except (TypeError, ValueError):
+        return None
+    d, rest = divmod(v, 10000)
+    m, s = divmod(rest, 100)
+    if m >= 60 or s >= 60:
+        return None
+    return round(d + m / 60 + s / 3600, 5)
+
+
+def ice_status(today):
+    since = today - dt.timedelta(days=ICE_DAYS)
+    rows = syke_json("Jaanpaksuus", {"$filter": "Aika ge datetime'%s'" % since.isoformat(), "$orderby": "Aika"})
+    latest = {}
+    for r in rows:
+        d, v = parse_time(r.get("Aika")), r.get("Arvo")
+        if d is None or v is None:
+            continue
+        latest[r["Paikka_Id"]] = (d, float(v))
+    asemat = []
+    if latest:
+        places = {p["Paikka_Id"]: p for p in syke_json("Paikka", {"$filter": "Suure_Id eq 9"})}
+        for pid, (d, v) in latest.items():
+            p = places.get(pid)
+            if not p:
+                continue
+            lat, lon = dms(p.get("KoordLat")), dms(p.get("KoordLong"))
+            if lat is None or lon is None:
+                continue
+            asemat.append({"nimi": (p.get("Nimi") or "").strip()[:60], "jarvi": (p.get("JarviNimi") or "").strip()[:80],
+                           "kunta": (p.get("KuntaNimi") or "").strip()[:40], "lat": lat, "lon": lon, "cm": round(v), "aika": d.isoformat()})
+    asemat.sort(key=lambda a: (a["kunta"], a["nimi"]))
+    return {"paivitetty": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+            "jakso_vrk": ICE_DAYS, "lahde": "Syke, Hydrologiarajapinta (CC BY 4.0)", "asemat": asemat}
+
+
 # --- Pääohjelma --------------------------------------------------------------------
 
 def main():
@@ -354,18 +561,44 @@ def main():
               "joet": [], "geometriat": [], "lahteet": [
                   "Syke, Hydrologiarajapinta (CC BY 4.0)", "Ilmatieteen laitos, avoin data (CC BY 4.0)",
                   "Uomat © OpenStreetMapin tekijät (ODbL)"]}
-    for area in cfg["alueet"]:
+    drawn = read_drawn()
+    os.makedirs(LAYERS, exist_ok=True)
+    for a in drawn:
+        path = os.path.join(LAYERS, a["id"] + ".geojson")
+        try:
+            old = json.load(open(path, encoding="utf-8")).get("properties", {}).get("alue_hash")
+        except Exception:  # noqa
+            old = None
+        if old != a["hash"]:
+            json.dump(area_layer(a), open(path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+            note("%s: aluetaso kirjoitettu" % a["id"])
+    update_index(drawn)
+    areas = list(cfg["alueet"]) + drawn
+    for area in areas:
         path = os.path.join(LAYERS, area["id"] + "-joet.geojson")
         rel = "layers/" + area["id"] + "-joet.geojson"
-        if not os.path.exists(path):
+        gj = None
+        if os.path.exists(path):
+            gj = json.load(open(path, encoding="utf-8"))
+            if area.get("piirretty") and (gj.get("properties") or {}).get("alue_hash") != area["hash"]:
+                gj = None  # alue muuttunut: haetaan joet uudelleen
+        if gj is None:
             try:
-                gj = fetch_rivers(area)
+                if area.get("piirretty"):
+                    gj, _ = fetch_drawn_rivers(area)
+                    time.sleep(5)
+                else:
+                    gj = fetch_rivers(area)
                 json.dump(gj, open(path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
                 note("%s: %d uomaa haettu" % (area["id"], len(gj["features"])))
             except Exception as e:  # noqa
                 note("%s: uomia ei saatu: %r" % (area["id"], e))
                 continue
-        gj = json.load(open(path, encoding="utf-8"))
+        if area.get("piirretty"):
+            area = dict(area, joet=(gj.get("properties") or {}).get("joet") or [])
+        if not gj.get("features"):
+            note("%s: alueella ei ole nimettyjä jokia" % area["id"])
+            continue
         result["geometriat"].append(rel)
         try:
             stations = syke_stations(area)
@@ -395,7 +628,13 @@ def main():
                 entry["luokka"], entry["menetelma"] = r["luokka"], "sade"
             note("%s: %s (%s)" % (river["id"], entry["luokka"], entry["menetelma"]))
             result["joet"].append(entry)
-    result["loki"] = log[-40:]
+    try:
+        ice = ice_status(today)
+        json.dump(ice, open(ICE_OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        note("Jäänpaksuus: %d asemaa, joilla mittaus %d vrk sisällä" % (len(ice["asemat"]), ICE_DAYS))
+    except Exception as e:  # noqa
+        note("Jäänpaksuutta ei saatu: %r" % e)
+    result["loki"] = log[-60:]
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     json.dump(result, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     return 0

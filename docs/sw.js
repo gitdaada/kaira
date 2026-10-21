@@ -1,7 +1,7 @@
 /* Kairan service worker: pitää sovelluksen, datan ja tallennetut kartat käytettävissä ilman verkkoa. */
 'use strict';
 
-var SHELL_CACHE = 'kaira-shell-2026-10-21a';
+var SHELL_CACHE = 'kaira-shell-2026-10-21b';
 var TILE_CACHE = 'kaira-tiles-v1';
 var DATA_CACHE = 'kaira-data-v1';
 var ASSET_CACHE = 'kaira-assets-v1';
@@ -118,6 +118,8 @@ self.addEventListener('fetch', function (e) {
 
   if (path === 'data/areas.json') { e.respondWith(networkFirst(req, DATA_CACHE, 5000, '{"areas":[]}')); return; }
   if (path === 'data/vesitilanne.json') { e.respondWith(networkFirst(req, ASSET_CACHE, 5000, '{"joet":[],"geometriat":[]}')); return; }
+  if (path === 'data/jaa.json') { e.respondWith(networkFirst(req, ASSET_CACHE, 5000, '{"asemat":[]}')); return; }
+  if (path === 'layers/index.json') { e.respondWith(networkFirst(req, ASSET_CACHE, 5000, '{"tasot":[]}')); return; }
   if (/^data\/kohteet\//.test(path) || /^layers\//.test(path) || /^img\//.test(path) || path === 'data/perhot.json') {
     e.respondWith(staleWhileRevalidate(req, ASSET_CACHE, false)); return;
   }

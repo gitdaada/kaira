@@ -6,6 +6,7 @@ on:
     paths-ignore:
       - "docs/data/**"
       - "docs/layers/*-joet.geojson"
+      - "docs/layers/*-syvyys.geojson"
   pull_request:
   workflow_dispatch:
 permissions:
