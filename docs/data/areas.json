@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-20T14:18:18Z",
+ "generated": "2026-10-21T19:09:04Z",
  "encoding": 1,
  "mvmiYear": 2023,
  "attribution": [
@@ -40,15 +40,15 @@
      "sumR": 481937087,
      "sumG": 397721305
     },
-    "file": "data/ita-suomussalmi/forest.png?v=f30aabb3721d"
+    "file": "data/ita-suomussalmi/forest.png?v=03e4c9eb4284"
    },
    "protectedCount": 37,
    "built": "2026-10-20T14:05:43Z",
-   "version": "f30aabb3721d",
-   "bytes": 27912912,
-   "boundary": "data/ita-suomussalmi/boundary.geojson?v=f30aabb3721d",
-   "protected": "data/ita-suomussalmi/protected.geojson?v=f30aabb3721d",
-   "habitat": "data/ita-suomussalmi/habitat.png?v=f30aabb3721d",
+   "version": "03e4c9eb4284",
+   "bytes": 27919145,
+   "boundary": "data/ita-suomussalmi/boundary.geojson?v=03e4c9eb4284",
+   "protected": "data/ita-suomussalmi/protected.geojson?v=03e4c9eb4284",
+   "habitat": "data/ita-suomussalmi/habitat.png?v=03e4c9eb4284",
    "habitatHa": {
     "metso": [
      29548,
@@ -63,14 +63,15 @@
      188
     ]
    },
-   "cuts": "data/ita-suomussalmi/cuts.geojson?v=f30aabb3721d",
+   "cuts": "data/ita-suomussalmi/cuts.geojson?v=03e4c9eb4284",
    "cutsCount": 283,
-   "declCount": 2068,
+   "declCount": 2072,
    "chmYears": [
     2024
    ],
    "srcHash": "9e01745faf47",
-   "source": "areas/Itä-suomussalmi.json"
+   "source": "areas/Itä-suomussalmi.json",
+   "cutsUpdated": "2026-10-21T19:00:26Z"
   },
   {
    "id": "jahti",
@@ -168,15 +169,15 @@
      "sumR": 2282561,
      "sumG": 2781500
     },
-    "file": "data/jamijarvi/forest.png?v=5e7eca3cad08"
+    "file": "data/jamijarvi/forest.png?v=e85af2bb6973"
    },
    "protectedCount": 0,
    "built": "2026-10-18T18:22:45Z",
-   "version": "5e7eca3cad08",
-   "bytes": 157515,
-   "boundary": "data/jamijarvi/boundary.geojson?v=5e7eca3cad08",
-   "protected": "data/jamijarvi/protected.geojson?v=5e7eca3cad08",
-   "habitat": "data/jamijarvi/habitat.png?v=5e7eca3cad08",
+   "version": "e85af2bb6973",
+   "bytes": 159359,
+   "boundary": "data/jamijarvi/boundary.geojson?v=e85af2bb6973",
+   "protected": "data/jamijarvi/protected.geojson?v=e85af2bb6973",
+   "habitat": "data/jamijarvi/habitat.png?v=e85af2bb6973",
    "habitatHa": {
     "metso": [
      303,
@@ -191,14 +192,15 @@
      3
     ]
    },
-   "cuts": "data/jamijarvi/cuts.geojson?v=5e7eca3cad08",
+   "cuts": "data/jamijarvi/cuts.geojson?v=e85af2bb6973",
    "cutsCount": 4,
-   "declCount": 30,
+   "declCount": 32,
    "chmYears": [
     2024
    ],
    "srcHash": "4ae4cf419757",
-   "source": "areas/jämijärvi.json"
+   "source": "areas/jämijärvi.json",
+   "cutsUpdated": "2026-10-21T19:01:18Z"
   },
   {
    "id": "karsikko",
