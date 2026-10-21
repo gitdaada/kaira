@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-21T19:15:50Z",
+ "generated": "2026-10-21T20:16:51Z",
  "encoding": 1,
  "mvmiYear": 2023,
  "attribution": [
@@ -326,6 +326,70 @@
    ],
    "srcHash": "11411006b71d",
    "source": "areas/korpihovi.json"
+  },
+  {
+   "id": "kuohijarvi",
+   "name": "Kuohijärvi",
+   "areaHa": 2183,
+   "center": [
+    61.236667,
+    24.883333
+   ],
+   "forest": {
+    "width": 433,
+    "height": 486,
+    "res": 33.25,
+    "mercBounds": [
+     2763008.5,
+     8671899.25,
+     2777405.75,
+     8688058.75
+    ],
+    "bounds": [
+     [
+      61.200034,
+      24.820528
+     ],
+     [
+      61.269889,
+      24.94986
+     ]
+    ],
+    "checksum": {
+     "sumR": 932643,
+     "sumG": 1421788
+    },
+    "file": "data/kuohijarvi/forest.png?v=3acc036dec9f"
+   },
+   "protectedCount": 11,
+   "built": "2026-10-21T19:43:41Z",
+   "version": "3acc036dec9f",
+   "bytes": 118363,
+   "boundary": "data/kuohijarvi/boundary.geojson?v=3acc036dec9f",
+   "protected": "data/kuohijarvi/protected.geojson?v=3acc036dec9f",
+   "habitat": "data/kuohijarvi/habitat.png?v=3acc036dec9f",
+   "habitatHa": {
+    "metso": [
+     44,
+     7
+    ],
+    "teeri": [
+     74,
+     22
+    ],
+    "pyy": [
+     56,
+     10
+    ]
+   },
+   "cuts": "data/kuohijarvi/cuts.geojson?v=3acc036dec9f",
+   "cutsCount": 3,
+   "declCount": 16,
+   "chmYears": [
+    2025
+   ],
+   "srcHash": "521173d50014",
+   "source": "areas/metsastys/kuohijarvi.geojson"
   },
   {
    "id": "lansi-suomussalmi",
