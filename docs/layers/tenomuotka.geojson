@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"nimi":"Tenomuotka","tyyppi":"alue"},"geometry":{"type":"Polygon","coordinates":[[[21.95,69.08],[21.98,69.06],[21.99,69.07],[21.97,69.08],[21.95,69.08]]]}}],"properties":{"alue_hash":"398343a88582","kosket_haettu":true,"lahde":"Kosket ja suvannot © OpenStreetMapin tekijät, ODbL"}}

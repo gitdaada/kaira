@@ -1,3 +1,10 @@
 {
- "tasot": []
+ "tasot": [
+  {
+   "id": "tenomuotka",
+   "nimi": "Tenomuotka",
+   "tiedosto": "tenomuotka.geojson",
+   "piirretty": true
+  }
+ ]
 }

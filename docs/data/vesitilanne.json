@@ -1,13 +1,42 @@
 {
- "paivitetty": "2026-10-21T19:31:49Z",
- "joet": [],
- "geometriat": [],
+ "paivitetty": "2026-10-21T19:36:49Z",
+ "joet": [
+  {
+   "id": "tenomuotka-poroeno",
+   "nimi": "Poroeno",
+   "alue": "tenomuotka",
+   "luokka": "normaali",
+   "menetelma": "sade",
+   "sade14": {
+    "mm": 8.7,
+    "asema": "Enontekiö Kilpisjärvi kyläkeskus",
+    "etaisyys_km": 41.8,
+    "p25": 4.9,
+    "p75": 23.8,
+    "vuodet": 15,
+    "jakso": [
+     "2026-10-07",
+     "2026-10-20"
+    ],
+    "luokka": "normaali"
+   }
+  }
+ ],
+ "geometriat": [
+  "layers/tenomuotka-joet.geojson"
+ ],
  "lahteet": [
   "Syke, Hydrologiarajapinta (CC BY 4.0)",
   "Ilmatieteen laitos, avoin data (CC BY 4.0)",
   "Uomat © OpenStreetMapin tekijät (ODbL)"
  ],
  "loki": [
+  "tenomuotka: aluetaso kirjoitettu (0 koskea, 0 suvantoa)",
+  "tenomuotka: 1 uomaa haettu",
+  "tenomuotka: 0 Syken asemaa rajauksella",
+  "tenomuotka-poroeno: asemaehdokkaat ei yhtään",
+  "tenomuotka-poroeno: sadeasema Enontekiö Kilpisjärvi kyläkeskus (42 km), 14 vrk 8.7 mm",
+  "tenomuotka-poroeno: normaali (sade)",
   "Jäänpaksuus: 0 asemaa, joilla mittaus 30 vrk sisällä"
  ]
 }
