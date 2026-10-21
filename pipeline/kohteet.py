@@ -42,7 +42,7 @@ NIMI_TUPA = re.compile(r"autiotupa|autiokammi|autiotuvat", re.I)
 LINKIT = ("luontoon.fi", "metsa.fi", "retkikartta.fi")
 
 
-def get(url, data=None, timeout=200, tries=2):
+def get(url, data=None, timeout=330, tries=2):  # yli Overpassin oman aikarajan (280 s)
     last = None
     for i in range(tries):
         try:
@@ -67,7 +67,9 @@ def gh(level, msg):
 def overpass(iso):
     q = ('[out:json][timeout:280];area["ISO3166-2"="%s"]->.a;('
          'nwr["tourism"="wilderness_hut"](area.a);'
-         'nwr["name"~"autiotupa|autiokammi",i](area.a);'
+         # Nimihaku vain rakennuksista ja palvelukohteista: koko maakunnan kaikkien nimien läpikäynti on raskas.
+         'nwr["building"]["name"~"autiotupa|autiokammi",i](area.a);'
+         'nwr["amenity"]["name"~"autiotupa|autiokammi",i](area.a);'
          'nwr["amenity"="shelter"]["shelter_type"~"^(lean_to|basic_hut)$"](area.a);'
          'nwr["tourism"="lean_to"](area.a);'
          'nwr["amenity"="shelter"]["name"~"laavu|kota",i](area.a);'
