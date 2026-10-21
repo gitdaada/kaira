@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Kaira">
+  <rect width="512" height="512" rx="116" fill="#1A2F25"/>
+  <g transform="translate(16 0)">
+    <!-- Kompassineula: K-kirjaimen pystyviiva, kärki ylös Kaira-oranssina -->
+    <path d="M196 84 L234 256 L158 256 Z" fill="#FF6B35"/>
+    <path d="M196 84 L234 256 L196 256 Z" fill="#E4572A"/>
+    <path d="M158 256 L234 256 L196 428 Z" fill="#F4F6F4"/>
+    <path d="M196 256 L234 256 L196 428 Z" fill="#D5DAD5"/>
+    <circle cx="196" cy="256" r="15" fill="#1A2F25"/>
+    <!-- K-kirjaimen haarat: tunturin profiili -->
+    <path d="M248 256 L354 96 L426 96 L320 256 L426 428 L354 428 Z" fill="#F4F6F4"/>
+  </g>
+</svg>

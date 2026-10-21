@@ -1,0 +1,70 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "nimi": "Poroeno – testialue",
+    "tyyppi": "alue",
+    "kuvaus": "Testialue Poroenon uoman ympärillä Porojärveltä Lätäsenoon, Käsivarren erämaa-alue. Uoma OpenStreetMapista näkyy, kun vesitilannetaso on päällä."
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       21.53,
+       69.165
+      ],
+      [
+       22.1,
+       69.165
+      ],
+      [
+       22.1,
+       68.97
+      ],
+      [
+       21.53,
+       68.97
+      ],
+      [
+       21.53,
+       69.165
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nimi": "Poroenon alkupää, Porojärven vuokratupa",
+    "tyyppi": "tupa",
+    "kuvaus": "Poroeno lähtee Porojärven kaakkoisrannalta. Vuokratupa, Metsähallitus."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     21.585682,
+     69.146512
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nimi": "Porojärven autiotupa",
+    "tyyppi": "tupa",
+    "kuvaus": "Avoin autiotupa Porojärven itäpään etelärannalla, Metsähallitus."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     21.561853,
+     69.148952
+    ]
+   }
+  }
+ ]
+}

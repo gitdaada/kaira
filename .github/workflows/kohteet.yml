@@ -1,0 +1,38 @@
+# Eränkäynti: päivittää koko Suomen autiotuvat, kammit, päivätuvat, kodat, laavut ja tulipaikat
+# (docs/data/kohteet/) OpenStreetMapista kerran kuukaudessa. Vain julkinen Overpass-rajapinta, ei avaimia.
+name: Kohteet
+on:
+  schedule:
+    - cron: "41 3 2 * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "pipeline/kohteet.py"
+      - ".github/workflows/kohteet.yml"
+permissions:
+  contents: write
+concurrency:
+  group: kaira-data
+  cancel-in-progress: false
+jobs:
+  paivita:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+      - name: Hae kohteet
+        run: python3 pipeline/kohteet.py
+      - name: Tallenna muutokset
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/kohteet/*.geojson
+          git commit -m "Kohteet päivitetty" || exit 0
+          for i in 1 2 3; do
+            git pull --rebase -X theirs -q origin main && git push && exit 0
+            sleep 10
+          done
+          exit 1

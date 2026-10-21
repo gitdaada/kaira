@@ -1,0 +1,95 @@
+# Metsästys: rakentaa lupa-alueiden metsäkartat (docs/data/<alue>/) areas/metsastys/-kansion rajauksista.
+# Viikoittain päivittyvät uudet hakkuut. Vain julkisia rajapintoja, ei salaisuuksia eikä avaimia.
+name: Rakenna metsäkartat
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "areas/metsastys/**"
+      - "pipeline/build.py"
+      - "pipeline/cuts.py"
+      - "pipeline/habitat.py"
+      - "pipeline/config.json"
+      - "pipeline/requirements.txt"
+      - ".github/workflows/build-maps.yml"
+  # Maanantaisin klo 6.17 Suomen kesäaikaa: uudet hakkuuilmoitukset ja latvusmallit
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Rakenna kaikki alueet uudelleen"
+        type: boolean
+        default: false
+
+# Vain tämä oikeus: tulosten tallentaminen repoon.
+permissions:
+  contents: write
+
+# Kaikki datan päivitykset jonoon, etteivät ne kilpaile samasta haarasta.
+concurrency:
+  group: kaira-data
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Hae koodi
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - name: Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+
+      - name: Asenna kirjastot
+        # Vain valmiit paketit (wheel): asennus ei aja pakettien omaa asennuskoodia.
+        run: |
+          pip install --only-binary=:all: -r pipeline/requirements.txt
+
+      - name: Lähdeaineistojen välimuisti
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cache
+          key: lahdedata-${{ hashFiles('pipeline/config.json') }}-${{ github.run_id }}
+          restore-keys: |
+            lahdedata-${{ hashFiles('pipeline/config.json') }}-
+
+      - name: Rakenna kartat
+        id: build
+        continue-on-error: true
+        env:
+          FORCE: ${{ inputs.force && '--force' || '' }}
+        run: python pipeline/build.py $FORCE
+
+      - name: Tallenna tulokset repoon
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Vain metsäkartat: muu data (kohteet, vesitilanne, perhot) päivittyy omissa ajoissaan.
+          git add -A -- docs/data ':!docs/data/kohteet' ':!docs/data/vesitilanne.json' ':!docs/data/perhot.json'
+          if git diff --cached --quiet; then
+            echo "Ei muutoksia karttoihin."
+            exit 0
+          fi
+          git commit -m "Päivitä metsäkartat"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin main && git push && exit 0
+            echo "Push epäonnistui, yritetään uudelleen ($i/3)"
+            sleep 10
+          done
+          exit 1
+
+      - name: Ilmoita virheestä
+        if: steps.build.outcome == 'failure'
+        run: |
+          echo "::error::Osa alueista epäonnistui. Katso Rakenna kartat -vaiheen loki."
+          exit 1

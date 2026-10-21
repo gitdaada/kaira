@@ -1,0 +1,136 @@
+{
+  "mvmi": {
+    "year": 2023,
+    "baseUrls": [
+      "https://www.nic.funet.fi/index/geodata/luke/vmi/2023",
+      "https://mirrors.nic.funet.fi/index/geodata/luke/vmi/2023"
+    ],
+    "ageFile": "ika_vmi1x_1923.tif",
+    "heightFile": "keskipituus_vmi1x_1923.tif",
+    "noDataCodes": [
+      32766,
+      32767
+    ],
+    "pixelSizeM": 16,
+    "smoothWindow": 3
+  },
+  "protected": {
+    "sources": [
+      {
+        "label": "Valtion luonnonsuojelualue",
+        "url": "https://wwwd3.ymparisto.fi/d3/gis_data/spesific/luonnonsuojelualueet_valtio.zip"
+      },
+      {
+        "label": "Yksityinen luonnonsuojelualue",
+        "url": "https://wwwd3.ymparisto.fi/d3/gis_data/spesific/luonnonsuojelualueet_yksityinen.zip"
+      }
+    ],
+    "skipFilesContaining": [
+      "eramaa",
+      "erämaa"
+    ],
+    "skipTypesContaining": [
+      "erämaa"
+    ],
+    "bufferM": 500,
+    "simplifyM": 1.0
+  },
+  "cuts": {
+    "enabled": true,
+    "minAreaHa": 0.3,
+    "chm": {
+      "urlTemplate": "https://avoin.metsakeskus.fi/aineistot/Latvusmalli/Karttalehti/{year}/CHM_{sheet}_{year}.tif",
+      "lowM": 3.0,
+      "minMvmiM": 8.0,
+      "minValid": 0.6,
+      "smoothM": 6
+    },
+    "declarations": {
+      "wfs": "https://avoin.metsakeskus.fi/rajapinnat/v1/forestusedeclaration/ows",
+      "typeName": "v1:forestusedeclaration",
+      "practices": [
+        1,
+        4,
+        5,
+        8,
+        9,
+        17
+      ],
+      "purposes": [
+        5,
+        6
+      ],
+      "skipStates": [
+        "32",
+        "33",
+        "34"
+      ],
+      "validYears": 3,
+      "minForestM": 5.0,
+      "minForestFrac": 0.5,
+      "confirmFrac": 0.4,
+      "pageSize": 5000
+    }
+  },
+  "habitat": {
+    "enabled": true,
+    "files": {
+      "pine": "manty_vmi1x_1923.tif",
+      "spruce": "kuusi_vmi1x_1923.tif",
+      "birch": "koivu_vmi1x_1923.tif",
+      "otherbl": "muulp_vmi1x_1923.tif",
+      "volume": "tilavuus_vmi1x_1923.tif",
+      "canopy": "latvuspeitto_vmi1x_1923.tif",
+      "canopyBl": "lehtip_latvuspeitto_vmi1x_1923.tif",
+      "site": "kasvupaikka_vmi1x_1923.tif",
+      "soil": "paatyyppi_vmi1x_1923.tif"
+    },
+    "metsoSite": {
+      "1": 0.4,
+      "2": 0.6,
+      "3": 0.9,
+      "4": 1.0,
+      "5": 0.9,
+      "6": 0.6
+    },
+    "metsoSoil": {
+      "1": 1.0,
+      "2": 0.6,
+      "3": 1.0,
+      "4": 0.0
+    },
+    "pyySite": {
+      "1": 1.0,
+      "2": 1.0,
+      "3": 0.9,
+      "4": 0.55,
+      "5": 0.3
+    },
+    "pyySoil": {
+      "1": 1.0,
+      "2": 1.0,
+      "3": 0.4,
+      "4": 0.0
+    },
+    "openBogCode": 4,
+    "edgeCells": 4,
+    "metsoHeight": [
+      12,
+      18
+    ],
+    "metsoAge": [
+      45,
+      85
+    ],
+    "metsoMinHeight": 10,
+    "metsoConifer": [
+      0.6,
+      0.85
+    ],
+    "metsoPine": [
+      0.3,
+      0.7
+    ],
+    "metsoPineWeight": 0.55
+  }
+}

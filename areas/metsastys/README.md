@@ -1,0 +1,21 @@
+# Lupa-alueiden rajaukset
+
+Jokainen Metsähallituksen lupa-alue on tässä kansiossa (`areas/metsastys/`) yksi GeoJSON-tiedosto. Kun lisäät tai muutat tiedoston, GitHub rakentaa kartan automaattisesti (noin 5–15 min), ja alue näkyy sovelluksessa.
+
+## Uuden alueen lisääminen
+
+1. Avaa alueen **PDF-kartta** eräluvat.fi:stä (alueen sivu → *Kartat ja esitteet*).
+2. Avaa [geojson.io](https://geojson.io) (tietokone tai tabletti). Vaihda pohjakartta yläpalkin oikeasta reunasta kerroskuvakkeesta (Export-painikkeen ja i-kuvakkeen välissä), esim. satelliittikuvaksi.
+3. Etsi alue hakukentällä ja piirrä raja **monikulmiotyökalulla** (viisikulmiokuvake yläpalkin vasemmassa reunassa) PDF-kartan mukaan. Lopeta napauttamalla ensimmäistä pistettä.
+   - Jos alue on useammassa osassa, piirrä jokainen osa omaksi monikulmiokseen samaan tiedostoon.
+   - Jos alueen sisällä on yksityinen palsta, piirrä se omaksi monikulmiokseen ja lisää sille ominaisuus `poista` arvolla `true`. Se leikataan alueesta pois.
+4. (Valinnainen) Klikkaa monikulmiota ja lisää ominaisuus `nimi`, esim. `6671 Evo`. Muuten nimi tehdään tiedostonimestä.
+5. Tallenna: **Export → GeoJSON**. Nimeä tiedosto alueen numerolla ja nimellä, esim. `6671-evo.geojson`.
+6. GitHubissa: avaa `areas/metsastys`-kansio → **Add file → Upload files** → valitse tiedosto → **Commit changes**.
+7. Seuraa etenemistä **Actions**-välilehdeltä. Kun ajo on vihreä, avaa Kairan Metsästys-osio → Lupa-alue ja tallenna alue offline-käyttöön.
+
+## Muuta
+
+- Alueen poistaminen: poista tiedosto, niin myös kartta poistuu.
+- Rajojen tarkistus: Metsähallitus päivittää lupa-alueiden rajoja vuosittain. Tarkista rajat kauden alussa.
+- Käsin piirretty raja on suuntaa-antava. Virallinen raja on eräluvat.fi:n kartassa.
