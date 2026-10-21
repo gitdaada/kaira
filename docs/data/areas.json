@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-21T19:09:04Z",
+ "generated": "2026-10-21T19:15:50Z",
  "encoding": 1,
  "mvmiYear": 2023,
  "attribution": [
@@ -71,7 +71,7 @@
    ],
    "srcHash": "9e01745faf47",
    "source": "areas/Itä-suomussalmi.json",
-   "cutsUpdated": "2026-10-21T19:00:26Z"
+   "cutsUpdated": "2026-10-21T19:05:46Z"
   },
   {
    "id": "jahti",
@@ -200,7 +200,7 @@
    ],
    "srcHash": "4ae4cf419757",
    "source": "areas/jämijärvi.json",
-   "cutsUpdated": "2026-10-21T19:01:18Z"
+   "cutsUpdated": "2026-10-21T19:06:34Z"
   },
   {
    "id": "karsikko",
