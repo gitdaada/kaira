@@ -43,7 +43,7 @@
     oldAge: 80, taimikkoM: 7, treelessM: 0.5, opacity: 0.7, showForest: true, showProtected: true, showMask: true, showCuts: true,
     habitat: 'off', showWind: true, fanLengthM: 200, showScent: true, showObs: true,
     // Kalastus
-    water: true, fishLayers: true, showCatch: true,
+    water: true, fishLayers: true, showCatch: true, showDepth: true, showIce: true,
     // Eränkäynti
     huts: true, dayHuts: true, laavut: true, tulipaikat: true, showRoutes: true
   };
@@ -362,7 +362,7 @@
     var fabs = document.querySelector('.fabs'), lift = 0, stack = 0;
     if (!fabs) return;
     var f = fabs.getBoundingClientRect();
-    ['infoCard', 'rainBar', 'measureBar'].forEach(function (id) {
+    ['infoCard', 'rainBar', 'measureBar', 'drawBar'].forEach(function (id) {
       var el = $(id);
       if (!el || el.hidden) return;
       var b = el.getBoundingClientRect();

@@ -8,6 +8,8 @@ sekä uudelleenkäynnistyksen ilman verkkoa.
 """
 import io
 import json
+import shutil
+import tempfile
 import sys
 import threading
 import time
@@ -95,14 +97,48 @@ GPX = """<?xml version="1.0" encoding="UTF-8"?>
 </gpx>"""
 
 
+def square(lat, lon, d):
+    return [[lon - d, lat - d], [lon + d, lat - d], [lon + d, lat + d], [lon - d, lat + d], [lon - d, lat - d]]
+
+
+def fixtures():
+    """Testidata kalastuksen jää- ja syvyysnäkymille (korvaa sovelluksen omat tiedostot vain testissä)."""
+    idx = json.loads((SITE / "layers" / "index.json").read_text(encoding="utf-8"))
+    idx["tasot"].append({"id": "testijarvi", "nimi": "Testijärvi", "tiedosto": "testijarvi.geojson", "piirretty": True,
+                         "syvyys": "testijarvi-syvyys.geojson"})
+    now = datetime.now(timezone.utc)
+    return {
+        "layers/index.json": idx,
+        "layers/testijarvi.geojson": {"type": "FeatureCollection", "features": [{"type": "Feature",
+            "properties": {"nimi": "Testijärvi", "tyyppi": "alue"}, "geometry": {"type": "Polygon", "coordinates": [square(62.0, 25.0, 0.05)]}}]},
+        "layers/testijarvi-syvyys.geojson": {"type": "FeatureCollection", "properties": {"jarvia": 1, "jarvet": ["Testijärvi"]}, "features": [
+            {"type": "Feature", "properties": {"tyyppi": "syvyysalue", "jarvi": "Testijärvi", "vali": "3-6", "min_m": 3, "max_m": 6},
+             "geometry": {"type": "MultiPolygon", "coordinates": [[square(62.0, 25.0, 0.01)]]}},
+            {"type": "Feature", "properties": {"tyyppi": "syvyyskayra", "m": 3},
+             "geometry": {"type": "LineString", "coordinates": square(62.0, 25.0, 0.01)}}]},
+        "data/jaa.json": {"paivitetty": now.isoformat(), "jakso_vrk": 30, "asemat": [
+            {"nimi": "Lähiasema", "jarvi": "Lähijärvi", "lat": 63.49, "lon": 25.95, "cm": 34, "aika": (now - timedelta(days=2)).date().isoformat()},
+            {"nimi": "Alueasema", "jarvi": "Testijärvi", "lat": 62.02, "lon": 25.01, "cm": 41, "aika": (now - timedelta(days=12)).date().isoformat()},
+            {"nimi": "Kaukoasema", "jarvi": "Kaukojärvi", "lat": 61.0, "lon": 24.0, "cm": 50, "aika": now.date().isoformat()}]},
+    }
+
+
 def check(cond, msg):
     if not cond:
         raise AssertionError(msg)
     print("ok -", msg)
 
 
+
+
 def main():
-    app_srv = serve(partial(Quiet, directory=str(SITE)), APP_PORT)
+    # Sovellus ajetaan kopiosta, johon lisätään kalastuksen testidata (palvelutyöntekijän hakuja ei voi siepata).
+    tmp = tempfile.TemporaryDirectory()
+    site = Path(tmp.name) / "site"
+    shutil.copytree(SITE, site)
+    for rel, data in fixtures().items():
+        (site / rel).write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    app_srv = serve(partial(Quiet, directory=str(site)), APP_PORT)
     tile_srv = serve(TileHandler, TILE_PORT)
     errors = []
     gpx_path = SHOTS / "testi.gpx"
@@ -210,6 +246,60 @@ def main():
         check(pg.evaluate("K.fish.catches().length") == 1 and pg.evaluate("K.fish.catches()[0].cm") == 38.5, "saalis tallentui pituuden kanssa")
         pg.wait_for_function("K.fish.S.water && K.fish.S.water.geo", timeout=10000)
         check(True, "vesitilanne latautui")
+        # Jäänpaksuus: vain 5 km säteellä sijainnista tai kalastusalueella olevat asemat
+        pg.wait_for_function("K.fish.S.ice && K.fish.S.layers.testijarvi", timeout=10000)
+        names = pg.evaluate("K.fish.iceStations().map(function (x) { return x.a.nimi; })")
+        check(names == ["Lähiasema", "Alueasema"], "jäänpaksuus: lähiasema ja kalastusalueen asema, ei kaukaista (%s)" % names)
+        check(pg.locator(".obs-jaa").count() == 2, "jäämerkit kartalla")
+        pg.locator("#navMenu").click()
+        pg.locator(".menu-item", has_text="Jäänpaksuus").click()
+        body = pg.locator("#sheetBody").inner_text()
+        check("34 cm" in body and "41 cm" in body and "tuuralla" in body and "sinusta" in body and "Kaukojärvi" not in body,
+              "jäänpaksuuslista: arvo, etäisyys ja varoitus")
+        pg.screenshot(path=str(SHOTS / "04b-jaa.png"))
+        pg.locator("#sheetClose").click()
+        # Syvyysalue: napautus järven kohdalla kalastusalueen sisällä
+        pg.wait_for_function("K.fish.S.layers.testijarvi.depth", timeout=10000)
+        pg.evaluate("K.map.setView([62.0, 25.0], 13, {animate:false})")
+        pg.wait_for_timeout(400)
+        check(pg.evaluate("!!K.fish.depthAt(L.latLng(62.0, 25.0)) && !K.fish.depthAt(L.latLng(62.03, 25.0))"), "syvyysalueen pistehaku")
+        pg.mouse.click(195, 422)
+        pg.wait_for_selector("#infoCard:not([hidden])")
+        txt = pg.locator("#infoCard").inner_text()
+        check("Syvyys 3–6 m" in txt and "Testijärvi" in txt, "napautus järvellä näyttää syvyyden: " + txt.split("\n")[0])
+        pg.screenshot(path=str(SHOTS / "04c-syvyys.png"))
+        pg.locator("#infoCard .info-close").click()
+        # Alueen piirto: kulmapisteet, tallennus omaksi tasoksi ja analyysilinkki
+        pg.locator("#navTools").click()
+        pg.locator(".menu-item", has_text="Piirrä alue").click()
+        check(pg.locator("#drawBar").is_visible() and pg.locator("#drawDone").is_disabled(), "piirtopalkki näkyy")
+        for x, y in ((110, 330), (290, 340), (280, 520), (120, 500)):
+            pg.mouse.click(x, y)
+        dt = pg.locator("#drawText").inner_text()
+        check("4 pistettä" in dt and (" ha" in dt or "km²" in dt), "piirto näyttää pisteet ja pinta-alan: " + dt)
+        check(pg.locator("#infoCard").is_hidden(), "piirron napautus ei avaa tietokorttia")
+        pg.locator("#drawMode").click()
+        pg.mouse.move(150, 410); pg.mouse.down(); pg.mouse.move(200, 440, steps=8); pg.mouse.move(250, 410, steps=8); pg.mouse.up()
+        n = pg.evaluate("parseInt(document.getElementById('drawText').textContent, 10)")
+        # Vedon pisteet osuvat sormen kohdalle (kääntyvän kartan säiliö on näyttöä suurempi).
+        far = pg.evaluate("""(function () { var last = null; K.map.eachLayer(function (l) { if (l instanceof L.Polygon && l.options.pane === 'targetPane') last = l; });
+          var ll = last.getLatLngs()[0], p = ll[ll.length - 1], q = K.rot ? K.rot.latLngToScreen(p) : K.map.latLngToContainerPoint(p);
+          return Math.hypot(q.x - 250, q.y - 410); })()""")
+        check(far < 12, "sormen vedon viimeinen piste osuu sormen kohdalle (%.1f px)" % far)
+        check(n > 6, "sormella piirto lisää pisteitä (%d, palkin yläreuna %s)" % (n, pg.evaluate("Math.round(document.getElementById('drawBar').getBoundingClientRect().top)")))
+        pg.screenshot(path=str(SHOTS / "04d-piirto.png"))
+        pg.locator("#drawDone").click()
+        pg.wait_for_selector("#sheet:not([hidden]) input[aria-label='Alueen nimi']")
+        pg.locator("input[aria-label='Alueen nimi']").fill("Testi <b>joki</b>")
+        pg.locator("#sheetBody .btn-primary", has_text="Tallenna tasoksi").click()
+        saved = pg.evaluate("(JSON.parse(localStorage.getItem('kaira.imported')) || []).filter(function (x) { return /^piirretty-/.test(x.id); })")
+        check(len(saved) == 1 and saved[0]["nimi"] == "Testi <b>joki</b>", "piirretty alue tallentui omaksi tasoksi")
+        pg.evaluate("window.open = function (u) { window.__opened = u; return null; }")
+        pg.locator("#sheetBody .btn-primary", has_text="Lähetä analysoitavaksi").click()
+        url = pg.evaluate("window.__opened")
+        check(url.startswith("https://github.com/gitdaada/kaira/new/main/areas/kalastus?filename=testi-b-joki-b.geojson&value=") and len(url) < 7000,
+              "analyysilinkki avaa GitHubin kalastusalueen tiedoston")
+        pg.locator("#sheetClose").click()
 
         # --- Eränkäynti ---
         pg.evaluate("K.setSection('erankaynti')")
@@ -314,6 +404,7 @@ def main():
         ctx2.close()
         b.close()
     app_srv.shutdown(); tile_srv.shutdown()
+    tmp.cleanup()
     print("SELAINTESTI LÄPI")
 
 

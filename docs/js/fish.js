@@ -185,7 +185,8 @@
       return Promise.all(tasot.map(function (t) {
         return K.fetchJSON('layers/' + t.tiedosto).then(function (gj) {
           var clean = JG.cleanGeoJSON(gj);
-          S.layers[t.id] = { id: t.id, name: String(t.nimi || t.id).slice(0, 60), gj: clean, layer: K.geoLayer(clean) };
+          S.layers[t.id] = { id: t.id, name: String(t.nimi || t.id).slice(0, 60), gj: clean, layer: K.geoLayer(clean),
+            depthFile: typeof t.syvyys === 'string' && /^[a-z0-9_-]+\.geojson$/i.test(t.syvyys) ? t.syvyys : null };
         }).catch(function () { /* taso puuttuu */ });
       })).then(showFishLayers);
     }).catch(function () { S.layerIndex = null; });
@@ -195,8 +196,172 @@
       var e = S.layers[id], on = active() && settings.fishLayers && !settings.hidden['kal-' + id];
       if (on && !map.hasLayer(e.layer)) e.layer.addTo(map);
       if (!on && map.hasLayer(e.layer)) map.removeLayer(e.layer);
+      showDepth(e, on && settings.showDepth);
+    });
+    renderIce();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Syvyysalueet: vain Syken mittaamat järvet piirretyillä kalastusalueilla (layers/<alue>-syvyys.geojson)
+  // ---------------------------------------------------------------------------
+
+  var DEPTH = [[0, '#cfeaf7'], [3, '#9fd2ee'], [6, '#69b3e0'], [10, '#3b8cc9'], [20, '#1f62a6'], [40, '#123f78']];
+  function depthColor(min) { var c = DEPTH[0][1]; DEPTH.forEach(function (d) { if (min !== null && min >= d[0]) c = d[1]; }); return c; }
+  function depthLabel(p) { return p.max_m !== null && p.max_m !== undefined ? K.fmt1(p.min_m) + '–' + K.fmt1(p.max_m) + ' m' : 'yli ' + K.fmt1(p.min_m) + ' m'; }
+  function showDepth(e, on) {
+    if (!e.depthFile) return;
+    if (!on) { if (e.depth && map.hasLayer(e.depth.layer)) map.removeLayer(e.depth.layer); return; }
+    if (e.depth) { if (!map.hasLayer(e.depth.layer)) e.depth.layer.addTo(map); return; }
+    if (e.depthLoading) return;
+    e.depthLoading = true;
+    K.fetchJSON('layers/' + e.depthFile).then(function (gj) {
+      var feats = ((gj && gj.features) || []).filter(function (f) {
+        return f && f.geometry && f.properties && /^(Multi)?(Polygon|LineString)$/.test(f.geometry.type);
+      }).map(function (f) {
+        var p = f.properties, n = function (v) { v = Number(v); return v === null || !isFinite(v) ? null : v; };
+        return { type: 'Feature', geometry: f.geometry, properties: p.tyyppi === 'syvyyskayra'
+          ? { tyyppi: 'syvyyskayra', m: n(p.m) }
+          : { tyyppi: 'syvyysalue', jarvi: String(p.jarvi || '').slice(0, 60), min_m: n(p.min_m), max_m: p.max_m === null ? null : n(p.max_m) } };
+      });
+      var areas = feats.filter(function (f) { return f.properties.tyyppi === 'syvyysalue'; });
+      var layer = L.geoJSON({ type: 'FeatureCollection', features: feats }, {
+        pane: 'habitatPane', interactive: false,
+        style: function (f) {
+          return f.properties.tyyppi === 'syvyyskayra' ? { color: '#0b2f55', weight: 1, opacity: 0.55, fill: false }
+            : { stroke: false, fillColor: depthColor(f.properties.min_m), fillOpacity: 0.6 };
+        }
+      });
+      // Pistehaku napautukselle: rajaus ensin, sitten pisteen sijainti monikulmiossa.
+      areas.forEach(function (f) { f._b = JG.bboxOf({ features: [f] }); });
+      e.depth = { layer: layer, areas: areas, lakes: (gj.properties && gj.properties.jarvet || []).slice(0, 200) };
+      e.depthLoading = false;
+      showFishLayers();
+    }).catch(function () { e.depthLoading = false; });
+  }
+  function inRing(x, y, r) {
+    var c = false;
+    for (var i = 0, j = r.length - 1; i < r.length; j = i++) {
+      if ((r[i][1] > y) !== (r[j][1] > y) && x < (r[j][0] - r[i][0]) * (y - r[i][1]) / ((r[j][1] - r[i][1]) || 1e-12) + r[i][0]) c = !c;
+    }
+    return c;
+  }
+  function inPolygon(x, y, g) {
+    var polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
+    return polys.some(function (poly) { return inRing(x, y, poly[0]) && !poly.slice(1).some(function (hole) { return inRing(x, y, hole); }); });
+  }
+  function depthAt(ll) {
+    var x = ll.lng, y = ll.lat, hit = null;
+    Object.keys(S.layers).forEach(function (id) {
+      var d = S.layers[id].depth;
+      if (hit || !d || !map.hasLayer(d.layer)) return;
+      for (var i = 0; i < d.areas.length && !hit; i++) {
+        var f = d.areas[i], b = f._b;
+        if (b && x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3] && inPolygon(x, y, f.geometry)) hit = f;
+      }
+    });
+    return hit;
+  }
+  function depthInfo(ll) {
+    if (!active() || !settings.showDepth) return false;
+    var f = depthAt(ll);
+    if (!f) return false;
+    K.tapInfo(ll, { title: f.properties.jarvi || 'Järvi', detail: 'Syvyys ' + depthLabel(f.properties), swatch: depthColor(f.properties.min_m),
+      extras: [h('div', { class: 'small muted', text: 'Syken syvyysmittaus. Käytä suuntaa antavana: mittaukset voivat olla vuosikymmenten takaa.' })],
+      targetName: f.properties.jarvi || 'Järvi' });
+    return true;
+  }
+  K.onPointInfo(depthInfo);
+  K.onMapClick(function (ll) { return !K.measuring && !K.drawing && depthInfo(ll); }, 20);
+  function depthLegend() {
+    var box = h('div', { class: 'water-legend' });
+    [['0–3 m', 0], ['3–6 m', 3], ['6–10 m', 6], ['10–20 m', 10], ['20–40 m', 20], ['yli 40 m', 40]].forEach(function (d) {
+      box.appendChild(h('span', { class: 'li' }, h('span', { class: 'sw sw-water', style: { background: depthColor(d[1]) } }), d[0]));
+    });
+    return box;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Jäänpaksuus: Syken mittaukset (data/jaa.json) kalastusalueilla ja 5 km säteellä sijainnista
+  // ---------------------------------------------------------------------------
+
+  var ICE_NEAR_M = 5000, ICE_OLD_D = 7;
+  var iceLayer = L.layerGroup();
+  function loadIce() {
+    if (S.ice || S.iceLoading) return Promise.resolve(S.ice);
+    S.iceLoading = true;
+    return K.fetchJSON('data/jaa.json', { cache: 'no-cache' }).then(function (j) {
+      S.ice = {
+        paivitetty: j.paivitetty, jakso: Number(j.jakso_vrk) || 30,
+        asemat: (j.asemat || []).filter(function (a) {
+          return a && isFinite(a.lat) && isFinite(a.lon) && Math.abs(a.lat) <= 90 && Math.abs(a.lon) <= 180 && isFinite(a.cm) && a.cm >= 0 && a.cm < 300 && isFinite(Date.parse(a.aika));
+        }).map(function (a) {
+          return { nimi: String(a.nimi || '').slice(0, 60), jarvi: String(a.jarvi || '').slice(0, 80), lat: +a.lat, lon: +a.lon, cm: Math.round(a.cm), aika: a.aika };
+        })
+      };
+      S.iceLoading = false;
+      renderIce();
+      return S.ice;
+    }).catch(function () { S.iceLoading = false; return null; });
+  }
+  function inFishArea(lat, lon) {
+    return Object.keys(S.layers).some(function (id) {
+      return (S.layers[id].gj.features || []).some(function (f) {
+        return f.geometry && /Polygon/.test(f.geometry.type) && (f.properties || {}).tyyppi === 'alue' && inPolygon(lon, lat, f.geometry);
+      });
     });
   }
+  /** Asemat kalastusalueilla tai 5 km säteellä sijainnista, lähin ensin. */
+  function iceStations() {
+    if (!S.ice) return [];
+    var w = K.wherePoint();
+    return S.ice.asemat.map(function (a) {
+      var d = JG.distance(w.lat, w.lon, a.lat, a.lon);
+      return { a: a, d: d, near: d <= ICE_NEAR_M, area: inFishArea(a.lat, a.lon), src: w.src };
+    }).filter(function (x) { return x.near || x.area; }).sort(function (x, y) { return x.d - y.d; });
+  }
+  function iceAgeDays(a) { return Math.floor((Date.now() - Date.parse(a.aika)) / 86400000); }
+  function iceTitle(a) { return a.jarvi ? a.jarvi + (a.nimi && a.nimi !== a.jarvi ? ', ' + a.nimi : '') : (a.nimi || 'Mittauspaikka'); }
+  var ICE_WARN = 'Mittaus on yhdestä pisteestä. Jää voi olla paljon ohuempaa virtapaikoissa, salmissa, jokisuilla, kaislikoissa, lähteiden kohdalla ja lumen alla. Tarkista jää itse tuuralla ennen jäälle menoa ja koko matkan ajan.';
+  function iceInfo(x) {
+    var a = x.a, age = iceAgeDays(a);
+    K.tapInfo(L.latLng(a.lat, a.lon), { title: iceTitle(a), detail: 'Jäänpaksuus ' + a.cm + ' cm · mitattu ' + isoDate(a.aika) + (age > ICE_OLD_D ? ' (' + age + ' vrk sitten)' : ''),
+      swatch: '#dff3ff', extras: [h('div', { class: 'small notice notice-warn', text: ICE_WARN })], targetName: iceTitle(a) });
+  }
+  function renderIce() {
+    iceLayer.clearLayers();
+    if (!active() || !settings.showIce || !S.ice) { if (map.hasLayer(iceLayer)) map.removeLayer(iceLayer); return; }
+    if (!map.hasLayer(iceLayer)) iceLayer.addTo(map);
+    iceStations().forEach(function (x) {
+      var m = L.marker([x.a.lat, x.a.lon], { keyboard: false, title: iceTitle(x.a),
+        icon: L.divIcon({ className: '', iconSize: [0, 0], html: h('div', { class: 'obs-pin obs-jaa' + (iceAgeDays(x.a) > ICE_OLD_D ? ' ice-old' : ''), text: String(x.a.cm) }) }) });
+      m.on('click', function (e) { if (K.measuring) { K.measureAdd(e.latlng); return; } if (K.drawing) { K.drawAdd(e.latlng); return; } iceInfo(x); });
+      iceLayer.addLayer(m);
+    });
+  }
+  function renderIceList(body) {
+    if (!S.ice) { body.appendChild(h('p', { class: 'muted', text: 'Ladataan jäätietoja…' })); loadIce().then(function () { if (K.sheetName() === 'ice') K.renderSheet(); }); return; }
+    var list = iceStations(), w = K.wherePoint();
+    body.appendChild(h('div', { class: 'notice notice-warn', text: ICE_WARN }));
+    if (!list.length) {
+      body.appendChild(h('p', { text: S.ice.asemat.length
+        ? 'Kalastusalueilla tai 5 km säteellä ' + (w.src === 'gps' ? 'sijainnistasi' : 'kartan keskipisteestä') + ' ei ole mittauksia viimeisen ' + S.ice.jakso + ' vuorokauden ajalta.'
+        : 'Sykellä ei ole jäänpaksuusmittauksia viimeisen ' + S.ice.jakso + ' vuorokauden ajalta. Mittaukset alkavat, kun järvet ovat jäässä.' }));
+    }
+    list.forEach(function (x) {
+      var age = iceAgeDays(x.a);
+      body.appendChild(h('div', { class: 'ice-row' },
+        h('div', null, h('b', { text: iceTitle(x.a) })),
+        h('div', { class: 'ice-cm' + (age > ICE_OLD_D ? ' ice-old' : ''), text: x.a.cm + ' cm' }),
+        h('div', { class: 'ice-meta', text: 'Mitattu ' + isoDate(x.a.aika) + (age > ICE_OLD_D ? ' (' + age + ' vrk sitten)' : '') + ' · ' +
+          K.fmtDist(x.d) + (x.src === 'gps' ? ' sinusta' : ' kartan keskeltä') + (x.area && !x.near ? ' · kalastusalueella' : '') }),
+        h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn', text: 'Näytä', onclick: function () {
+          K.closeSheet(); map.setView([x.a.lat, x.a.lon], Math.max(map.getZoom(), 13)); iceInfo(x);
+        } }))));
+    });
+    body.appendChild(h('p', { class: 'muted small', text: 'Lähde: Syke, Hydrologiarajapinta (CC BY 4.0). Päivitetty ' + isoDate(S.ice.paivitetty) + '. Mukana mittaukset viimeisen ' + S.ice.jakso + ' vuorokauden ajalta.' }));
+  }
+  function openIce() { K.openSheet('ice', 'Jäänpaksuus', renderIceList); }
+  K.on('pos', function () { if (active() && S.ice && settings.showIce) renderIce(); });
 
   // ---------------------------------------------------------------------------
   // Saaliskirjaus (vain tässä laitteessa)
@@ -357,12 +522,22 @@
         h('button', { type: 'button', class: 'btn', text: 'Näytä', onclick: function () { K.closeSheet(); K.fitBounds(b); } }),
         h('button', { type: 'button', class: 'btn', text: 'Offline', onclick: function () { K.openOfflineFor({ id: 'kalastus-' + id, name: e.name, kind: 'kalastusalue', bounds: b }); } })));
     });
+    var hasDepth = Object.keys(S.layers).some(function (id) { return S.layers[id].depthFile; });
+    body.appendChild(h('h3', { text: 'Syvyys ja jää' }));
+    body.appendChild(K.toggleRow('Järvien syvyysalueet', hasDepth ? 'Vain Syken mittaamat järvet piirretyillä kalastusalueilla' : 'Ei vielä mitattuja järviä kalastusalueilla', settings.showDepth, function (v) {
+      settings.showDepth = v; K.saveSettings(); showFishLayers(); K.renderSheet();
+    }));
+    if (settings.showDepth && hasDepth) body.appendChild(depthLegend());
+    body.appendChild(K.toggleRow('Jäänpaksuusmittaukset', 'Kalastusalueilla ja 5 km säteellä sijainnista (Syke)', settings.showIce, function (v) {
+      settings.showIce = v; K.saveSettings(); if (v) loadIce(); renderIce();
+    }));
     body.appendChild(h('h3', { text: 'Saaliit' }));
     body.appendChild(K.toggleRow('Näytä saaliit kartalla', 'Tallentuvat vain tähän puhelimeen', settings.showCatch, function (v) { settings.showCatch = v; K.saveSettings(); renderCatchMarkers(); }));
   });
   K.on('menu', function (list, sec) {
     if (sec !== SEC) return;
     list.appendChild(K.menuItem('fishPlus', 'Saaliit', catches.length + ' merkintää · CSV-vienti', function () { K.openSheet('catch-list', 'Saaliit', renderCatchList); }));
+    list.appendChild(K.menuItem('drop', 'Jäänpaksuus', 'Syken mittaukset lähelläsi ja kalastusalueilla', openIce));
   });
   K.defineNav(SEC, {
     main: { label: 'Saalis', icon: 'fishPlus', sheet: 'catch-new', fn: function () { draft = null; openCatchForm(); } },
@@ -381,10 +556,12 @@
       store.set('fishSeen', true);
     });
     renderCatchMarkers();
+    if (settings.showIce) loadIce();
     setTimeout(prefetch, 3000);
   }
   function leave() {
     if (map.hasLayer(waterLayer)) map.removeLayer(waterLayer);
+    if (map.hasLayer(iceLayer)) map.removeLayer(iceLayer);
     showFishLayers();
     renderCatchMarkers();
     picking = false;
@@ -392,5 +569,5 @@
   K.on('section', function (sec) { if (sec === SEC) enter(); });
   K.on('leave', function (sec) { if (sec === SEC) leave(); });
 
-  K.fish = { S: S, catches: function () { return catches; } };
+  K.fish = { S: S, catches: function () { return catches; }, iceStations: iceStations, depthAt: depthAt, openIce: openIce };
 })();

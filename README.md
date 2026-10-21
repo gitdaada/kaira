@@ -21,6 +21,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 - Etäisyyden ja suunnan mittaus, etäisyysrenkaat 1, 5 ja 20 km
 - Suunnistus mihin tahansa kohtaan: katkoviiva ja suuntakortti
 - Hätäkoordinaatit (WGS84, asteet ja minuutit, ETRS-TM35FIN)
+- Alueen piirto napauttamalla tai sormella: oma taso, offline-tallennus ja GeoJSON-lataus
 - Omat GeoJSON-tasot, näyttö päällä -tila
 
 **Metsästys** (Metsäkartasta)
@@ -48,7 +49,9 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 - Perhosuositus hyönteisen kehitysvaiheen mukaan (pohjalla, nousussa, pinturi, aikuinen), lohelle veden tilan mukaan
 - Animoidut solmuohjeet, toimivat ilman verkkoa
 - Jokien vesitilanne väreinä (punainen = alhainen, vihreä = normaali, tummansininen = korkea)
-- Kalastusalueiden tasot (testialueet Poroeno ja Hossa)
+- Kalastusalueiden tasot (testialueet Poroeno ja Hossa) ja piirretyt kalastusalueet
+- Jäänpaksuus: Syken mittaukset kalastusalueilla ja 5 km säteellä sijainnista (arvo, mittauspäivä, etäisyys ja varoitus)
+- Järvien syvyysalueet piirretyillä kalastusalueilla, vain Syken mittaamat järvet
 - Saaliskirjaus: laji, pituus, paino, vapautettu, perho tai viehe
 
 **Eränkäynti**
@@ -68,14 +71,15 @@ Julkaisu: Cloudflare Pages julkaisee `docs/`-kansion automaattisesti jokaisesta 
 ## Alueet
 
 - **Metsästys:** lupa-alueiden rajat ovat kansiossa [`areas/metsastys/`](areas/metsastys/README.md). Uusi tiedosto käynnistää metsäkartan rakentamisen GitHub Actionsissa.
-- **Kalastus:** kalastusalueiden tasot ovat kansiossa `docs/layers/` (luettelo `docs/layers/index.json`). Vesitilanteen joet määritellään tiedostossa `pipeline/joet.json`.
+- **Kalastus:** piirretyt kalastusalueet ovat kansiossa `areas/kalastus/`. Uusi tiedosto käynnistää Vesitilanne-ajon, joka hakee alueen nimetyt joet ja purot (OpenStreetMap), niiden vesitilanteen ja mitattujen järvien syvyysalueet. Tulokset tallentuvat kansioon `docs/layers/` (luettelo `docs/layers/index.json`). Testialueiden joet on määritelty tiedostossa `pipeline/joet.json`.
+- **Piirto sovelluksessa:** Työkalut → Piirrä alue → Valmis → Lähetä analysoitavaksi. GitHub avautuu valmiiksi täytettynä, ja repon omistaja tallentaa tiedoston (*Commit changes*). Lähetetty alue on julkinen. Merkinnät ja saaliit eivät lähde laitteesta.
 
 ## Miten tämä toimii
 
 - `docs/`: sovellus (Cloudflare Pages). Leaflet-kartta ja tavallinen JavaScript ilman käännösvaihetta.
   - `js/kaira.js`: runko (asetukset, kartta, osiot, alapalkki, sijainti, kompassi, suunnistus, offline, hätäkoordinaatit)
   - `js/weather.js`: sää, sadetutka ja aurinko kaikissa osioissa
-  - `js/tools.js`: mittaus, etäisyysrenkaat, omat tasot, näkymän tallennus
+  - `js/tools.js`: mittaus, alueen piirto, etäisyysrenkaat, omat tasot, näkymän tallennus
   - `js/hunt.js`, `js/fish.js`, `js/wild.js`: osioiden toiminnot
   - `js/help.js`: osiokohtainen ohje ja käyttöehdot
   - `js/core.js`, `js/jcore.js`: laskenta ilman käyttöliittymää (testattavissa)
@@ -85,7 +89,7 @@ Julkaisu: Cloudflare Pages julkaisee `docs/`-kansion automaattisesti jokaisesta 
 | Ajo | Ajastus | Tuottaa |
 | --- | --- | --- |
 | Rakenna metsäkartat (`build.py`) | Maanantaisin ja kun `areas/metsastys/` muuttuu | `docs/data/<alue>/`, `docs/data/areas.json` |
-| Vesitilanne (`vesitilanne.py`) | Päivittäin | `docs/data/vesitilanne.json`, `docs/layers/*-joet.geojson` |
+| Vesitilanne (`syvyys.py`, `vesitilanne.py`) | Päivittäin ja kun `areas/kalastus/` muuttuu | `docs/data/vesitilanne.json`, `docs/data/jaa.json`, `docs/layers/` |
 | Kohteet (`kohteet.py`) | Kuukausittain | `docs/data/kohteet/{tuvat,laavut,tulipaikat}.geojson` |
 | Testit | Jokaisessa muutoksessa | – |
 
@@ -109,7 +113,8 @@ Ajon voi käynnistää käsin: *Actions → ajo → Run workflow*. GitHub keskey
 - Luonnonsuojelualueet: Syke / Metsähallitus, CC BY 4.0. Uudet hakkuut: Suomen metsäkeskus, CC BY 4.0.
 - Sää ja tuuli: Ilmatieteen laitos, CC BY 4.0; varalla Open-Meteo (CC BY 4.0, ilmainen vain ei-kaupalliseen käyttöön).
 - Sadetutkaennuste: MET Norway, Nowcast 2.0, CC BY 4.0.
-- Vesitilanne: Syke, Hydrologiarajapinta, CC BY 4.0; sademäärä: Ilmatieteen laitos, CC BY 4.0. Jokien uomat: © OpenStreetMapin tekijät, ODbL.
+- Vesitilanne ja jäänpaksuus: Syke, Hydrologiarajapinta, CC BY 4.0; sademäärä: Ilmatieteen laitos, CC BY 4.0. Jokien uomat: © OpenStreetMapin tekijät, ODbL.
+- Järvien syvyysalueet ja syvyyskäyrät: Syke, CC BY 4.0 (vain mitatut järvet).
 - Tuvat, laavut ja tulipaikat: © OpenStreetMapin tekijät, ODbL. Varaus- ja vuokratuvat jätetään pois. Tarkista ajantasaiset tiedot ylläpitäjältä (useimmiten luontoon.fi).
 - Perhosuositukset ovat lähtötaulukko yleisesti käytetyistä perhoista. Perhojen valokuvat: Wikimedia Commons, tekijät ja lisenssit sovelluksessa ja tiedostossa `docs/img/perhot/kuvat/lahteet.json`.
 - Solmujen vaiheet: Orvis, Animated Knots ja Bass Pro. Animaatiot ovat tämän sovelluksen omia piirroksia (`docs/js/solmut.js`).

@@ -25,13 +25,14 @@
         ]),
         block('Alapalkki', [
           row(ico('layers'), 'Tasot', 'Pohjakartta (maastokartta, taustakartta tai ilmakuva), osion tasot, omat tasot ja etäisyysrenkaat.'),
-          row(ico('tools'), 'Työkalut', 'Etäisyyden ja suunnan mittaus, näkymän tallennus offline-käyttöön ja omien tasojen tuonti.'),
+          row(ico('tools'), 'Työkalut', 'Etäisyyden ja suunnan mittaus, alueen piirto, näkymän tallennus offline-käyttöön ja omien tasojen tuonti.'),
           row(h('span', { class: 'help-ico help-main' }, K.icon('pinPlus')), 'Keskimmäinen painike', 'Osion päätoiminto: metsästyksessä merkintä, kalastuksessa saalis, eränkäynnissä lähimmät kohteet.'),
           row(ico('info'), 'Osion tieto', 'Metsästyksessä lupa-alueet, kalastuksessa perhot ja solmut, eränkäynnissä reitit.'),
           row(ico('menu'), 'Valikko', 'Ohje, offline-alueet, asetukset, tietolähteet ja käyttöehdot.')
         ]),
         block('Suunnistus ja offline', [
           row(h('span', { class: 'help-ico' }, sw('#FF6B35')), 'Napauta karttaa', 'Näet kohdan koordinaatit ja etäisyyden sinusta. Suunnista tänne piirtää oranssin katkoviivan ja näyttää oikeassa yläkulmassa matkan ja suunnan.'),
+          row(ico('draw'), 'Piirrä alue', 'Työkalut → Piirrä alue. Napauta kulmapisteet tai paina Sormi ja vedä reuna sormella (Sormi-tilassa kartta ei liiku). Valmis tallentaa alueen omaksi tasoksi, jonka voi tallentaa offline-käyttöön.'),
           row(ico('offline'), 'Kartat ilman verkkoa', 'Lisää Maanmittauslaitoksen ilmainen API-avain asetuksiin. Tallenna alue kotona Wi-Fissä: lupa-alue, kalastusalue, reitti tai nykyinen näkymä.'),
           row(ico('shield'), 'Tietosi pysyvät puhelimessa', 'Merkinnät, saaliit, reitit ja tasot eivät lähde minnekään. Säähän lähtee vain noin kilometrin tarkkuuteen pyöristetty sijainti.')
         ]));
@@ -61,7 +62,8 @@
           row(null, 'Koiran hajuolosuhteet', 'Näkyvät sääkortissa. Sääpaneelista löydät 12 tunnin arvion ja parhaan valoisan ajan.'),
           row(null, 'Oma tuulihavainto', 'Sääpaneelissa voit asettaa tuulen suunnan itse (savu, lumi, heinä).'),
           row(null, 'Metsäkartan merkinnät', 'Lataa ne Metsäkartasta CSV-tiedostona ja tuo: Valikko → Havainnot ja saalis → Tuo Metsäkartan merkinnät.'),
-          row(null, 'Saalisilmoitus', 'Kauden saalisyhteenvedon voi kopioida. Ilmoitus tehdään eräluvat.fi-palvelussa.')
+          row(null, 'Saalisilmoitus', 'Kauden saalisyhteenvedon voi kopioida. Ilmoitus tehdään eräluvat.fi-palvelussa.'),
+          row(null, 'Uusi metsästysalue', 'Piirrä alue ja valitse Lähetä analysoitavaksi. GitHub avautuu valmiiksi täytettynä; tallennuksen jälkeen alue näkyy Lupa-alue-listassa metsätietoineen (yleensä alle tunnissa). Alue on julkinen, merkinnät eivät.')
         ]));
     },
     kalastus: function () {
@@ -70,18 +72,23 @@
           row(h('span', { class: 'help-ico help-main' }, K.icon('fishPlus')), 'Saalis', 'Kirjaa saalis: laji, pituus, paino, vapautettu ja perho tai viehe. Sijainti GPS:stä tai kartalta.'),
           row(ico('fly'), 'Perhot', 'Valitse kalalaji ja hyönteinen ja vastaa kysymyksiin. Saat perhon kehitysvaiheen mukaan: pohjalla, nousussa, pinturi tai aikuinen. Lohelle suositus veden tilan mukaan.'),
           row(ico('fly'), 'Solmut', 'Perhot-paneelin Solmut-välilehdellä animoidut ohjeet: verisolmu ja parannettu clinch-solmu. Toimivat ilman verkkoa.'),
-          row(ico('layers'), 'Tasot', 'Jokien vesitilanne, kalastusalueet ja saaliit kartalla.')
+          row(ico('layers'), 'Tasot', 'Jokien vesitilanne, kalastusalueet, järvien syvyysalueet, jäänpaksuusmittaukset ja saaliit kartalla.'),
+          row(ico('drop'), 'Jäänpaksuus', 'Valikko → Jäänpaksuus. Syken mittaukset kalastusalueilla ja 5 km säteellä sijainnistasi: paksuus, mittauspäivä ja etäisyys.')
         ]),
         block('Kartan värit', [
           row(h('span', { class: 'help-ico' }, sw('#e5484d', 'sw-water')), 'Punainen joki', 'Alhainen vesi verrattuna saman vuodenajan tavalliseen.'),
           row(h('span', { class: 'help-ico' }, sw('#2fb35a', 'sw-water')), 'Vihreä joki', 'Normaali vesitilanne.'),
           row(h('span', { class: 'help-ico' }, sw('#0b3d91', 'sw-water')), 'Tummansininen joki', 'Korkea vesi.'),
           row(h('span', { class: 'help-ico' }, sw('#8a9aa0', 'sw-water')), 'Harmaa katkoviiva', 'Ei tietoa.'),
-          row(pin('obs-kala', 'Ha'), 'Saalismerkki', 'Lajin lyhenne, esim. Ha = harjus, Lo = lohi, Ta = taimen.')
+          row(pin('obs-kala', 'Ha'), 'Saalismerkki', 'Lajin lyhenne, esim. Ha = harjus, Lo = lohi, Ta = taimen.'),
+          row(h('span', { class: 'help-ico' }, sw('linear-gradient(90deg,#cfeaf7,#69b3e0,#123f78)')), 'Sininen järvi', 'Syvyysalue: mitä tummempi, sitä syvempi. Vain Syken mittaamat järvet. Napauta järveä nähdäksesi syvyysvälin.'),
+          row(pin('obs-jaa', '25'), 'Jäämerkki', 'Mitattu jäänpaksuus senttimetreinä. Haalea merkki = mittaus yli viikon vanha.')
         ]),
         block('Vinkit', [
           row(null, 'Napauta jokea', 'Näet mitatun virtaaman tai vedenkorkeuden ja tavallisen vaihteluvälin, tai sademäärään perustuvan arvion.'),
           row(null, 'Kalastusalueet', 'Testialueet ovat Poroeno ja Hossa. Tallenna alue offline-käyttöön Tasot-valikosta.'),
+          row(null, 'Uusi kalastusalue', 'Piirrä alue ja valitse Lähetä analysoitavaksi. Analyysi hakee alueen joet, vesitilanteen, jäänpaksuudet ja mitattujen järvien syvyydet. Alue on julkinen, saaliit eivät.'),
+          row(null, 'Jäällä liikkuminen', 'Jäämittaus on yhdestä pisteestä. Tarkista jää aina itse tuuralla: virtapaikat, salmet, jokisuut ja kaislikot voivat olla heikkoja.'),
           row(null, 'Perhojen kuvat', 'Kuvat tallentuvat puhelimeen, kun avaat osion verkossa, joten suositus toimii myös joella ilman kenttää.')
         ]));
     },

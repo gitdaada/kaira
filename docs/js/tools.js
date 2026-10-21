@@ -33,12 +33,22 @@
       onEachFeature: function (f, l) {
         l.on('click', function (e) {
           if (K.measuring) { K.measureAdd(e.latlng); return; } // mittauksen aikana napautus lisää pisteen
+          if (K.drawing) { if (!document.body.classList.contains('drawing-free')) K.drawAdd(e.latlng); return; }
           var p = f.properties || {}, ll = e.latlng;
           if (f.geometry.type === 'Point') ll = L.latLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
+          // Alueen sisällä napautus näyttää ensin pistekohtaisen tiedon (esim. järven syvyys), jos jokin osio tarjoaa sen.
+          if (/Polygon/.test(f.geometry.type) && K.pointInfo(ll)) return;
           K.tapInfo(ll, { title: K.featureTitle(p), detail: [TYPE_NAMES[p.tyyppi] || '', p.kuvaus || p.description || ''].filter(Boolean).join(' · '), targetName: K.featureTitle(p) });
         });
       }
     });
+  };
+  /** Pistekohtaiset tiedot alueen sisällä: osiot rekisteröivät funktion (ll) => true, jos se näytti kortin. */
+  var pointHooks = [];
+  K.onPointInfo = function (fn) { pointHooks.push(fn); };
+  K.pointInfo = function (ll) {
+    for (var i = 0; i < pointHooks.length; i++) { try { if (pointHooks[i](ll)) return true; } catch (e) { console.error(e); } }
+    return false;
   };
   /** GeoJSONin rajaus [[s, w], [n, e]] (alue-tyyppiset polygonit ensisijaisesti). */
   K.gjBounds = function (gj) {
@@ -103,6 +113,201 @@
   K.on('pos', function () { if (K.measuring) updateMeasureText(); });
 
   // ---------------------------------------------------------------------------
+  // Alueen piirto: kulmapisteet napauttamalla tai sormella vetämällä.
+  // Alue tallentuu omaksi tasoksi tähän laitteeseen. Metsästys- ja kalastusalueen voi lähettää
+  // analysoitavaksi: GitHub avautuu valmiiksi täytettynä, ja repon omistaja tallentaa tiedoston.
+  // ---------------------------------------------------------------------------
+
+  var REPO_NEW = 'https://github.com/gitdaada/kaira/new/main/areas/';
+  var MAX_VERTS = 2000, LINK_VERTS = 200, LINK_MAX = 7000;
+  K.drawing = false;
+  var dpts = [], free = false, stroke = null, drawLayer = L.layerGroup().addTo(map);
+
+  /** Monikulmion pinta-ala neliömetreinä (tasoprojektio pienelle alueelle). */
+  function areaM2(ll) {
+    if (ll.length < 3) return 0;
+    var lat0 = ll[0].lat * Math.PI / 180, kx = 111320 * Math.cos(lat0), ky = 110540, s = 0;
+    for (var i = 0; i < ll.length; i++) {
+      var a = ll[i], b = ll[(i + 1) % ll.length];
+      s += a.lng * kx * b.lat * ky - b.lng * kx * a.lat * ky;
+    }
+    return Math.abs(s / 2);
+  }
+  function fmtArea(m2) { return m2 >= 1e6 ? K.fmt1(m2 / 1e6) + ' km²' : K.fmtInt(m2 / 1e4) + ' ha'; }
+  K.areaM2 = areaM2;
+
+  function redrawDraw() {
+    drawLayer.clearLayers();
+    var all = stroke ? dpts.concat(stroke) : dpts;
+    if (all.length > 2) L.polygon(all, { pane: 'targetPane', color: '#FF6B35', weight: 3, fillColor: '#FF6B35', fillOpacity: 0.12, interactive: false }).addTo(drawLayer);
+    else if (all.length > 1) L.polyline(all, { pane: 'targetPane', color: '#FF6B35', weight: 3, interactive: false }).addTo(drawLayer);
+    // Pisteet näytetään napautustilassa; sormella piirtäessä niitä on liikaa.
+    if (!free || all.length < 40) all.forEach(function (p) {
+      L.circleMarker(p, { pane: 'targetPane', radius: 5, color: '#10160f', weight: 2, fillColor: '#FF6B35', fillOpacity: 1, interactive: false }).addTo(drawLayer);
+    });
+    var t = $('drawText');
+    if (!all.length) t.textContent = free ? 'Vedä sormella alueen reuna. Karttaa voi siirtää, kun Sormi-tila on pois.' : 'Napauta alueen kulmapisteet kartalle.';
+    else if (all.length < 3) t.textContent = all.length + ' pistettä. Lisää vähintään kolme.';
+    else t.textContent = all.length + ' pistettä · ' + fmtArea(areaM2(all)) + '. Paina Valmis, kun alue on piirretty.';
+    $('drawDone').disabled = dpts.length < 3;
+  }
+  function drawAdd(ll) {
+    if (dpts.length >= MAX_VERTS) { K.toast('Pisteitä on jo ' + MAX_VERTS + '.'); return; }
+    dpts.push(L.latLng(ll.lat, ll.lng)); redrawDraw();
+  }
+  function setFree(on) {
+    free = on; stroke = null;
+    $('drawMode').setAttribute('aria-pressed', on ? 'true' : 'false');
+    document.body.classList.toggle('drawing-free', on);
+    if (on) map.dragging.disable(); else map.dragging.enable();
+    redrawDraw();
+  }
+  function setDrawing(on) {
+    if (on && K.measuring) setMeasuring(false);
+    K.drawing = on;
+    $('drawBar').hidden = !on;
+    if (on) { K.closeSheet(); K.closeCard(); dpts = []; }
+    else { dpts = []; setFree(false); }
+    redrawDraw();
+    K.liftFabs();
+  }
+  K.setDrawing = setDrawing;
+  K.drawAdd = drawAdd;
+  var _setMeasuring = setMeasuring;
+  setMeasuring = function (on) { if (on && K.drawing) setDrawing(false); _setMeasuring(on); };
+  K.setMeasuring = setMeasuring;
+  K.onMapClick(function (ll) {
+    if (!K.drawing) return false;
+    if (!free) drawAdd(ll);
+    return true; // sormitilassa napautus ei avaa tietokorttia
+  }, 101);
+
+  // Sormella piirto: yksi sormi piirtää, toinen sormi peruu vedon (nipistys ja kääntö toimivat silti).
+  var mapEl = map.getContainer(), lastXY = null;
+  function eventLatLng(e) {
+    // Käännettävän kartan säiliö on näyttöä suurempi: kääntömoduuli muuntaa näytön koordinaatit itse.
+    if (K.rot) return K.rot.screenToLatLng([e.clientX, e.clientY]);
+    var r = mapEl.getBoundingClientRect();
+    return map.containerPointToLatLng([e.clientX - r.left, e.clientY - r.top]);
+  }
+  mapEl.addEventListener('pointerdown', function (e) {
+    if (!K.drawing || !free) return;
+    if (!e.isPrimary) { stroke = null; lastXY = null; redrawDraw(); return; }
+    stroke = [eventLatLng(e)]; lastXY = [e.clientX, e.clientY];
+  }, true);
+  mapEl.addEventListener('pointermove', function (e) {
+    if (!stroke || !e.isPrimary || !lastXY) return;
+    var dx = e.clientX - lastXY[0], dy = e.clientY - lastXY[1];
+    if (dx * dx + dy * dy < 64) return; // vähintään 8 px edellisestä pisteestä
+    lastXY = [e.clientX, e.clientY];
+    if (dpts.length + stroke.length < MAX_VERTS) stroke.push(eventLatLng(e));
+    redrawDraw();
+  }, true);
+  function endStroke(e) {
+    if (!stroke || (e && !e.isPrimary)) return;
+    if (stroke.length > 1) dpts = dpts.concat(stroke);
+    stroke = null; lastXY = null; redrawDraw();
+  }
+  mapEl.addEventListener('pointerup', endStroke, true);
+  mapEl.addEventListener('pointercancel', function () { stroke = null; lastXY = null; redrawDraw(); }, true);
+
+  $('drawMode').addEventListener('click', function () { setFree(!free); });
+  $('drawUndo').addEventListener('click', function () {
+    // Sormitilassa peruu viimeisen vedon kerralla (vähintään 1 piste).
+    var n = free && dpts.length > 20 ? Math.max(1, Math.round(dpts.length / 8)) : 1;
+    dpts.splice(Math.max(0, dpts.length - n), n); redrawDraw();
+  });
+  $('drawClear').addEventListener('click', function () { dpts = []; redrawDraw(); });
+  $('drawCancel').addEventListener('click', function () { setDrawing(false); });
+  $('drawDone').addEventListener('click', function () {
+    if (dpts.length < 3) return;
+    var ring = dpts.map(function (p) { return [p.lat, p.lng]; });
+    setDrawing(false);
+    openDrawnSheet(ring);
+  });
+
+  /** Douglas–Peucker metreinä renkaalle [[lat, lon], ...] (ei sulkevaa pistettä). */
+  function simplifyRing(ring, tolM) {
+    if (ring.length < 5 || !K.simplifyLine) return ring.slice();
+    var far = 0, best = -1;
+    ring.forEach(function (p, i) { var d = JG.distance(ring[0][0], ring[0][1], p[0], p[1]); if (d > best) { best = d; far = i; } });
+    var a = K.simplifyLine(ring.slice(0, far + 1), tolM), b = K.simplifyLine(ring.slice(far).concat([ring[0]]), tolM);
+    return a.slice(0, -1).concat(b.slice(0, -1));
+  }
+  function ringToGeoJSON(ring, name) {
+    var c = ring.map(function (p) { return [JG.roundCoord(p[1]), JG.roundCoord(p[0])]; });
+    c.push(c[0].slice());
+    return { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { nimi: name, tyyppi: 'alue' }, geometry: { type: 'Polygon', coordinates: [c] } }] };
+  }
+  function slugName(name) {
+    var s = String(name || '').toLowerCase().replace(/[ä]/g, 'a').replace(/[öø]/g, 'o').replace(/[å]/g, 'a')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50);
+    return s || 'alue';
+  }
+  /** Analyysilinkki: GitHubin uusi tiedosto valmiiksi täytettynä. Palauttaa null, jos alue on liian monimutkainen. */
+  function analysisLink(ring, name, dir) {
+    var r = ring, tol = 5;
+    while (r.length > LINK_VERTS && tol < 2000) { r = simplifyRing(ring, tol); tol *= 2; }
+    var txt = JSON.stringify(ringToGeoJSON(r, name));
+    var url = REPO_NEW + dir + '?filename=' + encodeURIComponent(slugName(name) + '.geojson') + '&value=' + encodeURIComponent(txt);
+    return url.length <= LINK_MAX ? url : null;
+  }
+
+  function openDrawnSheet(ring) {
+    var sec = K.section, saved = null;
+    var name = h('input', { class: 'input', type: 'text', maxlength: '60', placeholder: 'Alueen nimi', 'aria-label': 'Alueen nimi' });
+    K.openSheet('draw-save', 'Piirretty alue', function (body) {
+      var ll = ring.map(function (p) { return L.latLng(p[0], p[1]); });
+      body.appendChild(h('p', { class: 'muted small', text: ring.length + ' pistettä · ' + fmtArea(areaM2(ll)) }));
+      body.appendChild(h('div', { class: 'field' }, h('span', { class: 'label', text: 'Nimi' }), name));
+      if (!saved) {
+        body.appendChild(h('div', { class: 'btn-row' },
+          h('button', { type: 'button', class: 'btn btn-primary', text: 'Tallenna tasoksi', onclick: function () {
+            var nm = (name.value || '').trim().slice(0, 60) || 'Piirretty alue';
+            saved = saveDrawn(nm, ring);
+            if (saved) K.renderSheet();
+          } }),
+          h('button', { type: 'button', class: 'btn', text: 'Hylkää', onclick: function () { K.closeSheet(); } })));
+        body.appendChild(h('p', { class: 'muted small', text: 'Taso tallentuu vain tähän laitteeseen ja näkyy kaikissa osioissa (Tasot > Omat tasot).' }));
+        return;
+      }
+      body.appendChild(h('div', { class: 'notice', text: 'Tallennettu: ' + saved.name + '.' }));
+      var b = K.gjBounds(saved.gj);
+      body.appendChild(h('div', { class: 'btn-row' },
+        h('button', { type: 'button', class: 'btn', text: 'Tallenna offline', onclick: function () { openOfflineFor({ id: saved.id, name: saved.name, kind: 'taso', bounds: b }); } }),
+        h('button', { type: 'button', class: 'btn', text: 'Lataa GeoJSON', onclick: function () {
+          K.download(JSON.stringify(saved.gj), slugName(saved.name) + '.geojson', 'application/geo+json');
+        } })));
+      var dir = sec === 'metsastys' ? 'metsastys' : sec === 'kalastus' ? 'kalastus' : null;
+      if (!dir) return;
+      body.appendChild(h('h3', { text: dir === 'metsastys' ? 'Metsäanalyysi' : 'Vesistöanalyysi' }));
+      body.appendChild(h('p', { class: 'small', text: dir === 'metsastys'
+        ? 'Analyysi tuottaa alueelle metsän iän, suojelualueet, hakkuut ja kanalintujen elinympäristöt. Ne näkyvät Lupa-alue-listassa, kun ajo on valmis (yleensä alle tunnissa).'
+        : 'Analyysi hakee alueen joet ja purot, niiden vesitilanteen, jäänpaksuusmittaukset ja mitattujen järvien syvyysalueet. Ne näkyvät Tasot-paneelissa, kun ajo on valmis.' }));
+      body.appendChild(h('div', { class: 'notice notice-warn', text: 'Lähetetty alue tallentuu julkiseen GitHub-repoon. Älä lähetä aluetta, joka paljastaa esimerkiksi kotisi tai mökkisi. Saalis- ja havaintotiedot eivät lähde laitteesta.' }));
+      var url = analysisLink(ring, saved.name, dir);
+      if (url) {
+        body.appendChild(h('button', { type: 'button', class: 'btn btn-primary btn-block', text: 'Lähetä analysoitavaksi (GitHub)', onclick: function () {
+          window.open(url, '_blank', 'noopener');
+        } }));
+        body.appendChild(h('p', { class: 'muted small', text: 'GitHub avautuu valmiiksi täytettynä. Paina siellä "Commit changes". Vain repon omistaja voi tallentaa suoraan; muilla GitHub tekee muutosehdotuksen.' }));
+      } else {
+        body.appendChild(h('p', { class: 'small', text: 'Alue on liian monimutkainen linkkiin. Lataa GeoJSON ja lisää se GitHubissa kansioon areas/' + dir + '.' }));
+      }
+    });
+    setTimeout(function () { try { name.focus(); } catch (e) { /* ei fokusta */ } }, 50);
+  }
+  function saveDrawn(nm, ring) {
+    var gj = JG.cleanGeoJSON(ringToGeoJSON(ring, nm));
+    var id = 'piirretty-' + Date.now().toString(36);
+    var list = store.get('imported', []) || [];
+    list.push({ id: id, nimi: nm, gj: gj });
+    if (!store.set('imported', list)) { K.toast('Tallennustila on täynnä.'); return null; }
+    addOwn(id, nm, gj);
+    return { id: id, name: nm, gj: gj };
+  }
+
+  // ---------------------------------------------------------------------------
   // Etäisyysrenkaat 1, 5 ja 20 km
   // ---------------------------------------------------------------------------
 
@@ -136,7 +341,7 @@
   }
   function loadOwn() {
     (store.get('imported', []) || []).forEach(function (x) {
-      try { if (x && /^tuotu-[a-z0-9]+$/.test(x.id)) addOwn(x.id, String(x.nimi || 'Tuotu taso').slice(0, 60), JG.cleanGeoJSON(x.gj)); } catch (e) { /* ohitetaan viallinen */ }
+      try { if (x && /^(tuotu|piirretty)-[a-z0-9]+$/.test(x.id)) addOwn(x.id, String(x.nimi || 'Tuotu taso').slice(0, 60), JG.cleanGeoJSON(x.gj)); } catch (e) { /* ohitetaan viallinen */ }
     });
   }
   function importGeoJSON(f) {
@@ -174,10 +379,10 @@
   function ownLayersSection(body) {
     var ids = Object.keys(own);
     body.appendChild(h('h3', { text: 'Omat tasot' }));
-    if (!ids.length) body.appendChild(h('p', { class: 'muted small', text: 'Ei tuotuja tasoja. Piirrä taso geojson.io:ssa ja tuo se Työkalut-valikosta. Tuotu taso näkyy kaikissa osioissa.' }));
+    if (!ids.length) body.appendChild(h('p', { class: 'muted small', text: 'Ei omia tasoja. Piirrä alue Työkalut-valikosta tai tuo geojson.io:ssa piirretty taso. Oma taso näkyy kaikissa osioissa.' }));
     ids.forEach(function (id) {
       var e = own[id], b = K.gjBounds(e.gj);
-      body.appendChild(K.toggleRow(e.name, 'Tuotu taso, vain tässä laitteessa', !settings.hidden[id], function (v) {
+      body.appendChild(K.toggleRow(e.name, (/^piirretty-/.test(id) ? 'Piirretty' : 'Tuotu') + ' taso, vain tässä laitteessa', !settings.hidden[id], function (v) {
         if (v) { delete settings.hidden[id]; e.layer.addTo(map); } else { settings.hidden[id] = true; map.removeLayer(e.layer); }
         K.saveSettings();
       }));
@@ -229,6 +434,7 @@
 
   K.on('tools', function (list) {
     list.appendChild(K.menuItem('ruler', 'Mittaa etäisyys ja suunta', 'Napauta pisteitä kartalle, suunnista viimeiseen', function () { setMeasuring(true); }));
+    list.appendChild(K.menuItem('draw', 'Piirrä alue', K.section === 'erankaynti' ? 'Napauta tai vedä sormella, tallenna omaksi tasoksi' : 'Omaksi tasoksi tai analysoitavaksi', function () { setDrawing(true); }));
     list.appendChild(K.menuItem('offline', 'Tallenna näkymä offline', 'Nykyinen kartta-alue maastoon ilman verkkoa', saveView));
     list.appendChild(K.menuItem('upload', 'Tuo GeoJSON-taso', 'geojson.io:ssa piirretyt alueet, kohteet ja reitit', function () {
       K.pickFile('.geojson,.json,application/geo+json,application/json', importGeoJSON);
