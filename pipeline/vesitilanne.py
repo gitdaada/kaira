@@ -505,6 +505,13 @@ def fetch_rapids(area):
              "geometry": {"type": "Point", "coordinates": list(o["p"])}} for o in sorted(out, key=lambda o: (o["t"], o["n"]))]
 
 
+def river_bbox(gj, margin):
+    """Uomien rajaus [s, w, n, e] marginaalilla (asteina)."""
+    pts = [c for f in gj.get("features", []) for c in (f.get("geometry") or {}).get("coordinates", [])]
+    lats, lons = [c[1] for c in pts], [c[0] for c in pts]
+    return [min(lats) - margin, min(lons) - margin * 2, max(lats) + margin, max(lons) + margin * 2]
+
+
 def area_layer(area, extra=None, complete=True):
     """Piirretyn alueen raja ja kosket/suvannot kalastustasoksi."""
     feats = [{"type": "Feature", "properties": {"nimi": area["nimi"], "tyyppi": "alue"},
@@ -655,7 +662,8 @@ def main():
             continue
         result["geometriat"].append(rel)
         try:
-            stations = syke_stations(area)
+            # Piirretyllä alueella asemia haetaan koko uoman ympäriltä: pienen alueen sisällä asemaa ei yleensä ole.
+            stations = syke_stations({"bbox_latlon": river_bbox(gj, 0.05)} if area.get("piirretty") else area)
             note("%s: %d Syken asemaa rajauksella" % (area["id"], len(stations)))
         except Exception as e:  # noqa
             stations = []

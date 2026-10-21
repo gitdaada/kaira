@@ -158,3 +158,6 @@ assert v.water_feature_type({"name": "Järvi"}) is None
 lay = v.area_layer(d[0], [{"type": "Feature", "properties": {"nimi": "Pahakoski", "tyyppi": "koski"}, "geometry": {"type": "Point", "coordinates": [24.05, 65.05]}}])
 assert [f["properties"]["tyyppi"] for f in lay["features"]] == ["alue", "koski"] and lay["properties"]["kosket_haettu"] is True
 print("kosket ja suvannot läpi")
+rb = v.river_bbox({"features": [{"geometry": {"type": "LineString", "coordinates": [[21.9, 69.0], [22.1, 69.2]]}}]}, 0.05)
+assert [round(x, 3) for x in rb] == [68.95, 21.8, 69.25, 22.2], rb
+print("uoman rajaus läpi")
