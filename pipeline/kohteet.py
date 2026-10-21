@@ -21,7 +21,9 @@ import urllib.parse
 import urllib.request
 
 UA = "kaira/0.1 (+https://github.com/gitdaada/kaira)"
-OVERPASS = "https://overpass-api.de/api/interpreter"
+# Julkiset Overpass-palvelimet: toinen on varalla, jos ensimmäinen on ylikuormittunut.
+ENDPOINTS = ("https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter")
+DEADLINE_S = 40 * 60  # tämän jälkeen loput maakunnat käyttävät edellistä aineistoa
 OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "kohteet")
 MAAKUNNAT = [
     ("FI-01", "Ahvenanmaa"), ("FI-02", "Etelä-Karjala"), ("FI-03", "Etelä-Pohjanmaa"), ("FI-04", "Etelä-Savo"),
@@ -40,7 +42,7 @@ NIMI_TUPA = re.compile(r"autiotupa|autiokammi|autiotuvat", re.I)
 LINKIT = ("luontoon.fi", "metsa.fi", "retkikartta.fi")
 
 
-def get(url, data=None, timeout=300, tries=4):
+def get(url, data=None, timeout=240, tries=2):
     last = None
     for i in range(tries):
         try:
@@ -53,6 +55,12 @@ def get(url, data=None, timeout=300, tries=4):
     raise last
 
 
+def gh(level, msg):
+    """GitHub Actionsin merkintä (näkyy ajon yhteenvedossa ja rajapinnassa), muuten tavallinen tuloste."""
+    msg = str(msg).replace("\n", " ")[:900]
+    print(("::%s::%s" % (level, msg)) if os.environ.get("GITHUB_ACTIONS") else msg, flush=True)
+
+
 def overpass(iso):
     q = ('[out:json][timeout:280];area["ISO3166-2"="%s"]->.a;('
          'nwr["tourism"="wilderness_hut"](area.a);'
@@ -62,7 +70,32 @@ def overpass(iso):
          'nwr["amenity"="shelter"]["name"~"laavu|kota",i](area.a);'
          'nwr["leisure"="firepit"](area.a);'
          ');out center tags;') % iso
-    return json.loads(get(OVERPASS, data=urllib.parse.urlencode({"data": q}).encode()))["elements"]
+    data = urllib.parse.urlencode({"data": q}).encode()
+    errors = []
+    for url in ENDPOINTS:
+        try:
+            j = json.loads(get(url, data=data))
+            if "elements" not in j:
+                raise RuntimeError("vastauksessa ei ole elements-kenttää: %s" % str(j.get("remark", ""))[:200])
+            if "runtime error" in str(j.get("remark", "")).lower():
+                raise RuntimeError(str(j["remark"])[:200])
+            return j["elements"]
+        except Exception as e:  # noqa: BLE001
+            errors.append("%s: %r" % (urllib.parse.urlparse(url).hostname, e))
+    raise RuntimeError("; ".join(errors))
+
+
+def previous(maakunta):
+    """Maakunnan kohteet edellisestä aineistosta (käytetään, jos haku epäonnistuu)."""
+    out = {}
+    for k in MINIMI:
+        try:
+            with open(os.path.join(OUT_DIR, k + ".geojson"), encoding="utf-8") as fh:
+                feats = json.load(fh).get("features", [])
+        except (OSError, ValueError):
+            feats = []
+        out[k] = [f for f in feats if (f.get("properties") or {}).get("maakunta") == maakunta]
+    return out
 
 
 def clean_text(s, n):
@@ -270,13 +303,31 @@ def build(elements_by_region):
 
 
 def main():
-    regions = []
+    regions, failed, t0 = [], [], time.time()
     for iso, maakunta in MAAKUNNAT:
-        els = overpass(iso)
-        print("%s: %d OSM-kohdetta" % (maakunta, len(els)))
+        if time.time() - t0 > DEADLINE_S:
+            failed.append(maakunta)
+            gh("warning", "%s: aika loppui, käytetään edellistä aineistoa" % maakunta)
+            continue
+        try:
+            els = overpass(iso)
+        except Exception as e:  # noqa: BLE001
+            failed.append(maakunta)
+            gh("warning", "%s: haku epäonnistui, käytetään edellistä aineistoa (%s)" % (maakunta, e))
+            continue
+        print("%s: %d OSM-kohdetta" % (maakunta, len(els)), flush=True)
+        if not els:
+            gh("warning", "%s: ei yhtään kohdetta (tarkista ISO3166-2-tunnus %s)" % (maakunta, iso))
         regions.append((maakunta, els))
         time.sleep(8)
+    if not regions:
+        raise RuntimeError("Yhtään maakuntaa ei saatu haettua")
     out, excluded = build(regions)
+    for maakunta in failed:
+        for k, feats in previous(maakunta).items():
+            out[k] += feats
+    for k in out:
+        out[k].sort(key=lambda f: (f["properties"]["maakunta"], f["properties"]["nimi"], f["geometry"]["coordinates"]))
     for k, n in MINIMI.items():
         if len(out[k]) < n:
             raise RuntimeError("Liian vähän kohteita (%s: %d < %d), aineistoa ei päivitetä" % (k, len(out[k]), n))
@@ -292,13 +343,14 @@ def main():
         per = {}
         for f in feats:
             per[f["properties"]["tyyppi"]] = per.get(f["properties"]["tyyppi"], 0) + 1
-        print("%s: %d kohdetta (%s)" % (k, len(feats), ", ".join("%s %d" % kv for kv in sorted(per.items()))))
-    print("Pois jätetyt: %s" % ", ".join("%s %d" % kv for kv in sorted(excluded.items())))
+        gh("notice", "%s: %d kohdetta (%s)" % (k, len(feats), ", ".join("%s %d" % kv for kv in sorted(per.items()))))
+    gh("notice", "Pois jätetyt: %s%s" % (", ".join("%s %d" % kv for kv in sorted(excluded.items())),
+                                          "; edellinen aineisto: " + ", ".join(failed) if failed else ""))
 
 
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:  # noqa: BLE001
-        print("VIRHE:", e, file=sys.stderr)
+        gh("error", "VIRHE: %s" % e)
         sys.exit(1)

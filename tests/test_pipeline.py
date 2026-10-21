@@ -121,3 +121,25 @@ circle.append(circle[0])
 cf = v.poly_filter(circle, 60).split()
 assert 16 <= len(cf) <= 120, len(cf)
 print("renkaan yksinkertaistus läpi")
+
+# Kohteet: epäonnistunut maakunta käyttää edellistä aineistoa
+with tempfile.TemporaryDirectory() as tmp:
+    old = (a.OUT_DIR, a.MAAKUNNAT, a.MINIMI, a.overpass, a.time.sleep)
+    a.OUT_DIR, a.MAAKUNNAT, a.MINIMI = tmp, [("FI-01", "Ahvenanmaa"), ("FI-10", "Lappi")], {"tuvat": 1, "laavut": 1, "tulipaikat": 0}
+    prev = {"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {"nimi": "Vanha tupa", "tyyppi": "autiotupa", "maakunta": "Lappi"}, "geometry": {"type": "Point", "coordinates": [25.0, 68.0]}},
+        {"type": "Feature", "properties": {"nimi": "Poistuva", "tyyppi": "autiotupa", "maakunta": "Ahvenanmaa"}, "geometry": {"type": "Point", "coordinates": [20.0, 60.2]}}]}
+    open(os.path.join(tmp, "tuvat.geojson"), "w").write(json.dumps(prev))
+
+    def fake(iso):
+        if iso == "FI-10":
+            raise RuntimeError("504")
+        return [{"type": "node", "id": 1, "lat": 60.1, "lon": 19.9, "tags": {"amenity": "shelter", "shelter_type": "lean_to", "name": "Testilaavu"}}]
+    a.overpass, a.time.sleep = fake, lambda s: None
+    a.main()
+    tuvat = json.load(open(os.path.join(tmp, "tuvat.geojson")))["features"]
+    laavut = json.load(open(os.path.join(tmp, "laavut.geojson")))["features"]
+    a.OUT_DIR, a.MAAKUNNAT, a.MINIMI, a.overpass, a.time.sleep = old
+assert [f["properties"]["nimi"] for f in tuvat] == ["Vanha tupa"], tuvat
+assert [f["properties"]["nimi"] for f in laavut] == ["Testilaavu"], laavut
+print("kohteiden varahaku läpi")
