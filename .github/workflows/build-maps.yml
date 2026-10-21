@@ -27,9 +27,9 @@ on:
 permissions:
   contents: write
 
-# Kaikki datan päivitykset jonoon, etteivät ne kilpaile samasta haarasta.
+# Saman ajon toistot jonoon. Eri ajot tallentavat eri tiedostoja ja yrittävät pushia uudelleen.
 concurrency:
-  group: kaira-data
+  group: build-maps
   cancel-in-progress: false
 
 jobs:
