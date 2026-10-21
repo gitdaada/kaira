@@ -459,11 +459,58 @@ def fetch_drawn_rivers(area):
     return gj, joet
 
 
-def area_layer(area):
-    """Piirretyn alueen raja kalastustasoksi."""
+KOSKI_RE = re.compile(r"(koski|kongas|köngäs|niva)$", re.I)
+SUVANTO_RE = re.compile(r"(suvanto|suanto)$", re.I)
+NOT_WATER = ("highway", "railway", "building", "amenity", "shop", "tourism", "landuse", "boundary", "power",
+             "man_made", "office", "leisure", "craft", "aeroway", "public_transport")
+NOT_WATER_PLACE = ("city", "town", "village", "hamlet", "isolated_dwelling", "suburb", "neighbourhood", "quarter", "farm", "allotments")
+
+
+def water_feature_type(t):
+    """OSM-tagit -> 'koski', 'suvanto' tai None. Nimi ratkaisee vain, jos kohde ei ole esim. kylä, tie tai rakennus."""
+    if t.get("waterway") == "rapids" or t.get("water") == "rapids" or t.get("whitewater") in ("rapid", "rapids", "yes"):
+        return "koski"
+    name = (t.get("name") or "").strip()
+    if not name or any(k in t for k in NOT_WATER) or t.get("place") in NOT_WATER_PLACE:
+        return None
+    if KOSKI_RE.search(name):
+        return "koski"
+    if SUVANTO_RE.search(name):
+        return "suvanto"
+    return None
+
+
+def fetch_rapids(area):
+    """Kosket ja suvannot piirretyn alueen sisällä (OpenStreetMap) pisteinä."""
+    parts = []
+    for r in area["rings"]:
+        pf = poly_filter(r)
+        parts.append('nwr["waterway"="rapids"](poly:"%s");nwr["water"="rapids"](poly:"%s");nwr["whitewater"](poly:"%s");'
+                     'nwr["name"~"(koski|kongas|köngäs|niva|suvanto|suanto)$",i](poly:"%s");' % (pf, pf, pf, pf))
+    q = "[out:json][timeout:120];(" + "".join(parts) + ");out center tags;"
+    j = json.loads(get(OVERPASS, data=urllib.parse.urlencode({"data": q}).encode(), timeout=180))
+    out = []
+    for el in j.get("elements", []):
+        t = el.get("tags", {})
+        tyyppi = water_feature_type(t)
+        c = el.get("center") or {"lat": el.get("lat"), "lon": el.get("lon")}
+        if not tyyppi or c.get("lat") is None:
+            continue
+        name = (t.get("name") or t.get("name:fi") or "").strip()[:60]
+        pt = (round(c["lon"], 5), round(c["lat"], 5))
+        if any(o["n"] == name and o["t"] == tyyppi and dist_km(o["p"][1], o["p"][0], pt[1], pt[0]) < 0.3 for o in out):
+            continue  # sama koski sekä pisteenä että alueena
+        out.append({"n": name, "t": tyyppi, "p": pt})
+    return [{"type": "Feature", "properties": {"nimi": o["n"] or ("Koski" if o["t"] == "koski" else "Suvanto"), "tyyppi": o["t"]},
+             "geometry": {"type": "Point", "coordinates": list(o["p"])}} for o in sorted(out, key=lambda o: (o["t"], o["n"]))]
+
+
+def area_layer(area, extra=None, complete=True):
+    """Piirretyn alueen raja ja kosket/suvannot kalastustasoksi."""
     feats = [{"type": "Feature", "properties": {"nimi": area["nimi"], "tyyppi": "alue"},
               "geometry": {"type": "Polygon", "coordinates": [[list(p) for p in r]]}} for r in area["rings"]]
-    return {"type": "FeatureCollection", "features": feats, "properties": {"alue_hash": area["hash"]}}
+    return {"type": "FeatureCollection", "features": feats + (extra or []),
+            "properties": {"alue_hash": area["hash"], "kosket_haettu": complete, "lahde": "Kosket ja suvannot © OpenStreetMapin tekijät, ODbL"}}
 
 
 def update_index(drawn):
@@ -566,12 +613,19 @@ def main():
     for a in drawn:
         path = os.path.join(LAYERS, a["id"] + ".geojson")
         try:
-            old = json.load(open(path, encoding="utf-8")).get("properties", {}).get("alue_hash")
+            oldp = json.load(open(path, encoding="utf-8")).get("properties", {})
         except Exception:  # noqa
-            old = None
-        if old != a["hash"]:
-            json.dump(area_layer(a), open(path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
-            note("%s: aluetaso kirjoitettu" % a["id"])
+            oldp = {}
+        if oldp.get("alue_hash") != a["hash"] or not oldp.get("kosket_haettu"):
+            try:
+                extra, ok = fetch_rapids(a), True
+                time.sleep(5)
+            except Exception as e:  # noqa
+                extra, ok = [], False
+                note("%s: koskia ja suvantoja ei saatu: %r" % (a["id"], e))
+            json.dump(area_layer(a, extra, ok), open(path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+            note("%s: aluetaso kirjoitettu (%d koskea, %d suvantoa)" % (a["id"], sum(f["properties"]["tyyppi"] == "koski" for f in extra),
+                                                                       sum(f["properties"]["tyyppi"] == "suvanto" for f in extra)))
     update_index(drawn)
     areas = list(cfg["alueet"]) + drawn
     for area in areas:

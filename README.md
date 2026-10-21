@@ -49,7 +49,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 - Perhosuositus hyönteisen kehitysvaiheen mukaan (pohjalla, nousussa, pinturi, aikuinen), lohelle veden tilan mukaan
 - Animoidut solmuohjeet, toimivat ilman verkkoa
 - Jokien vesitilanne väreinä (punainen = alhainen, vihreä = normaali, tummansininen = korkea)
-- Kalastusalueiden tasot (testialueet Poroeno ja Hossa) ja piirretyt kalastusalueet
+- Piirretyt kalastusalueet: raja, kosket ja suvannot (OpenStreetMap)
 - Jäänpaksuus: Syken mittaukset kalastusalueilla ja 5 km säteellä sijainnista (arvo, mittauspäivä, etäisyys ja varoitus)
 - Järvien syvyysalueet piirretyillä kalastusalueilla, vain Syken mittaamat järvet
 - Saaliskirjaus: laji, pituus, paino, vapautettu, perho tai viehe
@@ -71,7 +71,7 @@ Julkaisu: Cloudflare Pages julkaisee `docs/`-kansion automaattisesti jokaisesta 
 ## Alueet
 
 - **Metsästys:** lupa-alueiden rajat ovat kansiossa [`areas/metsastys/`](areas/metsastys/README.md). Uusi tiedosto käynnistää metsäkartan rakentamisen GitHub Actionsissa.
-- **Kalastus:** piirretyt kalastusalueet ovat kansiossa `areas/kalastus/`. Uusi tiedosto käynnistää Vesitilanne-ajon, joka hakee alueen nimetyt joet ja purot (OpenStreetMap), niiden vesitilanteen ja mitattujen järvien syvyysalueet. Tulokset tallentuvat kansioon `docs/layers/` (luettelo `docs/layers/index.json`). Testialueiden joet on määritelty tiedostossa `pipeline/joet.json`.
+- **Kalastus:** piirretyt kalastusalueet ovat kansiossa `areas/kalastus/`. Uusi tiedosto käynnistää Vesitilanne-ajon, joka hakee alueen nimetyt joet ja purot (OpenStreetMap), niiden vesitilanteen, kosket ja suvannot sekä mitattujen järvien syvyysalueet. Tulokset tallentuvat kansioon `docs/layers/` (luettelo `docs/layers/index.json`). Jokia voi määritellä myös käsin tiedostossa `pipeline/joet.json`.
 - **Piirto sovelluksessa:** Työkalut → Piirrä alue → Valmis → Lähetä analysoitavaksi. GitHub avautuu valmiiksi täytettynä, ja repon omistaja tallentaa tiedoston (*Commit changes*). Lähetetty alue on julkinen. Merkinnät ja saaliit eivät lähde laitteesta.
 
 ## Miten tämä toimii

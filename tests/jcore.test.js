@@ -72,12 +72,12 @@ test('GeoJSON-tuonti: vain tunnetut kentät säilyvät, viallinen hylätään', 
   assert.throws(function () { JG.cleanGeoJSON({ type: 'Feature' }); });
 });
 
-test('Poroenon testitaso on kelvollinen ja alue löytyy', function () {
-  var gj = JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/layers/poroeno.geojson'), 'utf8'));
+test('GeoJSON-tason tarkistus ja alueen rajaus (vanhat testitasot)', function () {
+  var gj = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/poroeno.geojson'), 'utf8'));
   var c = JG.cleanGeoJSON(gj);
   assert.strictEqual(c.features.length, 3);
   assert.deepStrictEqual(JG.areaBbox(c), [21.53, 68.97, 22.1, 69.165]);
-  var h = JG.cleanGeoJSON(JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/layers/hossa.geojson'), 'utf8')));
+  var h = JG.cleanGeoJSON(JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/hossa.geojson'), 'utf8')));
   assert.deepStrictEqual(JG.areaBbox(h), [29.3, 65.27, 29.62, 65.53]);
 });
 

@@ -1,22 +1,4 @@
 {
-  "alueet": [
-    {
-      "id": "poroeno",
-      "nimi": "Poroeno ja Lätäseno",
-      "bbox_latlon": [68.45, 21.45, 69.2, 22.4],
-      "joet": [
-        { "id": "poroeno", "nimi": "Poroeno", "osm": "Poroeno" },
-        { "id": "lataseno", "nimi": "Lätäseno", "osm": "Lätäseno" }
-      ]
-    },
-    {
-      "id": "hossa",
-      "nimi": "Hossa",
-      "bbox_latlon": [65.2, 29.2, 65.6, 29.8],
-      "joet": [
-        { "id": "hossanjoki", "nimi": "Hossanjoki", "osm": "Hossanjoki" },
-        { "id": "somerjoki", "nimi": "Somerjoki", "osm": "Somerjoki" }
-      ]
-    }
-  ]
+  "_ohje": "Käsin määritellyt joet (id, nimi, bbox_latlon, joet[{id, nimi, osm}]). Tavallisesti alueet piirretään sovelluksessa ja tallennetaan kansioon areas/kalastus, jolloin joet haetaan automaattisesti.",
+  "alueet": []
 }

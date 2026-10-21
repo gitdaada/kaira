@@ -275,7 +275,7 @@
   function depthLegend() {
     var box = h('div', { class: 'water-legend' });
     [['0–3 m', 0], ['3–6 m', 3], ['6–10 m', 6], ['10–20 m', 10], ['20–40 m', 20], ['yli 40 m', 40]].forEach(function (d) {
-      box.appendChild(h('span', { class: 'li' }, h('span', { class: 'sw sw-water', style: { background: depthColor(d[1]) } }), d[0]));
+      box.appendChild(h('span', { class: 'li' }, h('span', { class: 'sw', style: { background: depthColor(d[1]) } }), d[0]));
     });
     return box;
   }
@@ -514,13 +514,14 @@
     }));
     if (settings.water) body.appendChild(waterLegend());
     body.appendChild(h('h3', { text: 'Kalastusalueet' }));
-    body.appendChild(K.toggleRow('Näytä kalastusalueet', 'Kosket, suvannot, tuvat ja reitit', settings.fishLayers, function (v) { settings.fishLayers = v; K.saveSettings(); showFishLayers(); K.renderSheet(); }));
+    body.appendChild(K.toggleRow('Näytä kalastusalueet', 'Alueen raja, kosket ja suvannot', settings.fishLayers, function (v) { settings.fishLayers = v; K.saveSettings(); showFishLayers(); K.renderSheet(); }));
+    if (!Object.keys(S.layers).length) body.appendChild(h('p', { class: 'muted small', text: 'Ei vielä kalastusalueita. Piirrä alue (Työkalut → Piirrä alue) ja lähetä se analysoitavaksi. Valmis alue näkyy tässä.' }));
     if (settings.fishLayers) Object.keys(S.layers).forEach(function (id) {
       var e = S.layers[id], b = K.gjBounds(e.gj), hid = 'kal-' + id;
       body.appendChild(K.toggleRow(e.name, null, !settings.hidden[hid], function (v) { if (v) delete settings.hidden[hid]; else settings.hidden[hid] = true; K.saveSettings(); showFishLayers(); }));
-      if (b) body.appendChild(h('div', { class: 'btn-row' },
-        h('button', { type: 'button', class: 'btn', text: 'Näytä', onclick: function () { K.closeSheet(); K.fitBounds(b); } }),
-        h('button', { type: 'button', class: 'btn', text: 'Offline', onclick: function () { K.openOfflineFor({ id: 'kalastus-' + id, name: e.name, kind: 'kalastusalue', bounds: b }); } })));
+      if (b) body.appendChild(h('div', { class: 'btn-row btn-row-sub' },
+        h('button', { type: 'button', class: 'btn btn-sm', text: 'Näytä', onclick: function () { K.closeSheet(); K.fitBounds(b); } }),
+        h('button', { type: 'button', class: 'btn btn-sm', text: K.offline.get('kalastus-' + id) ? 'Offline ✓' : 'Offline', onclick: function () { K.openOfflineFor({ id: 'kalastus-' + id, name: e.name, kind: 'kalastusalue', bounds: b }); } })));
     });
     var hasDepth = Object.keys(S.layers).some(function (id) { return S.layers[id].depthFile; });
     body.appendChild(h('h3', { text: 'Syvyys ja jää' }));

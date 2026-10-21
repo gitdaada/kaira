@@ -808,7 +808,7 @@
         h('button', { type: 'button', class: 'card-main', onclick: function () { K.closeSheet(); selectArea(a.id); } },
           h('div', { class: 'card-title' }, a.name, S.newAreas[a.id] ? h('span', { class: 'badge-new', text: 'Uusi' }) : null),
           h('div', { class: 'card-sub', text: sub })),
-        K.offlineControls(areaSpec(a), { onDone: function (err) { if (!err && S.area && S.area.id === a.id) selectArea(a.id, { keepView: true }); } })));
+        K.offlineControls(areaSpec(a), { compact: true, onDone: function (err) { if (!err && S.area && S.area.id === a.id) selectArea(a.id, { keepView: true }); } })));
     });
     var gen = S.index && S.index.generated;
     if (gen) body.appendChild(h('p', { class: 'muted small', text: 'Kartat päivitetty ' + K.fmtDate(Date.parse(gen)) + ' · Metsätieto MVMI ' + (S.index.mvmiYear || '') + '. Rajat on piirretty käsin: virallinen raja on eräluvat.fi:n kartassa.' }));

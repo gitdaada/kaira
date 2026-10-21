@@ -143,3 +143,18 @@ with tempfile.TemporaryDirectory() as tmp:
 assert [f["properties"]["nimi"] for f in tuvat] == ["Vanha tupa"], tuvat
 assert [f["properties"]["nimi"] for f in laavut] == ["Testilaavu"], laavut
 print("kohteiden varahaku läpi")
+
+# Kosket ja suvannot
+assert v.water_feature_type({"waterway": "rapids"}) == "koski"
+assert v.water_feature_type({"natural": "water", "water": "rapids", "name": "Iso"}) == "koski"
+assert v.water_feature_type({"name": "Pahakoski"}) == "koski"
+assert v.water_feature_type({"name": "Ylinen Kongas", "natural": "water"}) == "koski"
+assert v.water_feature_type({"name": "Kirakkasuanto", "place": "locality"}) == "suvanto"
+assert v.water_feature_type({"name": "Mustasuvanto"}) == "suvanto"
+assert v.water_feature_type({"name": "Ylikoski", "place": "village"}) is None
+assert v.water_feature_type({"name": "Koskentie", "highway": "residential"}) is None
+assert v.water_feature_type({"name": "Pahakoski", "building": "yes"}) is None
+assert v.water_feature_type({"name": "Järvi"}) is None
+lay = v.area_layer(d[0], [{"type": "Feature", "properties": {"nimi": "Pahakoski", "tyyppi": "koski"}, "geometry": {"type": "Point", "coordinates": [24.05, 65.05]}}])
+assert [f["properties"]["tyyppi"] for f in lay["features"]] == ["alue", "koski"] and lay["properties"]["kosket_haettu"] is True
+print("kosket ja suvannot läpi")

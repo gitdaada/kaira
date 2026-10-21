@@ -386,10 +386,10 @@
         if (v) { delete settings.hidden[id]; e.layer.addTo(map); } else { settings.hidden[id] = true; map.removeLayer(e.layer); }
         K.saveSettings();
       }));
-      body.appendChild(h('div', { class: 'btn-row' },
-        b ? h('button', { type: 'button', class: 'btn', text: 'Näytä', onclick: function () { K.closeSheet(); K.fitBounds(b); } }) : null,
-        b ? h('button', { type: 'button', class: 'btn', text: 'Offline', onclick: function () { openOfflineFor({ id: id, name: e.name, kind: 'taso', bounds: b }); } }) : null,
-        h('button', { type: 'button', class: 'btn btn-danger', text: 'Poista', onclick: function () {
+      body.appendChild(h('div', { class: 'btn-row btn-row-sub' },
+        b ? h('button', { type: 'button', class: 'btn btn-sm', text: 'Näytä', onclick: function () { K.closeSheet(); K.fitBounds(b); } }) : null,
+        b ? h('button', { type: 'button', class: 'btn btn-sm', text: K.offline.get(id) ? 'Offline ✓' : 'Offline', onclick: function () { openOfflineFor({ id: id, name: e.name, kind: 'taso', bounds: b }); } }) : null,
+        h('button', { type: 'button', class: 'btn btn-sm btn-danger', text: 'Poista', onclick: function () {
           if (confirm('Poistetaanko taso ' + e.name + '?')) { removeOwn(id); K.renderSheet(); }
         } })));
     });

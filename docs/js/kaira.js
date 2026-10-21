@@ -214,11 +214,36 @@
   K.toast = function (msg, action, ms) {
     var t = $('toast');
     t.textContent = msg;
+    t.classList.remove('is-tip');
     if (action) t.appendChild(h('button', { type: 'button', text: action.label, onclick: function () { t.hidden = true; action.fn(); } }));
     t.hidden = false;
     clearTimeout(toastTimer);
     if (ms !== 0) toastTimer = setTimeout(function () { t.hidden = true; }, ms || (action ? 8000 : 4000));
   };
+
+  /**
+   * Vinkki: näytetään kerran (tai repeatDays välein) vasta, kun aloitusnäkymä ja paneelit ovat kiinni
+   * eikä muuta ilmoitusta ole näkyvissä. Näin vinkki ei peitä paneelin sisältöä.
+   */
+  var tipQueue = [];
+  K.tip = function (key, msg, action, o) {
+    o = o || {};
+    var seen = store.get('tips', {}) || {}, last = Number(seen[key]) || 0;
+    if (last && (!o.repeatDays || Date.now() - last < o.repeatDays * 86400000)) return;
+    if (tipQueue.some(function (t) { return t.key === key; })) return;
+    tipQueue.push({ key: key, msg: msg, action: action, cond: o.cond, until: Date.now() + 180000 });
+  };
+  setInterval(function () {
+    if (!tipQueue.length || !$('start').hidden || currentSheet || !$('toast').hidden || !$('infoCard').hidden || document.visibilityState !== 'visible') return;
+    var t = tipQueue.shift();
+    if (Date.now() > t.until || (t.cond && !t.cond())) return;
+    var seen = store.get('tips', {}) || {};
+    seen[t.key] = Date.now(); store.set('tips', seen);
+    K.toast(t.msg, t.action, 7000);
+    $('toast').classList.add('is-tip');
+  }, 1500);
+  /** Vinkki väistyy, kun käyttäjä avaa paneelin tai vaihtaa osiota. */
+  function hideTip() { var t = $('toast'); if (t.classList.contains('is-tip')) t.hidden = true; }
 
   // ---------------------------------------------------------------------------
   // Kartta
@@ -290,6 +315,7 @@
     var prev = currentSheet;
     currentSheet = { name: name, render: render, onClose: opts && opts.onClose };
     if (prev && prev.onClose && prev.name !== name) prev.onClose();
+    hideTip();
     $('sheetTitle').textContent = title;
     $('backdrop').hidden = false;
     $('sheet').hidden = false;
@@ -475,6 +501,7 @@
     if (!sectionDef(id)) id = 'erankaynti';
     var prev = K.section;
     if (prev === id) return;
+    hideTip();
     K.closeSheet();
     K.closeCard();
     K.section = id; // vaihdetaan ensin, jotta poistuvan osion tasot tunnistavat olevansa pois käytöstä
@@ -941,12 +968,12 @@
    */
   K.offlineControls = function (spec, opts) {
     opts = opts || {};
-    var rec = K.offline.get(spec.id), wrap = h('div', { class: 'card-foot' });
+    var rec = K.offline.get(spec.id), wrap = h('div', { class: 'card-foot' + (opts.compact ? ' compact' : '') });
     var status;
     if (rec && spec.version && rec.version !== spec.version) status = h('span', { class: 'status status-warn', text: 'Päivitys saatavilla' });
     else if (rec && rec.partial) status = h('span', { class: 'status status-warn', text: 'Tallennettu ilman maastokarttaa' });
     else if (rec) status = h('span', { class: 'status status-ok', text: '✓ Offline ' + K.fmtDate(rec.date) + (rec.layers && rec.layers.length ? ' · tarkkuus ' + rec.maxZoom : '') + (rec.failed ? ' · ' + rec.failed + ' tiiltä puuttuu' : '') });
-    else status = h('span', { class: 'status muted', text: 'Ei tallennettu offline-käyttöön' });
+    else status = h('span', { class: 'status muted', text: opts.compact ? 'Ei offline-käytössä' : 'Ei tallennettu offline-käyttöön' });
     wrap.appendChild(status);
     var row = h('div', { class: 'btn-row' });
     var progress = h('div', { class: 'progress', hidden: true },
@@ -972,10 +999,11 @@
     else if (!rec || (spec.version && rec.version !== spec.version) || rec.partial || rec.failed) {
       var est = K.offline.estimate(spec.bounds, spec.extraBytes);
       var label = rec ? ((spec.version && rec.version !== spec.version) ? 'Päivitä' : 'Täydennä') : 'Tallenna offline';
-      row.appendChild(h('button', { type: 'button', class: 'btn btn-primary', disabled: est.tooBig, text: est.tooBig ? 'Liian suuri alue' : label + ' (n. ' + K.fmtMB(est.bytes) + ')',
+      row.appendChild(h('button', { type: 'button', class: opts.compact ? 'btn btn-sm btn-accent' : 'btn btn-primary', disabled: est.tooBig,
+        text: est.tooBig ? 'Liian suuri alue' : (opts.compact && !rec ? 'Offline' : label) + ' · ' + K.fmtMB(est.bytes),
         onclick: function () { K.offline.save(spec, ui); } }));
     }
-    if (rec && !job) row.appendChild(h('button', { type: 'button', class: 'btn btn-danger', text: 'Poista',
+    if (rec && !job) row.appendChild(h('button', { type: 'button', class: 'btn btn-danger' + (opts.compact ? ' btn-sm' : ''), text: 'Poista',
       onclick: function () { K.offline.remove(spec.id).then(function () { K.toast('Offline-tiedot poistettu.'); K.renderSheet(); }); } }));
     wrap.appendChild(row);
     wrap.appendChild(progress);
@@ -1220,7 +1248,8 @@
     document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') K.emit('visible'); else K.emit('hidden'); });
     registerSW();
     if (!K.hasKey()) setTimeout(function () {
-      if ($('start').hidden && $('toast').hidden) K.toast('Lisää Maanmittauslaitoksen API-avain asetuksista, niin saat maastokartan ja offline-tallennuksen.', { label: 'Asetuksiin', fn: K.openSettings }, 9000);
+      K.tip('mml-avain', 'Lisää Maanmittauslaitoksen API-avain asetuksista, niin saat maastokartan ja offline-tallennuksen.',
+        { label: 'Asetuksiin', fn: K.openSettings }, { repeatDays: 7, cond: function () { return !K.hasKey(); } });
     }, 12000);
   };
 })();

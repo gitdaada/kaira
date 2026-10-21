@@ -80,14 +80,15 @@
           row(h('span', { class: 'help-ico' }, sw('#2fb35a', 'sw-water')), 'Vihreä joki', 'Normaali vesitilanne.'),
           row(h('span', { class: 'help-ico' }, sw('#0b3d91', 'sw-water')), 'Tummansininen joki', 'Korkea vesi.'),
           row(h('span', { class: 'help-ico' }, sw('#8a9aa0', 'sw-water')), 'Harmaa katkoviiva', 'Ei tietoa.'),
+          row(h('span', { class: 'help-ico' }, h('span', { class: 'dot big', style: { background: '#2b8cbe' } })), 'Tummansininen pallo', 'Koski (OpenStreetMap). Napauta nähdäksesi nimen.'),
+          row(h('span', { class: 'help-ico' }, h('span', { class: 'dot big', style: { background: '#7fc8e8' } })), 'Vaaleansininen pallo', 'Suvanto (OpenStreetMap).'),
           row(pin('obs-kala', 'Ha'), 'Saalismerkki', 'Lajin lyhenne, esim. Ha = harjus, Lo = lohi, Ta = taimen.'),
           row(h('span', { class: 'help-ico' }, sw('linear-gradient(90deg,#cfeaf7,#69b3e0,#123f78)')), 'Sininen järvi', 'Syvyysalue: mitä tummempi, sitä syvempi. Vain Syken mittaamat järvet. Napauta järveä nähdäksesi syvyysvälin.'),
           row(pin('obs-jaa', '25'), 'Jäämerkki', 'Mitattu jäänpaksuus senttimetreinä. Haalea merkki = mittaus yli viikon vanha.')
         ]),
         block('Vinkit', [
           row(null, 'Napauta jokea', 'Näet mitatun virtaaman tai vedenkorkeuden ja tavallisen vaihteluvälin, tai sademäärään perustuvan arvion.'),
-          row(null, 'Kalastusalueet', 'Testialueet ovat Poroeno ja Hossa. Tallenna alue offline-käyttöön Tasot-valikosta.'),
-          row(null, 'Uusi kalastusalue', 'Piirrä alue ja valitse Lähetä analysoitavaksi. Analyysi hakee alueen joet, vesitilanteen, jäänpaksuudet ja mitattujen järvien syvyydet. Alue on julkinen, saaliit eivät.'),
+          row(null, 'Uusi kalastusalue', 'Työkalut → Piirrä alue → Lähetä analysoitavaksi. Analyysi hakee alueen joet, vesitilanteen, kosket, suvannot ja mitattujen järvien syvyydet. Valmis alue näkyy Tasot-paneelissa; tallenna se offline-käyttöön ennen reissua. Alue on julkinen, saaliit eivät.'),
           row(null, 'Jäällä liikkuminen', 'Jäämittaus on yhdestä pisteestä. Tarkista jää aina itse tuuralla: virtapaikat, salmet, jokisuut ja kaislikot voivat olla heikkoja.'),
           row(null, 'Perhojen kuvat', 'Kuvat tallentuvat puhelimeen, kun avaat osion verkossa, joten suositus toimii myös joella ilman kenttää.')
         ]));
@@ -164,13 +165,12 @@
   K.on('section', function (sec) {
     var seen = store.get('helpSeen', {}) || {};
     if (seen[sec]) return;
-    setTimeout(function () {
-      if (!$('start').hidden || K.section !== sec) return;
-      seen[sec] = true; store.set('helpSeen', seen);
-      var def = null;
-      K.SECTIONS.forEach(function (s) { if (s.id === sec) def = s; });
-      K.toast('Ensimmäistä kertaa ' + (def ? def.name.toLowerCase() + 'osiossa' : 'täällä') + '? Katso lyhyt ohje.', { label: 'Ohje', fn: function () { K.openHelp(sec); } }, 9000);
-    }, 900);
+    var def = null;
+    K.SECTIONS.forEach(function (s) { if (s.id === sec) def = s; });
+    // Näytetään, kun paneeli on suljettu ja käyttäjä on yhä tässä osiossa.
+    K.tip('ohje-' + sec, 'Ensimmäistä kertaa ' + (def ? def.name.toLowerCase() + 'osiossa' : 'täällä') + '? Katso lyhyt ohje.',
+      { label: 'Ohje', fn: function () { K.openHelp(sec); } },
+      { cond: function () { if (K.section !== sec) return false; seen[sec] = true; store.set('helpSeen', seen); return true; } });
   });
 
   // Aloitusnäkymän alalaitaan käyttöehtojen maininta.
