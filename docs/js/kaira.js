@@ -886,6 +886,7 @@
             return p.then(function () {
               return fetch(u, { cache: 'no-cache', signal: job.ctrl.signal }).then(function (r) {
                 if (!r.ok) throw new Error('Tiedostoa ei saatu (' + r.status + ')');
+                if (/text\/html/i.test(r.headers.get('Content-Type') || '')) throw new Error('Tiedostoa ei löytynyt: ' + u.split('?')[0].split('/').slice(-2).join('/'));
                 return dataCache.put(u, r);
               }).then(function () { job.done++; job.ui.update(job); });
             });

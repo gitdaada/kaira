@@ -74,6 +74,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Cloudflare Pages (ilmainen) hylkää julkaisun, jos tiedosto on yli 25 MiB: ei tallenneta sellaista.
+          big=$(find docs -type f -size +24M)
+          if [ -n "$big" ]; then echo "::error::Liian suuria tiedostoja julkaistavaksi: $big"; exit 1; fi
           # Vain metsäkartat: muu data (kohteet, vesitilanne, jää, perhot) päivittyy omissa ajoissaan.
           git add -A -- docs/data ':!docs/data/kohteet' ':!docs/data/vesitilanne.json' ':!docs/data/perhot.json' ':!docs/data/jaa.json'
           if git diff --cached --quiet; then

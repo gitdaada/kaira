@@ -1,9 +1,10 @@
 # Eränkäynti: päivittää koko Suomen autiotuvat, kammit, päivätuvat, kodat, laavut ja tulipaikat
-# (docs/data/kohteet/) OpenStreetMapista kerran kuukaudessa. Vain julkinen Overpass-rajapinta, ei avaimia.
+# (docs/data/kohteet/) OpenStreetMapista kerran viikossa. Jos rajapinta on ruuhkainen, puuttuvat maakunnat
+# haetaan ensin seuraavalla kerralla ja muiden edellinen aineisto säilyy. Vain julkinen Overpass-rajapinta, ei avaimia.
 name: Kohteet
 on:
   schedule:
-    - cron: "41 3 2 * *"
+    - cron: "41 3 * * 0"
   workflow_dispatch:
   push:
     branches: [main]

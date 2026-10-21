@@ -1,15 +1,23 @@
-# Cloudflare Pages: HTTP-otsakkeet. Sisältöturvakäytäntö (CSP) on index.html:ssä.
+# Cloudflare Pages: HTTP-otsakkeet.
+# Sisältöturvakäytäntö (CSP) on sama kuin index.html:n meta-tagissa; otsakkeena lisäksi frame-ancestors.
+# CSP:tä ei aseteta kaikille poluille (/*), koska se rajoittaisi myös service workerin karttatiilihakuja.
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), payment=(), usb=(), geolocation=(self), accelerometer=(self), gyroscope=(self), magnetometer=(self)
   Cross-Origin-Opener-Policy: same-origin
+  X-Robots-Tag: noindex, nofollow
 
-/sw.js
+/
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://avoin-karttakuva.maanmittauslaitos.fi https://tile.openstreetmap.org; connect-src 'self' https://avoin-karttakuva.maanmittauslaitos.fi https://opendata.fmi.fi https://api.open-meteo.com https://api.met.no; font-src 'self'; worker-src 'self'; manifest-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'
   Cache-Control: no-cache
 
 /index.html
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://avoin-karttakuva.maanmittauslaitos.fi https://tile.openstreetmap.org; connect-src 'self' https://avoin-karttakuva.maanmittauslaitos.fi https://opendata.fmi.fi https://api.open-meteo.com https://api.met.no; font-src 'self'; worker-src 'self'; manifest-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'
+  Cache-Control: no-cache
+
+/sw.js
   Cache-Control: no-cache
 
 /data/areas.json

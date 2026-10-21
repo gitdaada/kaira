@@ -119,7 +119,7 @@
   // ---------------------------------------------------------------------------
 
   var REPO_NEW = 'https://github.com/gitdaada/kaira/new/main/areas/';
-  var MAX_VERTS = 2000, LINK_VERTS = 200, LINK_MAX = 7000;
+  var MAX_VERTS = 2000, LINK_VERTS = 200, LINK_MAX = 7000, MAX_HUNT_M2 = 3000e6; // 3 000 km² ≈ 300 000 ha
   K.drawing = false;
   var dpts = [], free = false, stroke = null, drawLayer = L.layerGroup().addTo(map);
 
@@ -285,8 +285,12 @@
         ? 'Analyysi tuottaa alueelle metsän iän, suojelualueet, hakkuut ja kanalintujen elinympäristöt. Ne näkyvät Lupa-alue-listassa, kun ajo on valmis (yleensä alle tunnissa).'
         : 'Analyysi hakee alueen joet ja purot, niiden vesitilanteen, jäänpaksuusmittaukset ja mitattujen järvien syvyysalueet. Ne näkyvät Tasot-paneelissa, kun ajo on valmis.' }));
       body.appendChild(h('div', { class: 'notice notice-warn', text: 'Lähetetty alue tallentuu julkiseen GitHub-repoon. Älä lähetä aluetta, joka paljastaa esimerkiksi kotisi tai mökkisi. Saalis- ja havaintotiedot eivät lähde laitteesta.' }));
-      var url = analysisLink(ring, saved.name, dir);
-      if (url) {
+      // Metsäanalyysin kuvat kasvavat alueen mukana; Cloudflaren ilmaistaso sallii enintään 25 MiB tiedoston.
+      var tooBig = dir === 'metsastys' && areaM2(ring.map(function (p) { return L.latLng(p[0], p[1]); })) > MAX_HUNT_M2;
+      var url = tooBig ? null : analysisLink(ring, saved.name, dir);
+      if (tooBig) {
+        body.appendChild(h('p', { class: 'small warn-text', text: 'Alue on liian suuri metsäanalyysiin (yli ' + K.fmtInt(MAX_HUNT_M2 / 1e6) + ' km²). Piirrä pienempi alue tai jaa se osiin.' }));
+      } else if (url) {
         body.appendChild(h('button', { type: 'button', class: 'btn btn-primary btn-block', text: 'Lähetä analysoitavaksi (GitHub)', onclick: function () {
           window.open(url, '_blank', 'noopener');
         } }));

@@ -104,6 +104,8 @@ Ajon voi käynnistää käsin: *Actions → ajo → Run workflow*. GitHub keskey
 - Tuodut tiedostot (GeoJSON, GPX, CSV) tarkistetaan: vain sijainnit ja tunnetut tekstikentät luetaan, eikä sisältöä tulkita HTML:nä.
 - GitHub Actions -ajoilla on vain välttämättömät oikeudet, ja käytettyjen toimintojen versiot on lukittu.
 - Repossa ei ole API-avaimia, salasanoja eikä henkilötietoja. Älä lisää niitä tiedostoihin.
+- GitHubin salaisuusskannaus ja push-suojaus ovat päällä. Testit-ajo tarkistaa Python-riippuvuuksien tunnetut haavoittuvuudet (pip-audit) ja Cloudflare Pagesin ilmaistason rajat (tiedosto alle 25 MiB, alle 20 000 tiedostoa, ei Functions-koodia).
+- Sivusto ei näy hakukoneissa (`X-Robots-Tag: noindex`). Puuttuvat polut palauttavat 404-sivun, joten virheellinen osoite ei tallennu välimuistiin datan tilalle.
 - Repo on julkinen. Siitä näkyvät sovelluksen koodi sekä lupa- ja kalastusalueiden rajat.
 
 ## Tietolähteet ja lisenssit

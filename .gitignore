@@ -1,5 +1,31 @@
-.cache/
+# Python
 __pycache__/
 *.pyc
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+# Putken välimuisti ja paikalliset lähdeaineistot
+.cache/
+pipeline/.cache/
+*.tif
+*.tif.aux.xml
+*.zip
+# Node (ei käytössä, varmuuden vuoksi)
 node_modules/
+# Salaisuudet ja paikalliset asetukset: älä koskaan lisää repoon
+.env
+.env.*
+.dev.vars
+*.pem
+*.key
+.wrangler/
+# Lokit, testien tulosteet ja käyttöjärjestelmän tiedostot
+*.log
+test-results/
+screenshots/
+*.tmp
 .DS_Store
+Thumbs.db
+.idea/
+.vscode/

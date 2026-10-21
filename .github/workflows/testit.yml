@@ -33,3 +33,17 @@ jobs:
           python3 tests/test_habitat.py
       - name: Laskentaytimen testit
         run: node tests/jcore.test.js
+      - name: Cloudflare Pages -rajat (ilmaistaso)
+        run: |
+          big=$(find docs -type f -size +24M)
+          if [ -n "$big" ]; then echo "::error::Yli 24 MiB tiedostoja (raja 25 MiB): $big"; exit 1; fi
+          n=$(find docs -type f | wc -l)
+          echo "Tiedostoja docs/-kansiossa: $n (raja 20000)"
+          if [ "$n" -gt 19000 ]; then echo "::error::Tiedostoja liian monta: $n"; exit 1; fi
+          if [ -d docs/functions ] || [ -d functions ] || [ -f wrangler.toml ] || [ -f docs/_worker.js ]; then
+            echo "::error::Pages Functions tai Worker löytyi: tarkista kustannukset ennen käyttöönottoa"; exit 1
+          fi
+      - name: Riippuvuuksien haavoittuvuudet (pip-audit)
+        run: |
+          pip install --only-binary=:all: pip-audit==2.7.3
+          pip-audit --no-deps -r pipeline/requirements.txt

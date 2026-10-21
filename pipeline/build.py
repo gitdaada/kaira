@@ -53,6 +53,7 @@ AREAS_DIR = ROOT / "areas" / "metsastys"
 OUT_DIR = ROOT / "docs" / "data"
 CACHE_DIR = Path(os.environ.get("MK_CACHE_DIR", ROOT / ".cache"))
 CONFIG_PATH = ROOT / "pipeline" / "config.json"
+MAX_ASSET_BYTES = 24 * 1024 * 1024  # Cloudflare Pages Free: enintään 25 MiB tiedostoa kohden
 
 ENCODING_VERSION = 1          # nosta, jos forest.png:n koodaus muuttuu
 EARTH_R = 6378137.0
@@ -761,6 +762,18 @@ def main() -> int:
             failed.append(path.name)
             if prev:
                 result.append(prev)
+
+    # Cloudflare Pagesin ilmaistaso hylkää koko julkaisun, jos yksikin tiedosto on yli 25 MiB.
+    # Liian suuren alueen tiedostot poistetaan ja alue merkitään epäonnistuneeksi.
+    for entry in list(result):
+        d = OUT_DIR / entry["id"]
+        big = [f for f in d.glob("*") if f.is_file() and f.stat().st_size > MAX_ASSET_BYTES] if d.is_dir() else []
+        if big:
+            log(f"::error::Alue {entry['id']} on liian suuri julkaistavaksi ({', '.join(f'{f.name} {f.stat().st_size / 1048576:.1f} MiB' for f in big)}, "
+                f"raja {MAX_ASSET_BYTES / 1048576:.0f} MiB). Pienennä aluetta tai jaa se osiin.")
+            shutil.rmtree(d)
+            result.remove(entry)
+            failed.append(entry.get("source", entry["id"]))
 
     # Poista alueet, joiden lähdetiedosto on poistettu
     # Vain metsäkarttojen omat kansiot (aiemmassa luettelossa); docs/data sisältää myös muuta dataa (esim. kohteet).

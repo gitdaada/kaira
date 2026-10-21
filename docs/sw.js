@@ -1,7 +1,7 @@
 /* Kairan service worker: pitää sovelluksen, datan ja tallennetut kartat käytettävissä ilman verkkoa. */
 'use strict';
 
-var SHELL_CACHE = 'kaira-shell-2026-10-21d';
+var SHELL_CACHE = 'kaira-shell-2026-10-21e';
 var TILE_CACHE = 'kaira-tiles-v1';
 var DATA_CACHE = 'kaira-data-v1';
 var ASSET_CACHE = 'kaira-assets-v1';
@@ -42,6 +42,11 @@ self.addEventListener('activate', function (e) {
   );
 });
 
+/** Välimuistiin vain onnistunut saman palvelimen vastaus, joka ei ole HTML-sivu (esim. 404- tai varasivu). */
+function cacheable(r) {
+  return r.ok && r.type === 'basic' && !/text\/html/i.test(r.headers.get('Content-Type') || '');
+}
+
 function isTile(url) { return url.pathname.indexOf('/WGS84_Pseudo-Mercator/') >= 0; }
 
 /** Maanmittauslaitoksen karttatiili: tallennettu ensin, sitten verkko. Avain ilman API-avainta. */
@@ -64,7 +69,7 @@ function cacheFirst(request, cacheName) {
   return caches.match(request).then(function (hit) {
     if (hit) return hit;
     return fetch(request).then(function (r) {
-      if (r.ok) { var copy = r.clone(); caches.open(cacheName).then(function (c) { c.put(request, copy); }); }
+      if (cacheable(r)) { var copy = r.clone(); caches.open(cacheName).then(function (c) { c.put(request, copy); }); }
       return r;
     });
   });
@@ -80,7 +85,7 @@ function networkFirst(request, cacheName, timeoutMs, fallbackBody) {
     }
     var timer = setTimeout(function () { if (!settled) { settled = true; fromCache().then(resolve); } }, timeoutMs);
     fetch(request, { cache: 'no-cache' }).then(function (r) {
-      if (r.ok) { var copy = r.clone(); caches.open(cacheName).then(function (c) { c.put(request, copy); }); }
+      if (cacheable(r)) { var copy = r.clone(); caches.open(cacheName).then(function (c) { c.put(request, copy); }); }
       if (!settled) { settled = true; clearTimeout(timer); resolve(r); }
     }).catch(function () {
       if (!settled) { settled = true; clearTimeout(timer); fromCache().then(resolve); }
@@ -93,7 +98,7 @@ function staleWhileRevalidate(request, cacheName, ignoreSearch) {
   return caches.open(cacheName).then(function (cache) {
     return cache.match(request, { ignoreSearch: !!ignoreSearch }).then(function (hit) {
       var net = fetch(request, { cache: 'no-cache' }).then(function (r) {
-        if (r.ok && r.type === 'basic') cache.put(request, r.clone());
+        if (cacheable(r)) cache.put(request, r.clone());
         return r;
       }).catch(function () { return hit || new Response('', { status: 504, statusText: 'Offline' }); });
       return hit || net;

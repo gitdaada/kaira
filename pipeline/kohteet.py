@@ -42,7 +42,7 @@ NIMI_TUPA = re.compile(r"autiotupa|autiokammi|autiotuvat", re.I)
 LINKIT = ("luontoon.fi", "metsa.fi", "retkikartta.fi")
 
 
-def get(url, data=None, timeout=240, tries=2):
+def get(url, data=None, timeout=200, tries=2):
     last = None
     for i in range(tries):
         try:
@@ -51,6 +51,9 @@ def get(url, data=None, timeout=240, tries=2):
                 return r.read()
         except Exception as e:  # noqa: BLE001
             last = e
+            # Ylikuormitettu palvelin (502/503/504/429): ei odoteta samaa palvelinta, vaan kokeillaan varapalvelinta.
+            if getattr(e, "code", None) in (429, 502, 503, 504):
+                break
             time.sleep(20 * (i + 1))
     raise last
 
@@ -302,9 +305,31 @@ def build(elements_by_region):
     return out, excluded
 
 
+def coverage():
+    """Maakunnat, joista edellisessä aineistossa on kohteita (kaikki tiedostot)."""
+    have = None
+    for k in MINIMI:
+        names = {f["properties"]["maakunta"] for f in sum(previous_all(k), [])}
+        have = names if have is None else have & names
+    return have or set()
+
+
+def previous_all(k):
+    try:
+        with open(os.path.join(OUT_DIR, k + ".geojson"), encoding="utf-8") as fh:
+            return [json.load(fh).get("features", [])]
+    except (OSError, ValueError):
+        return [[]]
+
+
 def main():
     regions, failed, t0 = [], [], time.time()
-    for iso, maakunta in MAAKUNNAT:
+    # Puuttuvat maakunnat ensin: jos rajapinta on ruuhkainen, jokainen ajo täydentää aineistoa.
+    have = coverage()
+    order = sorted(MAAKUNNAT, key=lambda m: m[1] in have)
+    if have:
+        print("Edellisessä aineistossa kaikki tiedostot: %s" % ", ".join(sorted(have)), flush=True)
+    for iso, maakunta in order:
         if time.time() - t0 > DEADLINE_S:
             failed.append(maakunta)
             gh("warning", "%s: aika loppui, käytetään edellistä aineistoa" % maakunta)
