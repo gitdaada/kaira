@@ -200,9 +200,24 @@ def diagnose(entries, n=3):
             sum(len(x["polygonit"]) for x in a["areas"]), sum(len(p) for x in a["areas"] for p in x["polygonit"])))
 
 
+def probe():
+    """Diagnostiikka, jos syöte ei vastaa: mitkä alerts.fmi.fi:n osoitteet vastaavat tästä verkosta."""
+    for url in (FEED, FEED.replace("fi-FI", "en-GB"), "https://alerts.fmi.fi/cap/profile/current/"):
+        try:
+            gh("notice", "Tarkistus: %s vastasi (%d tavua)" % (url, len(get(url, timeout=30, tries=1))))
+        except Exception as e:  # noqa: BLE001
+            gh("warning", "Tarkistus: %s: %s" % (url, e))
+
+
 def main():
     now = dt.datetime.now(dt.timezone.utc)
-    entries = parse_feed(get(FEED))
+    try:
+        feed = get(FEED)
+    except Exception:
+        if "--diagnose" in sys.argv:
+            probe()
+        raise
+    entries = parse_feed(feed)
     fire = [e for e in entries if re.search(r"maastopalo", e[0] + " " + e[1], re.I)]
     gh("notice", "Syötteessä %d varoitusta, joista maastopalovaroituksia %d" % (len(entries), len(fire)))
     if "--diagnose" in sys.argv:
