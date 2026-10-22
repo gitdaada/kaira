@@ -25,7 +25,11 @@
   K.geoLayer = function (gj) {
     return L.geoJSON(gj, {
       pane: 'linePane',
-      style: function (f) { var t = (f.properties || {}).tyyppi; return Object.assign({ pane: 'linePane', bubblingMouseEvents: false }, STYLE[t] || STYLE.oletus); },
+      // Pisteet saavat tyylinsä pointToLayerista: viivatyyli peittäisi muuten pistevärit (Leaflet soveltaa tyylin myös ympyrämerkkeihin).
+      style: function (f) {
+        if (f.geometry && /Point$/.test(f.geometry.type)) return {};
+        var t = (f.properties || {}).tyyppi; return Object.assign({ pane: 'linePane', bubblingMouseEvents: false }, STYLE[t] || STYLE.oletus);
+      },
       pointToLayer: function (f, ll) {
         var c = POINT[(f.properties || {}).tyyppi] || '#4cc3d9';
         return L.circleMarker(ll, { pane: 'linePane', radius: 9, color: '#10160f', weight: 2.5, fillColor: c, fillOpacity: 1, bubblingMouseEvents: false });

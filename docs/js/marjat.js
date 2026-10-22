@@ -9,7 +9,7 @@
   'use strict';
 
   var K = window.K, MK = window.MK, h = K.h, settings = K.settings, map = K.map;
-  var MIN_ZOOM = 9, CACHE_MAX = 3;
+  var MIN_ZOOM = 9, CACHE_MAX = 3, VIEW_AREAS = 3;
   var SECS = { erankaynti: { lajit: null, prefix: '' }, metsastys: { lajit: ['mustikka', 'puolukka'], prefix: 'm' } };
   var LAJIT = [
     { id: 'mustikka', nimi: 'Mustikka', set: 'bMustikka', file: 'marjat', ch: 'code', rgb: [123, 44, 191], kuvaus: 'Tuoreet kankaat, varttunut ja kohtalaisen tiheä metsä' },
@@ -20,7 +20,13 @@
   ];
   LAJIT.forEach(function (l) { l.colors = [MK.packRGBA(l.rgb[0], l.rgb[1], l.rgb[2], 95), MK.packRGBA(l.rgb[0], l.rgb[1], l.rgb[2], 175)]; });
 
-  var S = { areas: null, dec: {}, order: [], loading: {} };
+  var S = { areas: null, dec: {}, order: [], loading: {}, need: {} };
+  /** Muisti: vanhimmat puretut kuvat pois, kun niitä on yli CACHE_MAX. Nykyisen näkymän kuvia ei poisteta, muuten ne purettaisiin joka siirrolla uudelleen. */
+  function trim() {
+    var old = S.order.filter(function (k) { return !S.need[k]; }), extra = S.order.length - CACHE_MAX;
+    old.slice(0, Math.max(0, extra)).forEach(function (k) { delete S.dec[k]; });
+    S.order = S.order.filter(function (k) { return !!S.dec[k]; });
+  }
   function conf() { return SECS[K.section] || null; }
   function active() { return !!conf(); }
   function key(l) { return conf().prefix + l.set; }
@@ -58,8 +64,9 @@
         if (dec.code.length !== F.w * F.h) throw new Error('Ruudukko ei täsmää');
         S.dec[key] = { F: F, code: dec.code, ht: dec.ht, bl: dec.bl };
         S.order.push(key);
-        while (S.order.length > CACHE_MAX) delete S.dec[S.order.shift()]; // muisti: enintään kolme kuvaa kerrallaan
-        return S.dec[key];
+        var d = S.dec[key];
+        trim();
+        return d;
       }).catch(function (e) {
         console.warn('Marja- tai sienitasoa ei saatu:', e && e.message);
         if (!navigator.onLine) K.toast('Marja- ja sienitasot vaativat verkon tai alueen offline-tallennuksen.');
@@ -97,8 +104,11 @@
       if (!active()) return;
       var v = viewMerc(), files = {};
       enabled().forEach(function (l) { files[l.file] = true; });
-      var jobs = [];
-      areas.filter(function (a) { return overlaps(a, v); }).slice(0, CACHE_MAX).forEach(function (a) {
+      var jobs = [], vis = areas.filter(function (a) { return overlaps(a, v); }).slice(0, VIEW_AREAS);
+      S.need = {};
+      vis.forEach(function (a) { Object.keys(files).forEach(function (f) { S.need[a.id + '|' + f] = true; }); });
+      trim();
+      vis.forEach(function (a) {
         Object.keys(files).forEach(function (f) { jobs.push(decoded(a, f)); });
         if (!outlined[a.id] && safeUrl(a.boundary)) {
           outlined[a.id] = true;

@@ -157,33 +157,40 @@ def snow_xml():
 
 
 def berry_fixture(site):
-    """Eränkäynnin testialue marja- ja sienitasoineen sijainnin kohdalle (100 x 100 ruutua, n. 3,6 km)."""
+    """Eränkäynnin testialueet marja- ja sienitasoineen sijainnin kohdalle (100 x 100 ruutua, n. 3,6 km) ja sen itäpuolelle.
+    Oikeiden alueiden marja- ja sienitiedot poistetaan testikopiosta, jotta tulokset eivät riipu tuotantodatasta."""
     import math
     lat, lon, n, res = 63.4806, 25.9395, 100, 36.0
-    mx = lon * 20037508.342789 / 180
-    my = math.log(math.tan((90 + lat) * math.pi / 360)) * 6378137
-    x0, y1 = mx - n * res / 2, my + n * res / 2
-    x1, y0 = x0 + n * res, y1 - n * res
-    def ll(x, y):
-        return [round(math.degrees(2 * math.atan(math.exp(y / 6378137)) - math.pi / 2), 6), round(x / 6378137 * 180 / math.pi, 6)]
-    d = site / "data" / "era-testi"
-    d.mkdir(parents=True, exist_ok=True)
-    m = Image.new("RGB", (n, n), (0, 0, 0)); px = m.load()
-    s2 = Image.new("RGB", (n, n), (0, 0, 0)); py = s2.load()
-    for i in range(n):
-        for j in range(n):
-            px[i, j] = (220, 140 if i < n // 2 else 0, 0)        # mustikka hyvä kaikkialla, puolukka sopiva vasemmalla
-            py[i, j] = (0, 0, 200 if j < n // 2 else 0)          # herkkutatti hyvä yläpuolella
-    m.save(d / "marjat.png"); s2.save(d / "sienet.png")
-    b0, b1 = ll(x0, y0), ll(x1, y1)
-    ring = [[b0[1], b0[0]], [b1[1], b0[0]], [b1[1], b1[0]], [b0[1], b1[0]], [b0[1], b0[0]]]
-    (d / "boundary.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {},
-        "geometry": {"type": "Polygon", "coordinates": [ring]}}]}), encoding="utf-8")
     idx_path = site / "data" / "areas.json"
     idx = json.loads(idx_path.read_text(encoding="utf-8"))
-    idx["areas"].append({"id": "era-testi", "name": "Marjatesti", "osio": "erankaynti", "areaHa": 1296, "center": [lat, lon], "version": "t1", "bytes": 5000,
-                         "forest": {"width": n, "height": n, "res": res, "mercBounds": [x0, y0, x1, y1], "bounds": [b0, b1], "file": "data/era-testi/forest.png?v=t1"},
-                         "boundary": "data/era-testi/boundary.geojson?v=t1", "marjat": "data/era-testi/marjat.png?v=t1", "sienet": "data/era-testi/sienet.png?v=t1"})
+    idx["areas"] = [a for a in idx["areas"] if a.get("osio") != "erankaynti"]
+    for a in idx["areas"]:
+        a.pop("marjat", None); a.pop("sienet", None)
+    mx = lon * 20037508.342789 / 180
+    my = math.log(math.tan((90 + lat) * math.pi / 360)) * 6378137
+
+    def ll(x, y):
+        return [round(math.degrees(2 * math.atan(math.exp(y / 6378137)) - math.pi / 2), 6), round(x / 6378137 * 180 / math.pi, 6)]
+    for aid, name, dx in (("era-testi", "Marjatesti", 0.0), ("era-testi-ita", "Marjatesti itä", n * res)):
+        x0, y1 = mx - n * res / 2 + dx, my + n * res / 2
+        x1, y0 = x0 + n * res, y1 - n * res
+        d = site / "data" / aid
+        d.mkdir(parents=True, exist_ok=True)
+        m = Image.new("RGB", (n, n), (0, 0, 0)); px = m.load()
+        s2 = Image.new("RGB", (n, n), (0, 0, 0)); py = s2.load()
+        for i in range(n):
+            for j in range(n):
+                px[i, j] = (220, 140 if i < n // 2 else 0, 0)        # mustikka hyvä kaikkialla, puolukka sopiva vasemmalla
+                py[i, j] = (0, 0, 200 if j < n // 2 else 0)          # herkkutatti hyvä yläpuolella
+        m.save(d / "marjat.png"); s2.save(d / "sienet.png")
+        b0, b1 = ll(x0, y0), ll(x1, y1)
+        ring = [[b0[1], b0[0]], [b1[1], b0[0]], [b1[1], b1[0]], [b0[1], b1[0]], [b0[1], b0[0]]]
+        (d / "boundary.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {},
+            "geometry": {"type": "Polygon", "coordinates": [ring]}}]}), encoding="utf-8")
+        idx["areas"].append({"id": aid, "name": name, "osio": "erankaynti", "areaHa": 1296, "center": [(b0[0] + b1[0]) / 2, (b0[1] + b1[1]) / 2],
+                             "version": "t1", "bytes": 5000,
+                             "forest": {"width": n, "height": n, "res": res, "mercBounds": [x0, y0, x1, y1], "bounds": [b0, b1], "file": "data/%s/forest.png?v=t1" % aid},
+                             "boundary": "data/%s/boundary.geojson?v=t1" % aid, "marjat": "data/%s/marjat.png?v=t1" % aid, "sienet": "data/%s/sienet.png?v=t1" % aid})
     idx_path.write_text(json.dumps(idx, ensure_ascii=False), encoding="utf-8")
 
 
@@ -338,6 +345,12 @@ def main():
         check("Maastopalovaroitus" not in pg.locator("#wxCard").inner_text() and pg.evaluate("document.querySelectorAll('.leaflet-fire-pane path').length") == 0, "maastopalovaroitukset eivät näy kalastuksessa")
         check(pg.evaluate("document.querySelectorAll('.wind-canvas').length") == 0, "tuuliviuhka ei näy kalastuksessa")
         check(pg.locator("#navMain .nav-lbl").inner_text() == "Saalis" and pg.locator("#navInfo .nav-lbl").inner_text() == "Perhot", "alapalkki vaihtuu osion mukaan")
+        styles = pg.evaluate("""['koski', 'suvanto', 'kohde'].map(function (t) { var o = null;
+            K.geoLayer({type: 'FeatureCollection', features: [{type: 'Feature', properties: {tyyppi: t}, geometry: {type: 'Point', coordinates: [25, 63]}},
+              {type: 'Feature', properties: {tyyppi: 'joki'}, geometry: {type: 'LineString', coordinates: [[25, 63], [25.1, 63.1]]}}]})
+              .eachLayer(function (l) { if (l.getRadius) o = [l.options.fillColor, l.options.fillOpacity, l.options.color]; else if (l.options.color !== '#2b8cbe') o = 'viiva'; });
+            return o; })""")
+        check(styles == [["#2b8cbe", 1, "#10160f"], ["#7fc8e8", 1, "#10160f"], ["#5bd18b", 1, "#10160f"]], "kosket, suvannot ja kohteet omilla väreillään, joki viivatyylillä (%s)" % styles)
         pg.locator("#navInfo").click()
         pg.wait_for_selector("#sheetBody .seg")
         pg.wait_for_function("document.querySelector('#sheetBody').innerText.toLowerCase().indexOf('kalalaji') >= 0", timeout=10000)
@@ -452,6 +465,12 @@ def main():
         # Marjat ja sienet: tasot vain eränkäynnissä, piirretyillä alueilla
         pg.evaluate("K.settings.bMustikka = true; K.settings.bHerkku = true; K.saveSettings(); K.map.setView([63.4806, 25.9395], 13, {animate:false})")
         pg.wait_for_function("K.berries.S.dec['era-testi|marjat'] && K.berries.S.dec['era-testi|sienet']", timeout=15000)
+        # Kaksi aluetta näkymässä ja molemmat tiedostot: kaikki neljä kuvaa pysyvät muistissa eivätkä pura toisiaan pois siirroissa
+        pg.wait_for_function("['era-testi', 'era-testi-ita'].every(function (a) { return K.berries.S.dec[a + '|marjat'] && K.berries.S.dec[a + '|sienet']; })", timeout=15000)
+        pg.evaluate("window._dec0 = K.berries.S.dec['era-testi|marjat']; K.map.panBy([30, 0], {animate: false})")
+        pg.wait_for_timeout(500)
+        check(pg.evaluate("K.berries.S.dec['era-testi|marjat'] === window._dec0 && Object.keys(K.berries.S.dec).length === 4"),
+              "kahden vierekkäisen alueen marja- ja sienikuvat pysyvät muistissa siirron jälkeen")
         r = pg.evaluate("K.berries.at(L.latLng(63.4815, 25.9395)).map(function (x) { return x.laji.id + ':' + x.taso; })")
         check(r == ["mustikka:2", "herkkutatti:2"], "marja- ja sienitiedot pisteessä (%s)" % r)
         check(pg.evaluate("K.berries.at(L.latLng(63.4795, 25.9395)).map(function (x) { return x.laji.id; })") == ["mustikka"], "herkkutatti vain alueen yläosassa")
