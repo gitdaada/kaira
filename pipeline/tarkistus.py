@@ -6,6 +6,8 @@ import json
 import os
 import re
 import sys
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -94,7 +96,47 @@ def main():
             gh("notice", "Loki: " + line)
     except Exception as e:  # noqa: BLE001
         gh("warning", "Vesistökäyrät: %r" % e)
+    rapids_sources()
     return 0
+
+
+MML_OGC = "https://avoin-paikkatieto.maanmittauslaitos.fi/maastotiedot/features/v1/"
+
+
+def rapids_sources():
+    """Kosket ja suvannot piirretyillä kalastusalueilla: OpenStreetMap alueella ja sen ympäristössä (10 km)
+    sekä Maanmittauslaitoksen maastotietokanta (kohdeluokka Koski), jos avain on asetettu Actionsin salaisuudeksi."""
+    key = os.environ.get("MML_API_KEY", "").strip()
+    for a in V.read_drawn():
+        s, w, n, e = a["bbox_latlon"]
+        m = 0.09
+        bb = "%f,%f,%f,%f" % (s - m, w - m * 2.5, n + m, e + m * 2.5)
+        q = ('[out:json][timeout:90];(nwr["waterway"~"^(rapids|waterfall)$"](%s);nwr["water"="rapids"](%s);nwr["whitewater"](%s);'
+             'nwr["name"~"(koski|kongas|köngäs|niva|suvanto|suanto)$",i](%s););out center tags;' % (bb, bb, bb, bb))
+        try:
+            j = json.loads(V.get(V.OVERPASS, data=urllib.parse.urlencode({"data": q}).encode(), timeout=120))
+            els = j.get("elements", [])
+            rows = []
+            for el in els:
+                t = el.get("tags", {})
+                c = el.get("center") or {"lat": el.get("lat"), "lon": el.get("lon")}
+                rows.append("%s %s [%s] %.1f km" % (el["type"][0], t.get("name", "-"), ",".join("%s=%s" % (k, t[k]) for k in ("waterway", "water", "whitewater", "natural", "place") if k in t),
+                                                     V.dist_km((s + n) / 2, (w + e) / 2, c["lat"], c["lon"]) if c.get("lat") else -1))
+            gh("notice", "OSM %s (alue + 10 km): %d kohdetta: %s" % (a["id"], len(els), "; ".join(sorted(rows, key=lambda r: float(r.rsplit(" ", 2)[-2]))[:15])))
+        except Exception as ex:  # noqa: BLE001
+            gh("warning", "OSM %s: %r" % (a["id"], ex))
+        time.sleep(3)
+        url = MML_OGC + "collections/koski/items?" + urllib.parse.urlencode(dict({"bbox": "%f,%f,%f,%f" % (w, s, e, n), "limit": "100"}, **({"api-key": key} if key else {})))
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": V.UA, "Accept": "application/geo+json"})
+            with urllib.request.urlopen(req, timeout=60) as r:
+                fc = json.loads(r.read())
+            fs = fc.get("features", [])
+            gh("notice", "MML koski %s: %d kohdetta, esim. %s" % (a["id"], len(fs), json.dumps([{"geom": (f.get("geometry") or {}).get("type"), "props": f.get("properties")} for f in fs[:3]], ensure_ascii=False)[:700]))
+        except urllib.error.HTTPError as ex:
+            gh("notice", "MML koski %s: HTTP %s (%s)" % (a["id"], ex.code, "avain asetettu" if key else "ei avainta"))
+        except Exception as ex:  # noqa: BLE001
+            gh("warning", "MML koski %s: %r" % (a["id"], ex))
 
 
 if __name__ == "__main__":
