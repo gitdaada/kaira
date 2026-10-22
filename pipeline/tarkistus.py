@@ -115,7 +115,15 @@ def rapids_sources():
         q = ('[out:json][timeout:90];(nwr["waterway"~"^(rapids|waterfall)$"](%s);nwr["water"="rapids"](%s);nwr["whitewater"](%s);'
              'nwr["name"~"(koski|kongas|köngäs|niva|suvanto|suanto)$",i](%s););out center tags;' % (bb, bb, bb, bb))
         try:
-            j = json.loads(V.get(V.OVERPASS, data=urllib.parse.urlencode({"data": q}).encode(), timeout=120))
+            j = None
+            for ep in (V.OVERPASS, "https://overpass.kumi.systems/api/interpreter"):
+                try:
+                    j = json.loads(V.get(ep, data=urllib.parse.urlencode({"data": q}).encode(), timeout=120, tries=2))
+                    break
+                except Exception as ex2:  # noqa: BLE001
+                    gh("notice", "OSM %s: %s %r" % (a["id"], ep.split("/")[2], ex2))
+            if j is None:
+                continue
             els = j.get("elements", [])
             rows = []
             for el in els:
