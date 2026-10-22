@@ -24,6 +24,7 @@ import os
 import re
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -40,6 +41,7 @@ MAX_RIVERS = 15
 SYKE = "https://rajapinnat.ymparisto.fi/api/Hydrologiarajapinta/1.2/odata"
 FMI = "https://opendata.fmi.fi/wfs"
 OVERPASS = "https://overpass-api.de/api/interpreter"
+OVERPASS_ALT = "https://overpass.kumi.systems/api/interpreter"
 WINDOW_D = 7          # ± vuorokautta vuodenajan vertailussa
 MIN_YEARS = 5         # vähintään näin monta vertailuvuotta
 MAX_AGE_D = 10        # mittaus enintään näin vanha
@@ -524,7 +526,7 @@ def fetch_drawn_rivers(area):
 
 
 KOSKI_RE = re.compile(r"(koski|kongas|köngäs|niva)$", re.I)
-SUVANTO_RE = re.compile(r"(suvanto|suanto)$", re.I)
+SUVANTO_RE = re.compile(r"(suvanto|suanto|vuopio)$", re.I)
 NOT_WATER = ("highway", "railway", "building", "amenity", "shop", "tourism", "landuse", "boundary", "power",
              "man_made", "office", "leisure", "craft", "aeroway", "public_transport")
 NOT_WATER_PLACE = ("city", "town", "village", "hamlet", "isolated_dwelling", "suburb", "neighbourhood", "quarter", "farm", "allotments")
@@ -544,29 +546,156 @@ def water_feature_type(t):
     return None
 
 
+# Maanmittauslaitos: maastotietokannan kosket (kohdeluokka 38200, viivoja ilman nimeä) ja nimistön kosken ja
+# virtaveden osan nimet. Avain vain ympäristömuuttujasta (Actionsin salaisuus), ei koskaan lokiin eikä tiedostoihin.
+MML_KOSKI = "https://avoin-paikkatieto.maanmittauslaitos.fi/maastotiedot/features/v1/collections/koski/items"
+MML_NAMES = "https://avoin-paikkatieto.maanmittauslaitos.fi/geographic-names/features/v1/collections/placenames/items"
+NAME_KOSKI = 2020115       # nimistön paikkatyyppi: koski
+NAME_WATERPART = 2020110   # nimistön paikkatyyppi: virtaveden osa (niva, suvanto, vuopio)
+KOSKI_MERGE_KM = 0.15      # saman kosken viivanpätkät yhdeksi pisteeksi
+NAME_MATCH_KM = 0.4        # nimi liitetään näin lähellä olevaan maastotietokannan koskeen
+
+
+def mml_key():
+    return os.environ.get("MML_API_KEY", "").strip()
+
+
+def mml_items(url, bbox, key, limit=1000, pages=10):
+    """OGC API Features sivuittain. Virheestä vain HTTP-tila, ei osoitetta (avain on osoitteessa)."""
+    q = url + "?" + urllib.parse.urlencode({"bbox": "%.6f,%.6f,%.6f,%.6f" % bbox, "limit": str(limit), "api-key": key})
+    out = []
+    for _ in range(pages):
+        try:
+            fc = json.loads(get(q, timeout=90, tries=2))
+        except urllib.error.HTTPError as e:
+            raise RuntimeError("MML HTTP %s" % e.code) from None
+        except Exception as e:  # noqa
+            raise RuntimeError("MML %s" % type(e).__name__) from None
+        out += fc.get("features", [])
+        nxt = [l.get("href") for l in fc.get("links", []) if l.get("rel") == "next" and isinstance(l.get("href"), str)]
+        if not nxt or not fc.get("features") or not nxt[0].startswith("https://avoin-paikkatieto.maanmittauslaitos.fi/"):
+            break
+        q = nxt[0] if "api-key=" in nxt[0] else nxt[0] + ("&" if "?" in nxt[0] else "?") + urllib.parse.urlencode({"api-key": key})
+    return out
+
+
+def in_rings(lon, lat, rings):
+    for ring in rings:
+        ins, j = False, len(ring) - 1
+        for i in range(len(ring)):
+            xi, yi = ring[i][0], ring[i][1]
+            xj, yj = ring[j][0], ring[j][1]
+            if (yi > lat) != (yj > lat) and lon < (xj - xi) * (lat - yi) / ((yj - yi) or 1e-12) + xi:
+                ins = not ins
+            j = i
+        if ins:
+            return True
+    return False
+
+
+def line_point(g):
+    """Viivan (tai muun geometrian) piste viivalla: keskikohtaa lähin taitepiste."""
+    t, c = g.get("type"), g.get("coordinates") or []
+    if t == "Point":
+        return c[0], c[1]
+    pts = c if t in ("LineString", "MultiPoint") else [p for part in c for p in (part[0] if t == "MultiPolygon" else part)]
+    if not pts:
+        return None
+    mx, my = sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)
+    best = min(pts, key=lambda p: (p[0] - mx) ** 2 + (p[1] - my) ** 2)
+    return best[0], best[1]
+
+
+def name_type(props):
+    """Nimistön nimi -> ('koski' | 'suvanto', nimi) tai None."""
+    nm = str(props.get("spelling") or "").strip()[:60]
+    pt = props.get("placeType")
+    if not nm:
+        return None
+    if pt == NAME_KOSKI:
+        return "koski", nm
+    if pt == NAME_WATERPART:
+        if KOSKI_RE.search(nm):
+            return "koski", nm
+        if SUVANTO_RE.search(nm):
+            return "suvanto", nm
+    return None
+
+
+def merge_rapids(rings, mml_lines, names, osm_elements):
+    """Kosket ja suvannot alueen sisällä pisteinä.
+    mml_lines: maastotietokannan koskien GeoJSON-kohteet; names: nimistön kohteet; osm_elements: Overpassin elementit.
+    Maastotietokanta ratkaisee koskien sijainnin, nimistö ja OpenStreetMap antavat nimet ja suvannot."""
+    kosket = []  # {"p": (lon, lat), "n": nimi, "src": lähde}
+    for f in mml_lines:
+        pt = line_point(f.get("geometry") or {})
+        if not pt or not in_rings(pt[0], pt[1], rings):
+            continue
+        if any(dist_km(k["p"][1], k["p"][0], pt[1], pt[0]) < KOSKI_MERGE_KM for k in kosket):
+            continue
+        kosket.append({"p": (round(pt[0], 5), round(pt[1], 5)), "n": "", "src": "mml"})
+    named = []  # (tyyppi, nimi, (lon, lat)); suomenkieliset nimet ensin
+    for f in sorted(names, key=lambda f: (f.get("properties") or {}).get("language") != "fin"):
+        nt = name_type(f.get("properties") or {})
+        pt = line_point(f.get("geometry") or {})
+        if nt and pt and in_rings(pt[0], pt[1], rings):
+            named.append((nt[0], nt[1], pt, (f.get("properties") or {}).get("language") in (None, "fin")))
+    for el in osm_elements:
+        t = el.get("tags", {})
+        tyyppi = water_feature_type(t)
+        c = el.get("center") or {"lat": el.get("lat"), "lon": el.get("lon")}
+        if tyyppi and c.get("lat") is not None and in_rings(c["lon"], c["lat"], rings):
+            named.append((tyyppi, (t.get("name:fi") or t.get("name") or "").strip()[:60], (c["lon"], c["lat"]), True))
+    suvannot = []
+    for tyyppi, nm, pt, fin in named:
+        same = kosket if tyyppi == "koski" else suvannot
+        if nm and any(o["n"] == nm and dist_km(o["p"][1], o["p"][0], pt[1], pt[0]) < 1.0 for o in same):
+            continue  # sama nimi jo lähellä (nimistö ja OpenStreetMap)
+        if not fin and any(o["n"] and dist_km(o["p"][1], o["p"][0], pt[1], pt[0]) < NAME_MATCH_KM for o in same):
+            continue  # saman paikan nimi toisella kielellä (esim. saame), suomenkielinen jo käytössä
+        if tyyppi == "koski":
+            near = sorted((dist_km(k["p"][1], k["p"][0], pt[1], pt[0]), i) for i, k in enumerate(kosket) if not k["n"])
+            if near and near[0][0] < NAME_MATCH_KM:
+                kosket[near[0][1]]["n"] = nm
+                continue
+            if not nm and any(dist_km(k["p"][1], k["p"][0], pt[1], pt[0]) < NAME_MATCH_KM for k in kosket):
+                continue  # nimetön OSM-koski, joka on jo maastotietokannassa
+        same.append({"p": (round(pt[0], 5), round(pt[1], 5)), "n": nm, "src": "nimi"})
+    out = [("koski", k) for k in kosket] + [("suvanto", x) for x in suvannot]
+    return [{"type": "Feature", "properties": {"nimi": o["n"] or ("Koski" if t == "koski" else "Suvanto"), "tyyppi": t},
+             "geometry": {"type": "Point", "coordinates": list(o["p"])}} for t, o in sorted(out, key=lambda x: (x[0], x[1]["n"] or "~", x[1]["p"]))]
+
+
 def fetch_rapids(area):
-    """Kosket ja suvannot piirretyn alueen sisällä (OpenStreetMap) pisteinä."""
+    """Kosket ja suvannot piirretyn alueen sisällä. Palauttaa (kohteet, onnistuneet lähteet, valmis)."""
+    s, w, n, e = area["bbox_latlon"]
+    bbox = (w - 0.002, s - 0.001, e + 0.002, n + 0.001)
+    ok, mml_lines, names, osm = [], [], [], []
+    key = mml_key()
+    if key:
+        try:
+            mml_lines = mml_items(MML_KOSKI, bbox, key)
+            names = mml_items(MML_NAMES, bbox, key)
+            ok.append("mml")
+        except Exception as ex:  # noqa
+            mml_lines, names = [], []
+            note("%s: Maanmittauslaitoksen koskia ei saatu (%s)" % (area["id"], ex))
     parts = []
     for r in area["rings"]:
         pf = poly_filter(r)
         parts.append('nwr["waterway"="rapids"](poly:"%s");nwr["water"="rapids"](poly:"%s");nwr["whitewater"](poly:"%s");'
-                     'nwr["name"~"(koski|kongas|köngäs|niva|suvanto|suanto)$",i](poly:"%s");' % (pf, pf, pf, pf))
+                     'nwr["name"~"(koski|kongas|köngäs|niva|suvanto|suanto|vuopio)$",i](poly:"%s");' % (pf, pf, pf, pf))
     q = "[out:json][timeout:120];(" + "".join(parts) + ");out center tags;"
-    j = json.loads(get(OVERPASS, data=urllib.parse.urlencode({"data": q}).encode(), timeout=180))
-    out = []
-    for el in j.get("elements", []):
-        t = el.get("tags", {})
-        tyyppi = water_feature_type(t)
-        c = el.get("center") or {"lat": el.get("lat"), "lon": el.get("lon")}
-        if not tyyppi or c.get("lat") is None:
-            continue
-        name = (t.get("name") or t.get("name:fi") or "").strip()[:60]
-        pt = (round(c["lon"], 5), round(c["lat"], 5))
-        if any(o["n"] == name and o["t"] == tyyppi and dist_km(o["p"][1], o["p"][0], pt[1], pt[0]) < 0.3 for o in out):
-            continue  # sama koski sekä pisteenä että alueena
-        out.append({"n": name, "t": tyyppi, "p": pt})
-    return [{"type": "Feature", "properties": {"nimi": o["n"] or ("Koski" if o["t"] == "koski" else "Suvanto"), "tyyppi": o["t"]},
-             "geometry": {"type": "Point", "coordinates": list(o["p"])}} for o in sorted(out, key=lambda o: (o["t"], o["n"]))]
+    for ep in (OVERPASS, OVERPASS_ALT):
+        try:
+            osm = json.loads(get(ep, data=urllib.parse.urlencode({"data": q}).encode(), timeout=180, tries=2)).get("elements", [])
+            ok.append("osm")
+            break
+        except Exception as ex:  # noqa
+            note("%s: OpenStreetMapin koskia ei saatu (%s, %r)" % (area["id"], ep.split("/")[2], ex))
+    feats = merge_rapids(area["rings"], mml_lines, names, osm)
+    done = "osm" in ok and ("mml" in ok or not key)
+    return feats, ok, done
 
 
 def river_bbox(gj, margin):
@@ -576,12 +705,14 @@ def river_bbox(gj, margin):
     return [min(lats) - margin, min(lons) - margin * 2, max(lats) + margin, max(lons) + margin * 2]
 
 
-def area_layer(area, extra=None, complete=True):
+def area_layer(area, extra=None, complete=True, sources=("osm",)):
     """Piirretyn alueen raja ja kosket/suvannot kalastustasoksi."""
     feats = [{"type": "Feature", "properties": {"nimi": area["nimi"], "tyyppi": "alue"},
               "geometry": {"type": "Polygon", "coordinates": [[list(p) for p in r]]}} for r in area["rings"]]
+    lahde = (["Kosket: Maanmittauslaitos, maastotietokanta ja nimistö (CC BY 4.0)"] if "mml" in sources else []) + \
+        ["Kosket ja suvannot © OpenStreetMapin tekijät, ODbL"]
     return {"type": "FeatureCollection", "features": feats + (extra or []),
-            "properties": {"alue_hash": area["hash"], "kosket_haettu": complete, "lahde": "Kosket ja suvannot © OpenStreetMapin tekijät, ODbL"}}
+            "properties": {"alue_hash": area["hash"], "kosket_haettu": complete, "koskilahteet": sorted(sources), "lahde": "; ".join(lahde)}}
 
 
 def update_index(drawn):
@@ -687,16 +818,17 @@ def main():
             oldp = json.load(open(path, encoding="utf-8")).get("properties", {})
         except Exception:  # noqa
             oldp = {}
-        if oldp.get("alue_hash") != a["hash"] or not oldp.get("kosket_haettu"):
+        # Haetaan uudelleen, kun alue muuttuu, edellinen haku jäi kesken tai Maanmittauslaitoksen avain on otettu käyttöön.
+        if oldp.get("alue_hash") != a["hash"] or not oldp.get("kosket_haettu") or (mml_key() and "mml" not in (oldp.get("koskilahteet") or [])):
             try:
-                extra, ok = fetch_rapids(a), True
+                extra, srcs, ok = fetch_rapids(a)
                 time.sleep(5)
             except Exception as e:  # noqa
-                extra, ok = [], False
+                extra, srcs, ok = [], [], False
                 note("%s: koskia ja suvantoja ei saatu: %r" % (a["id"], e))
-            json.dump(area_layer(a, extra, ok), open(path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
-            note("%s: aluetaso kirjoitettu (%d koskea, %d suvantoa)" % (a["id"], sum(f["properties"]["tyyppi"] == "koski" for f in extra),
-                                                                       sum(f["properties"]["tyyppi"] == "suvanto" for f in extra)))
+            json.dump(area_layer(a, extra, ok, srcs), open(path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+            note("%s: aluetaso kirjoitettu (%d koskea, %d suvantoa; lähteet %s)" % (a["id"], sum(f["properties"]["tyyppi"] == "koski" for f in extra),
+                                                                       sum(f["properties"]["tyyppi"] == "suvanto" for f in extra), ", ".join(srcs) or "-"))
     update_index(drawn)
     areas = list(cfg["alueet"]) + drawn
     for area in areas:

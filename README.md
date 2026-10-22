@@ -56,7 +56,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 - Animoidut solmuohjeet, toimivat ilman verkkoa
 - Jokien vesitilanne väreinä (punainen = alhainen, vihreä = normaali, tummansininen = korkea)
 - Virtaama, vedenkorkeus ja veden lämpötila 30 vuorokauden käyrinä tavallisen vaihteluvälin kanssa (Valikko → Vesistöt tai napauta jokea)
-- Piirretyt kalastusalueet: raja, kosket ja suvannot (OpenStreetMap)
+- Piirretyt kalastusalueet: raja, kosket ja suvannot (Maanmittauslaitoksen maastotietokanta ja nimistö sekä OpenStreetMap)
 - Jäänpaksuus: Syken mittaukset kalastusalueilla ja 5 km säteellä sijainnista (arvo, mittauspäivä, etäisyys ja varoitus)
 - Järvien syvyysalueet piirretyillä kalastusalueilla, vain Syken mittaamat järvet
 - Saaliskirjaus: laji, pituus, paino, vapautettu, perho tai viehe
@@ -74,6 +74,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 1. **Puhelin:** avaa https://kaira-kartta.pages.dev/ Chromessa ja valitse ⋮ → *Asenna sovellus* (iPhone: Safari → Jaa → *Lisää Koti-valikkoon*).
 2. **MML:n API-avain:** hae ilmainen avain [Maanmittauslaitokselta](https://www.maanmittauslaitos.fi/rajapinnat/api-avaimen-ohje) ja syötä se sovelluksen asetuksiin. Avain on henkilökohtainen ja tallentuu vain puhelimeen.
 3. **Offline:** tallenna alue kotona Wi-Fissä ennen reissua.
+4. **Kosket kalastusalueille (valinnainen):** lisää MML:n API-avain repon Actions-salaisuudeksi nimellä `MML_API_KEY` (Settings → Secrets and variables → Actions). Vesitilanne-ajo hakee sillä maastotietokannan kosket ja nimistön; ilman sitä kosket haetaan vain OpenStreetMapista. Avain ei tallennu repoon eikä sovellukseen.
 
 Julkaisu: Cloudflare Pages julkaisee `docs/`-kansion automaattisesti jokaisesta pushista main-haaraan (Framework preset None, Build command tyhjä, Build output directory `docs`).
 
@@ -134,6 +135,7 @@ Ajon voi käynnistää käsin: *Actions → ajo → Run workflow*. GitHub keskey
 - Salamahavainnot ja lumensyvyys: Ilmatieteen laitos, avoin data, CC BY 4.0 (haetaan puhelimessa, sijainti pyöristettynä noin 1 km).
 - Vesitilanne, virtaama, vedenkorkeus, veden lämpötila ja jäänpaksuus: Syke, Hydrologiarajapinta, CC BY 4.0; sademäärä: Ilmatieteen laitos, CC BY 4.0. Jokien uomat: © OpenStreetMapin tekijät, ODbL.
 - Järvien syvyysalueet ja syvyyskäyrät: Syke, CC BY 4.0 (vain mitatut järvet).
+- Kosket ja suvannot kalastusalueilla: Maanmittauslaitos, maastotietokanta (kohdeluokka Koski) ja nimistö, CC BY 4.0, sekä © OpenStreetMapin tekijät, ODbL.
 - Tuvat, laavut ja tulipaikat: © OpenStreetMapin tekijät, ODbL. Varaus- ja vuokratuvat jätetään pois. Tarkista ajantasaiset tiedot ylläpitäjältä (useimmiten luontoon.fi).
 - Perhosuositukset ovat lähtötaulukko yleisesti käytetyistä perhoista. Perhojen valokuvat: Wikimedia Commons, tekijät ja lisenssit sovelluksessa ja tiedostossa `docs/img/perhot/kuvat/lahteet.json`.
 - Solmujen vaiheet: Orvis, Animated Knots ja Bass Pro. Animaatiot ovat tämän sovelluksen omia piirroksia (`docs/js/solmut.js`).

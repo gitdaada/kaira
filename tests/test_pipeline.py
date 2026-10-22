@@ -2,6 +2,7 @@
 import datetime as dt
 import os
 import sys
+import urllib.error
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "pipeline"))
 import vesitilanne as v  # noqa: E402
@@ -157,6 +158,36 @@ assert v.water_feature_type({"name": "Pahakoski", "building": "yes"}) is None
 assert v.water_feature_type({"name": "Järvi"}) is None
 lay = v.area_layer(d[0], [{"type": "Feature", "properties": {"nimi": "Pahakoski", "tyyppi": "koski"}, "geometry": {"type": "Point", "coordinates": [24.05, 65.05]}}])
 assert [f["properties"]["tyyppi"] for f in lay["features"]] == ["alue", "koski"] and lay["properties"]["kosket_haettu"] is True
+# Maastotietokannan kosket + nimistö + OSM yhdistettynä
+ring = [[24.0, 65.0], [24.1, 65.0], [24.1, 65.05], [24.0, 65.05], [24.0, 65.0]]
+ln = lambda *pts: {"type": "Feature", "properties": {"kohdeluokka": 38200}, "geometry": {"type": "LineString", "coordinates": [list(p) for p in pts]}}  # noqa: E731
+nm = lambda name, pt, typ, lang="fin": {"type": "Feature", "properties": {"spelling": name, "placeType": typ, "language": lang}, "geometry": {"type": "Point", "coordinates": list(pt)}}  # noqa: E731
+mml = [ln((24.020, 65.0100), (24.022, 65.0110)), ln((24.0225, 65.0112), (24.0230, 65.0115)),   # sama koski kahtena pätkänä
+       ln((24.070, 65.040), (24.071, 65.041)), ln((24.20, 65.02), (24.21, 65.021))]               # toinen koski; alueen ulkopuolella
+names = [nm("Bahágoŋas", (24.0212, 65.0105), 2020115, "sme"), nm("Pahakoski", (24.0211, 65.0104), 2020115),
+         nm("Ruununvuopio", (24.05, 65.03), 2020110), nm("Poroeno", (24.05, 65.02), 2020105), nm("Poroniva", (24.0712, 65.0405), 2020110),
+         nm("Kaukokoski", (24.3, 65.02), 2020115)]
+osm = [{"type": "way", "tags": {"waterway": "rapids", "name": "Pahakoski"}, "center": {"lat": 65.0108, "lon": 24.0215}},
+       {"type": "node", "tags": {"waterway": "rapids"}, "lat": 65.0402, "lon": 24.0705},
+       {"type": "node", "tags": {"waterway": "rapids", "name": "Uusikoski"}, "lat": 65.045, "lon": 24.01}]
+got = [(f["properties"]["tyyppi"], f["properties"]["nimi"]) for f in v.merge_rapids([ring], mml, names, osm)]
+assert got == [("koski", "Pahakoski"), ("koski", "Poroniva"), ("koski", "Uusikoski"), ("suvanto", "Ruununvuopio")], got
+got = [(f["properties"]["tyyppi"], f["properties"]["nimi"]) for f in v.merge_rapids([ring], mml, [], [])]
+assert got == [("koski", "Koski"), ("koski", "Koski")], got
+assert v.line_point({"type": "LineString", "coordinates": [[0, 0], [1, 1], [2, 2]]}) == (1, 1)
+lay = v.area_layer(d[0], [], True, ["mml", "osm"])
+assert lay["properties"]["koskilahteet"] == ["mml", "osm"] and "Maanmittauslaitos" in lay["properties"]["lahde"]
+# Avain ei päädy virheilmoitukseen eikä lokiin
+old_get = v.get
+def fail_get(url, **kw):
+    raise urllib.error.HTTPError(url, 401, "Unauthorized", {}, None)
+v.get = fail_get
+try:
+    v.mml_items(v.MML_KOSKI, (24, 65, 24.1, 65.05), "SALAINENAVAIN")
+    raise AssertionError("virhe odotettiin")
+except RuntimeError as e:
+    assert "SALAINENAVAIN" not in str(e) and "401" in str(e), e
+v.get = old_get
 print("kosket ja suvannot läpi")
 rb = v.river_bbox({"features": [{"geometry": {"type": "LineString", "coordinates": [[21.9, 69.0], [22.1, 69.2]]}}]}, 0.05)
 assert [round(x, 3) for x in rb] == [68.95, 21.8, 69.25, 22.2], rb

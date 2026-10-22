@@ -1,6 +1,7 @@
 # Kalastus: päivittää jokien vesitilanteen (docs/data/vesitilanne.json) ja jäänpaksuudet (docs/data/jaa.json)
 # kerran päivässä sekä piirrettyjen kalastusalueiden (areas/kalastus) tasot, joet ja syvyysalueet niiden muuttuessa.
-# Vain julkisia rajapintoja (Syke, Ilmatieteen laitos, OpenStreetMap), ei salaisuuksia eikä avaimia.
+# Julkiset rajapinnat (Syke, Ilmatieteen laitos, OpenStreetMap) sekä valinnaisesti Maanmittauslaitoksen kosket ja nimistö
+# Actions-salaisuudella MML_API_KEY (ei koskaan repossa eikä lokissa).
 name: Vesitilanne
 on:
   schedule:
@@ -30,6 +31,8 @@ jobs:
       - name: Syvyysalueet piirretyille alueille
         run: python3 pipeline/syvyys.py
       - name: Laske vesitilanne ja jäänpaksuus
+        env:
+          MML_API_KEY: ${{ secrets.MML_API_KEY }}
         run: python3 pipeline/vesitilanne.py
       - name: Tallenna muutokset
         run: |
