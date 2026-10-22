@@ -76,6 +76,24 @@ def main():
             gh("notice", "Syke lämpöasemat (Suure %s): %d, esim. %s" % (sid, len(ps), json.dumps(ps[:2], ensure_ascii=False)[:600]))
     except Exception as e:  # noqa: BLE001
         gh("warning", "Syke: %r" % e)
+    # Vesistökäyrät oikealla datalla: keinotekoinen uoma Roukkajankosken (Nurmes) asemien kohdalla
+    try:
+        lat, lon = V.dms("633838"), V.dms("290549")
+        gj = {"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"joki_id": "testi"},
+              "geometry": {"type": "LineString", "coordinates": [[lon - 0.02, lat - 0.005], [lon, lat], [lon + 0.02, lat + 0.005]]}}]}
+        today = now.date()
+        stations = V.syke_stations({"bbox_latlon": V.river_bbox(gj, 0.05)})
+        m, ms = V.syke_status({"id": "testi"}, gj, stations, today)
+        for x in ms:
+            gh("notice", "Käyrä %s: asema %s, arvo %s %s, sarja %d pv, kaista %d pv, luokka %s" % (
+                x["suure"], x["asema"], x["arvo"], x["yksikko"], len(x["sarja"]), len(x["kaista"]), x["luokka"]))
+        t = V.temperature({"id": "testi"}, gj, V.syke_temp_stations(V.river_bbox(gj, 0.15)), today)
+        gh("notice", "Lämpötila: %s" % (json.dumps({k: t[k] for k in ("asema", "arvo", "aika", "etaisyys_km", "vuodet")}, ensure_ascii=False)
+                                         + " sarja %d, kaista %d" % (len(t["sarja"]), len(t["kaista"])) if t else "ei asemaa"))
+        for line in V.log[-12:]:
+            gh("notice", "Loki: " + line)
+    except Exception as e:  # noqa: BLE001
+        gh("warning", "Vesistökäyrät: %r" % e)
     return 0
 
 

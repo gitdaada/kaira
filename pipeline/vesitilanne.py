@@ -221,50 +221,114 @@ def syke_series(entity, pid, since):
     return out
 
 
-def syke_status(river, gj, stations, today):
-    pts = river_points(gj, river["id"])
-    if not pts:
+SERIES_D = 30      # käyrän pituus vuorokausina
+TEMP_KM = 15.0     # veden lämpötilan mittausaseman enimmäisetäisyys uomasta
+TEMP_SUURE = 11    # Syke: Pintaveden lämpötila
+
+
+def sig(v, n=3):
+    """Pyöristys n merkitsevään numeroon (käyrän tiedostokoko pysyy pienenä)."""
+    if v is None or v == 0:
+        return v
+    return round(v, max(0, n - 1 - int(math.floor(math.log10(abs(v))))))
+
+
+def band(series, recent):
+    """Tavallinen vaihteluväli (25–75 %) jokaiselle käyrän päivälle aiempien vuosien samasta vuodenajasta."""
+    by_doy = {}
+    this_year = recent[-1][0].year if recent else None
+    for d0, v in series:
+        if this_year is not None and d0.year < this_year:
+            by_doy.setdefault(d0.timetuple().tm_yday, []).append((d0.year, v))
+    out = []
+    for d, _ in recent:
+        doy, vals, years = d.timetuple().tm_yday, [], set()
+        for k in range(-WINDOW_D, WINDOW_D + 1):
+            for y, v in by_doy.get((doy - 1 + k) % 366 + 1, []):
+                if y < d.year:
+                    vals.append(v)
+                    years.add(y)
+        if len(years) >= MIN_YEARS:
+            out.append([d.isoformat(), sig(pct(vals, 0.25)), sig(pct(vals, 0.75))])
+    return out
+
+
+def river_distance(st, tm):
+    try:
+        sn, se = float(st["KoordErTmPohj"]), float(st["KoordErTmIta"])
+    except (TypeError, ValueError, KeyError):
         return None
-    tm = [to_tm35(p[1], p[0]) for p in pts]
+    return min(math.hypot(sn - n, se - e) for (n, e) in tm) / 1000.0
+
+
+def measure(river, tm, stations, today, entity, max_km=NEAR_KM, since_years=31, need_years=True):
+    """Lähimmän toimivan aseman tuore arvo, 30 vrk käyrä ja tavallinen vaihteluväli yhdelle suureelle."""
+    key = entity.lower()
     cands = []
     for st in stations:
-        try:
-            sn, se = float(st["KoordErTmPohj"]), float(st["KoordErTmIta"])
-        except (TypeError, ValueError, KeyError):
-            continue
-        d = min(math.hypot(sn - n, se - e) for (n, e) in tm) / 1000.0
-        lat = lon = None
         name = SUURE.get(st.get("Suure_Id"), ("", ""))[0].lower()
-        if d > NEAR_KM or not ("virtaama" in name or "vedenkorkeus" in name):
+        ok = (st.get("Suure_Id") == TEMP_SUURE) if entity == "LampoPintavesi" else (key in name)
+        d = river_distance(st, tm) if ok else None
+        if d is None or d > max_km:
             continue
-        rank = (0 if "virtaama" in name else (1 if not st.get("JarviNimi") else 2), d)
-        cands.append((rank, st, "Virtaama" if "virtaama" in name else "Vedenkorkeus", lat, lon, d))
+        lake = 1 if st.get("JarviNimi") and entity == "Vedenkorkeus" else 0
+        cands.append(((lake, d), st, d))
     cands.sort(key=lambda c: c[0])
-    note("%s: asemaehdokkaat %s" % (river["id"], ", ".join("%s/%s %.1f km" % (c[1]["Nimi"], c[2], c[5]) for c in cands[:6]) or "ei yhtään"))
-    for rank, st, entity, lat, lon, d in cands[:6]:
+    note("%s/%s: asemaehdokkaat %s" % (river["id"], entity, ", ".join("%s %.1f km" % (c[1]["Nimi"].strip(), c[2]) for c in cands[:5]) or "ei yhtään"))
+    for _, st, d in cands[:5]:
         try:
-            series = syke_series(entity, st["Paikka_Id"], dt.date(today.year - 31, 1, 1))
+            series = syke_series(entity, st["Paikka_Id"], dt.date(today.year - since_years, 1, 1))
         except Exception as e:  # noqa
             note("Syke %s %s: %r" % (st["Nimi"], entity, e))
             continue
         if not series:
-            note("Syke %s/%s: ei dataa" % (st["Nimi"], entity))
+            note("Syke %s/%s: ei dataa" % (st["Nimi"].strip(), entity))
             continue
         last_d, last_v = series[-1]
         if (today - last_d).days > MAX_AGE_D:
-            note("Syke %s: viimeisin arvo %s, liian vanha" % (st["Nimi"], last_d))
+            note("Syke %s/%s: viimeisin arvo %s, liian vanha" % (st["Nimi"].strip(), entity, last_d))
             continue
+        recent = [(d0, v) for (d0, v) in series if (today - d0).days <= SERIES_D]
         ref = [v for (d0, v) in series if d0.year < today.year and doy_diff(d0, last_d) <= WINDOW_D]
         years = len({d0.year for (d0, v) in series if d0.year < today.year and doy_diff(d0, last_d) <= WINDOW_D})
-        if years < MIN_YEARS:
-            note("Syke %s: vain %d vertailuvuotta" % (st["Nimi"], years))
+        if need_years and years < MIN_YEARS:
+            note("Syke %s: vain %d vertailuvuotta" % (st["Nimi"].strip(), years))
             continue
-        p25, p75 = pct(ref, 0.25), pct(ref, 0.75)
-        unit = SUURE.get(st.get("Suure_Id"), ("", ""))[1] or ("m³/s" if entity == "Virtaama" else "cm")
-        return {"suure": entity.lower(), "asema": st["Nimi"], "paikka_id": st["Paikka_Id"], "etaisyys_km": round(d, 1),
-                "arvo": last_v, "aika": last_d.isoformat(), "yksikko": unit.replace("m3/s", "m³/s"),
-                "p25": round(p25, 3), "p75": round(p75, 3), "vuodet": years, "luokka": classify(last_v, p25, p75)}
+        p25, p75 = (pct(ref, 0.25), pct(ref, 0.75)) if years >= MIN_YEARS else (None, None)
+        unit = SUURE.get(st.get("Suure_Id"), ("", ""))[1] or {"Virtaama": "m³/s", "Vedenkorkeus": "cm", "LampoPintavesi": "°C"}[entity]
+        return {"suure": {"Virtaama": "virtaama", "Vedenkorkeus": "vedenkorkeus", "LampoPintavesi": "lampotila"}[entity],
+                "asema": st["Nimi"].strip(), "paikka_id": st["Paikka_Id"], "etaisyys_km": round(d, 1),
+                "arvo": sig(last_v, 4), "aika": last_d.isoformat(), "yksikko": unit.replace("m3/s", "m³/s"),
+                "p25": sig(p25, 4) if p25 is not None else None, "p75": sig(p75, 4) if p75 is not None else None, "vuodet": years,
+                "luokka": classify(last_v, p25, p75),
+                "sarja": [[d0.isoformat(), sig(v, 4)] for d0, v in recent], "kaista": band(series, recent)}
     return None
+
+
+def syke_status(river, gj, stations, today):
+    """Virtaama ja vedenkorkeus: kumpikin omalta asemaltaan. Luokka ensisijaisesti virtaamasta."""
+    pts = river_points(gj, river["id"])
+    if not pts:
+        return None, []
+    tm = [to_tm35(p[1], p[0]) for p in pts]
+    found = [m for m in (measure(river, tm, stations, today, "Virtaama"), measure(river, tm, stations, today, "Vedenkorkeus")) if m]
+    return (found[0] if found else None), found
+
+
+def temperature(river, gj, temp_stations, today):
+    pts = river_points(gj, river["id"])
+    if not pts or not temp_stations:
+        return None
+    tm = [to_tm35(p[1], p[0]) for p in pts]
+    return measure(river, tm, temp_stations, today, "LampoPintavesi", max_km=TEMP_KM, since_years=12, need_years=False)
+
+
+def syke_temp_stations(bbox):
+    s, w, n, e = bbox
+    corners = [to_tm35(s, w), to_tm35(s, e), to_tm35(n, w), to_tm35(n, e)]
+    flt = ("Suure_Id eq %d and KoordErTmPohj ge %d and KoordErTmPohj le %d and KoordErTmIta ge %d and KoordErTmIta le %d" %
+           (TEMP_SUURE, min(c[0] for c in corners), max(c[0] for c in corners), min(c[1] for c in corners), max(c[1] for c in corners)))
+    return syke_json("Paikka", {"$filter": flt})
 
 
 # --- Ilmatieteen laitos: 14 vrk sademäärä ------------------------------------------
@@ -668,13 +732,26 @@ def main():
         except Exception as e:  # noqa
             stations = []
             note("%s: Syken asemia ei saatu: %r" % (area["id"], e))
+        try:
+            temp_stations = syke_temp_stations(river_bbox(gj, 0.15))
+        except Exception as e:  # noqa
+            temp_stations = []
+            note("%s: lämpötila-asemia ei saatu: %r" % (area["id"], e))
         for river in area["joet"]:
             entry = {"id": river["id"], "nimi": river["nimi"], "alue": area["id"], "luokka": None, "menetelma": None}
             try:
-                m = syke_status(river, gj, stations, today)
+                m, ms = syke_status(river, gj, stations, today)
+                if ms:
+                    entry["mittaukset"] = ms
             except Exception as e:  # noqa
                 m = None
                 note("%s: mittaus epäonnistui: %r" % (river["id"], e))
+            try:
+                t = temperature(river, gj, temp_stations, today)
+                if t:
+                    entry["lampotila"] = t
+            except Exception as e:  # noqa
+                note("%s: lämpötila epäonnistui: %r" % (river["id"], e))
             try:
                 r = rain_status(river, gj, today)
             except Exception as e:  # noqa

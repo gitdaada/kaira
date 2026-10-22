@@ -199,3 +199,12 @@ assert na["areas"][0]["emma"] == ["FI031", "FI999"] and not na["areas"][0]["poly
 wn = mp.build([na], now)
 assert [x["alue"] for x in wn] == ["Satakunta"] and len(wn[0]["polygonit"]) >= 1 and len(wn[0]["polygonit"][0]) > 10, wn  # tuntematon koodi ohitetaan
 print("MeteoAlarm-aluekoodit läpi")
+
+# Vesistökäyrät: pyöristys ja päiväkohtainen vaihteluväli
+assert v.sig(123.456) == 123 and v.sig(0.012345) == 0.0123 and v.sig(5.678, 2) == 5.7 and v.sig(None) is None
+hist = [(dt.date(y, 6, 1) + dt.timedelta(days=k), float(y - 2000 + k)) for y in range(2015, 2027) for k in range(0, 40)]
+recent = [(d0, x) for d0, x in hist if d0.year == 2026 and d0 >= dt.date(2026, 6, 10)]
+b = v.band(hist, recent)
+assert len(b) == len(recent) and b[0][0] == "2026-06-10" and b[0][1] < b[0][2], b[:2]
+assert v.band([(dt.date(2025, 6, 1), 1.0)], [(dt.date(2026, 6, 1), 2.0)]) == []  # liian vähän vuosia
+print("vesistökäyrät läpi")
