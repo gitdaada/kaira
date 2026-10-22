@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-21T20:16:51Z",
- "encoding": 1,
+ "generated": "2026-10-22T08:12:15Z",
+ "encoding": 2,
  "mvmiYear": 2023,
  "attribution": [
   "Metsätieto: Luonnonvarakeskus, MVMI 2023 (CC BY 4.0)",
@@ -40,15 +40,15 @@
      "sumR": 481937087,
      "sumG": 397721305
     },
-    "file": "data/ita-suomussalmi/forest.png?v=03e4c9eb4284"
+    "file": "data/ita-suomussalmi/forest.png?v=29aa7f678f22"
    },
    "protectedCount": 37,
-   "built": "2026-10-20T14:05:43Z",
-   "version": "03e4c9eb4284",
-   "bytes": 27919145,
-   "boundary": "data/ita-suomussalmi/boundary.geojson?v=03e4c9eb4284",
-   "protected": "data/ita-suomussalmi/protected.geojson?v=03e4c9eb4284",
-   "habitat": "data/ita-suomussalmi/habitat.png?v=03e4c9eb4284",
+   "built": "2026-10-22T08:01:20Z",
+   "version": "29aa7f678f22",
+   "bytes": 55750643,
+   "boundary": "data/ita-suomussalmi/boundary.geojson?v=29aa7f678f22",
+   "protected": "data/ita-suomussalmi/protected.geojson?v=29aa7f678f22",
+   "habitat": "data/ita-suomussalmi/habitat.png?v=29aa7f678f22",
    "habitatHa": {
     "metso": [
      29548,
@@ -63,15 +63,38 @@
      188
     ]
    },
-   "cuts": "data/ita-suomussalmi/cuts.geojson?v=03e4c9eb4284",
+   "marjat": "data/ita-suomussalmi/marjat.png?v=29aa7f678f22",
+   "sienet": "data/ita-suomussalmi/sienet.png?v=29aa7f678f22",
+   "marjatHa": {
+    "mustikka": [
+     21725,
+     3812
+    ],
+    "puolukka": [
+     42234,
+     13862
+    ],
+    "kantarelli": [
+     35020,
+     24256
+    ],
+    "suppilovahvero": [
+     2176,
+     1692
+    ],
+    "herkkutatti": [
+     37816,
+     43197
+    ]
+   },
+   "cuts": "data/ita-suomussalmi/cuts.geojson?v=29aa7f678f22",
    "cutsCount": 283,
    "declCount": 2072,
    "chmYears": [
     2024
    ],
-   "srcHash": "9e01745faf47",
-   "source": "areas/Itä-suomussalmi.json",
-   "cutsUpdated": "2026-10-21T19:05:46Z"
+   "srcHash": "c3d47d3fbdbb",
+   "source": "areas/metsastys/Itä-suomussalmi.json"
   },
   {
    "id": "jahti",
@@ -105,15 +128,15 @@
      "sumR": 5164054,
      "sumG": 6198803
     },
-    "file": "data/jahti/forest.png?v=2dacaf7c11ec"
+    "file": "data/jahti/forest.png?v=6d5a42c44b34"
    },
    "protectedCount": 2,
-   "built": "2026-10-18T17:15:27Z",
-   "version": "2dacaf7c11ec",
-   "bytes": 397412,
-   "boundary": "data/jahti/boundary.geojson?v=2dacaf7c11ec",
-   "protected": "data/jahti/protected.geojson?v=2dacaf7c11ec",
-   "habitat": "data/jahti/habitat.png?v=2dacaf7c11ec",
+   "built": "2026-10-22T08:01:57Z",
+   "version": "6d5a42c44b34",
+   "bytes": 741160,
+   "boundary": "data/jahti/boundary.geojson?v=6d5a42c44b34",
+   "protected": "data/jahti/protected.geojson?v=6d5a42c44b34",
+   "habitat": "data/jahti/habitat.png?v=6d5a42c44b34",
    "habitatHa": {
     "metso": [
      414,
@@ -128,14 +151,38 @@
      86
     ]
    },
-   "cuts": "data/jahti/cuts.geojson?v=2dacaf7c11ec",
+   "marjat": "data/jahti/marjat.png?v=6d5a42c44b34",
+   "sienet": "data/jahti/sienet.png?v=6d5a42c44b34",
+   "marjatHa": {
+    "mustikka": [
+     551,
+     13
+    ],
+    "puolukka": [
+     76,
+     9
+    ],
+    "kantarelli": [
+     410,
+     280
+    ],
+    "suppilovahvero": [
+     96,
+     65
+    ],
+    "herkkutatti": [
+     581,
+     517
+    ]
+   },
+   "cuts": "data/jahti/cuts.geojson?v=6d5a42c44b34",
    "cutsCount": 32,
    "declCount": 81,
    "chmYears": [
     2025
    ],
-   "srcHash": "c487c9c377b5",
-   "source": "areas/jahti.json"
+   "srcHash": "210ef8788ea1",
+   "source": "areas/metsastys/jahti.json"
   },
   {
    "id": "jamijarvi",
@@ -169,15 +216,15 @@
      "sumR": 2282561,
      "sumG": 2781500
     },
-    "file": "data/jamijarvi/forest.png?v=e85af2bb6973"
+    "file": "data/jamijarvi/forest.png?v=27f00fbf8c38"
    },
    "protectedCount": 0,
-   "built": "2026-10-18T18:22:45Z",
-   "version": "e85af2bb6973",
-   "bytes": 159359,
-   "boundary": "data/jamijarvi/boundary.geojson?v=e85af2bb6973",
-   "protected": "data/jamijarvi/protected.geojson?v=e85af2bb6973",
-   "habitat": "data/jamijarvi/habitat.png?v=e85af2bb6973",
+   "built": "2026-10-22T08:02:15Z",
+   "version": "27f00fbf8c38",
+   "bytes": 313775,
+   "boundary": "data/jamijarvi/boundary.geojson?v=27f00fbf8c38",
+   "protected": "data/jamijarvi/protected.geojson?v=27f00fbf8c38",
+   "habitat": "data/jamijarvi/habitat.png?v=27f00fbf8c38",
    "habitatHa": {
     "metso": [
      303,
@@ -192,15 +239,38 @@
      3
     ]
    },
-   "cuts": "data/jamijarvi/cuts.geojson?v=e85af2bb6973",
+   "marjat": "data/jamijarvi/marjat.png?v=27f00fbf8c38",
+   "sienet": "data/jamijarvi/sienet.png?v=27f00fbf8c38",
+   "marjatHa": {
+    "mustikka": [
+     73,
+     0
+    ],
+    "puolukka": [
+     274,
+     148
+    ],
+    "kantarelli": [
+     212,
+     116
+    ],
+    "suppilovahvero": [
+     6,
+     2
+    ],
+    "herkkutatti": [
+     274,
+     153
+    ]
+   },
+   "cuts": "data/jamijarvi/cuts.geojson?v=27f00fbf8c38",
    "cutsCount": 4,
    "declCount": 32,
    "chmYears": [
     2024
    ],
-   "srcHash": "4ae4cf419757",
-   "source": "areas/jämijärvi.json",
-   "cutsUpdated": "2026-10-21T19:06:34Z"
+   "srcHash": "2f9ea61ea52f",
+   "source": "areas/metsastys/jämijärvi.json"
   },
   {
    "id": "karsikko",
@@ -234,15 +304,15 @@
      "sumR": 8878227,
      "sumG": 9163403
     },
-    "file": "data/karsikko/forest.png?v=b1310635dad1"
+    "file": "data/karsikko/forest.png?v=ce21f12b1d5e"
    },
    "protectedCount": 1,
-   "built": "2026-10-18T18:22:57Z",
-   "version": "b1310635dad1",
-   "bytes": 546306,
-   "boundary": "data/karsikko/boundary.geojson?v=b1310635dad1",
-   "protected": "data/karsikko/protected.geojson?v=b1310635dad1",
-   "habitat": "data/karsikko/habitat.png?v=b1310635dad1",
+   "built": "2026-10-22T08:02:24Z",
+   "version": "ce21f12b1d5e",
+   "bytes": 1074392,
+   "boundary": "data/karsikko/boundary.geojson?v=ce21f12b1d5e",
+   "protected": "data/karsikko/protected.geojson?v=ce21f12b1d5e",
+   "habitat": "data/karsikko/habitat.png?v=ce21f12b1d5e",
    "habitatHa": {
     "metso": [
      835,
@@ -257,11 +327,35 @@
      23
     ]
    },
-   "cuts": "data/karsikko/cuts.geojson?v=b1310635dad1",
+   "marjat": "data/karsikko/marjat.png?v=ce21f12b1d5e",
+   "sienet": "data/karsikko/sienet.png?v=ce21f12b1d5e",
+   "marjatHa": {
+    "mustikka": [
+     770,
+     27
+    ],
+    "puolukka": [
+     571,
+     179
+    ],
+    "kantarelli": [
+     777,
+     527
+    ],
+    "suppilovahvero": [
+     63,
+     32
+    ],
+    "herkkutatti": [
+     935,
+     713
+    ]
+   },
+   "cuts": "data/karsikko/cuts.geojson?v=ce21f12b1d5e",
    "cutsCount": 0,
    "declCount": 100,
-   "srcHash": "bbf4292b078c",
-   "source": "areas/karsikko.json"
+   "srcHash": "d04542b64e6f",
+   "source": "areas/metsastys/karsikko.json"
   },
   {
    "id": "korpihovi",
@@ -295,15 +389,15 @@
      "sumR": 7151438,
      "sumG": 8039821
     },
-    "file": "data/korpihovi/forest.png?v=d85c94b5f090"
+    "file": "data/korpihovi/forest.png?v=b23e43026385"
    },
    "protectedCount": 3,
-   "built": "2026-10-18T18:23:29Z",
-   "version": "d85c94b5f090",
-   "bytes": 561479,
-   "boundary": "data/korpihovi/boundary.geojson?v=d85c94b5f090",
-   "protected": "data/korpihovi/protected.geojson?v=d85c94b5f090",
-   "habitat": "data/korpihovi/habitat.png?v=d85c94b5f090",
+   "built": "2026-10-22T08:02:54Z",
+   "version": "b23e43026385",
+   "bytes": 1040749,
+   "boundary": "data/korpihovi/boundary.geojson?v=b23e43026385",
+   "protected": "data/korpihovi/protected.geojson?v=b23e43026385",
+   "habitat": "data/korpihovi/habitat.png?v=b23e43026385",
    "habitatHa": {
     "metso": [
      631,
@@ -318,14 +412,38 @@
      31
     ]
    },
-   "cuts": "data/korpihovi/cuts.geojson?v=d85c94b5f090",
+   "marjat": "data/korpihovi/marjat.png?v=b23e43026385",
+   "sienet": "data/korpihovi/sienet.png?v=b23e43026385",
+   "marjatHa": {
+    "mustikka": [
+     635,
+     11
+    ],
+    "puolukka": [
+     590,
+     207
+    ],
+    "kantarelli": [
+     630,
+     545
+    ],
+    "suppilovahvero": [
+     48,
+     25
+    ],
+    "herkkutatti": [
+     731,
+     886
+    ]
+   },
+   "cuts": "data/korpihovi/cuts.geojson?v=b23e43026385",
    "cutsCount": 34,
    "declCount": 80,
    "chmYears": [
     2025
    ],
-   "srcHash": "11411006b71d",
-   "source": "areas/korpihovi.json"
+   "srcHash": "6ff1cd69df55",
+   "source": "areas/metsastys/korpihovi.json"
   },
   {
    "id": "kuohijarvi",
@@ -359,15 +477,15 @@
      "sumR": 932643,
      "sumG": 1421788
     },
-    "file": "data/kuohijarvi/forest.png?v=3acc036dec9f"
+    "file": "data/kuohijarvi/forest.png?v=3f8e9a2abe85"
    },
    "protectedCount": 11,
-   "built": "2026-10-21T19:43:41Z",
-   "version": "3acc036dec9f",
-   "bytes": 118363,
-   "boundary": "data/kuohijarvi/boundary.geojson?v=3acc036dec9f",
-   "protected": "data/kuohijarvi/protected.geojson?v=3acc036dec9f",
-   "habitat": "data/kuohijarvi/habitat.png?v=3acc036dec9f",
+   "built": "2026-10-22T07:36:51Z",
+   "version": "3f8e9a2abe85",
+   "bytes": 220119,
+   "boundary": "data/kuohijarvi/boundary.geojson?v=3f8e9a2abe85",
+   "protected": "data/kuohijarvi/protected.geojson?v=3f8e9a2abe85",
+   "habitat": "data/kuohijarvi/habitat.png?v=3f8e9a2abe85",
    "habitatHa": {
     "metso": [
      44,
@@ -382,13 +500,37 @@
      10
     ]
    },
-   "cuts": "data/kuohijarvi/cuts.geojson?v=3acc036dec9f",
+   "marjat": "data/kuohijarvi/marjat.png?v=3f8e9a2abe85",
+   "sienet": "data/kuohijarvi/sienet.png?v=3f8e9a2abe85",
+   "marjatHa": {
+    "mustikka": [
+     54,
+     3
+    ],
+    "puolukka": [
+     2,
+     0
+    ],
+    "kantarelli": [
+     97,
+     28
+    ],
+    "suppilovahvero": [
+     30,
+     19
+    ],
+    "herkkutatti": [
+     136,
+     95
+    ]
+   },
+   "cuts": "data/kuohijarvi/cuts.geojson?v=3f8e9a2abe85",
    "cutsCount": 3,
    "declCount": 16,
    "chmYears": [
     2025
    ],
-   "srcHash": "521173d50014",
+   "srcHash": "83e2e6ee667e",
    "source": "areas/metsastys/kuohijarvi.geojson"
   },
   {
@@ -423,15 +565,15 @@
      "sumR": 303859713,
      "sumG": 254238398
     },
-    "file": "data/lansi-suomussalmi/forest.png?v=8dee91b4e15f"
+    "file": "data/lansi-suomussalmi/forest.png?v=a58c5cddcc7f"
    },
    "protectedCount": 34,
-   "built": "2026-10-18T18:33:09Z",
-   "version": "8dee91b4e15f",
-   "bytes": 17690127,
-   "boundary": "data/lansi-suomussalmi/boundary.geojson?v=8dee91b4e15f",
-   "protected": "data/lansi-suomussalmi/protected.geojson?v=8dee91b4e15f",
-   "habitat": "data/lansi-suomussalmi/habitat.png?v=8dee91b4e15f",
+   "built": "2026-10-22T08:12:04Z",
+   "version": "a58c5cddcc7f",
+   "bytes": 35585676,
+   "boundary": "data/lansi-suomussalmi/boundary.geojson?v=a58c5cddcc7f",
+   "protected": "data/lansi-suomussalmi/protected.geojson?v=a58c5cddcc7f",
+   "habitat": "data/lansi-suomussalmi/habitat.png?v=a58c5cddcc7f",
    "habitatHa": {
     "metso": [
      14296,
@@ -446,14 +588,38 @@
      307
     ]
    },
-   "cuts": "data/lansi-suomussalmi/cuts.geojson?v=8dee91b4e15f",
+   "marjat": "data/lansi-suomussalmi/marjat.png?v=a58c5cddcc7f",
+   "sienet": "data/lansi-suomussalmi/sienet.png?v=a58c5cddcc7f",
+   "marjatHa": {
+    "mustikka": [
+     14864,
+     1946
+    ],
+    "puolukka": [
+     21124,
+     3779
+    ],
+    "kantarelli": [
+     23217,
+     18198
+    ],
+    "suppilovahvero": [
+     1809,
+     1670
+    ],
+    "herkkutatti": [
+     22149,
+     34946
+    ]
+   },
+   "cuts": "data/lansi-suomussalmi/cuts.geojson?v=a58c5cddcc7f",
    "cutsCount": 73,
    "declCount": 1627,
    "chmYears": [
     2024
    ],
-   "srcHash": "e6a7f2a077b2",
-   "source": "areas/länsi-suomussalmi.json"
+   "srcHash": "0c7948a9df42",
+   "source": "areas/metsastys/länsi-suomussalmi.json"
   },
   {
    "id": "riikinhovi",
@@ -487,15 +653,15 @@
      "sumR": 15845733,
      "sumG": 14241471
     },
-    "file": "data/riikinhovi/forest.png?v=bf1ce4f75592"
+    "file": "data/riikinhovi/forest.png?v=4db5ccf4376e"
    },
    "protectedCount": 2,
-   "built": "2026-10-18T18:33:20Z",
-   "version": "bf1ce4f75592",
-   "bytes": 859562,
-   "boundary": "data/riikinhovi/boundary.geojson?v=bf1ce4f75592",
-   "protected": "data/riikinhovi/protected.geojson?v=bf1ce4f75592",
-   "habitat": "data/riikinhovi/habitat.png?v=bf1ce4f75592",
+   "built": "2026-10-22T08:12:15Z",
+   "version": "4db5ccf4376e",
+   "bytes": 1692606,
+   "boundary": "data/riikinhovi/boundary.geojson?v=4db5ccf4376e",
+   "protected": "data/riikinhovi/protected.geojson?v=4db5ccf4376e",
+   "habitat": "data/riikinhovi/habitat.png?v=4db5ccf4376e",
    "habitatHa": {
     "metso": [
      1063,
@@ -510,11 +676,35 @@
      31
     ]
    },
-   "cuts": "data/riikinhovi/cuts.geojson?v=bf1ce4f75592",
+   "marjat": "data/riikinhovi/marjat.png?v=4db5ccf4376e",
+   "sienet": "data/riikinhovi/sienet.png?v=4db5ccf4376e",
+   "marjatHa": {
+    "mustikka": [
+     483,
+     21
+    ],
+    "puolukka": [
+     705,
+     235
+    ],
+    "kantarelli": [
+     737,
+     323
+    ],
+    "suppilovahvero": [
+     29,
+     9
+    ],
+    "herkkutatti": [
+     965,
+     372
+    ]
+   },
+   "cuts": "data/riikinhovi/cuts.geojson?v=4db5ccf4376e",
    "cutsCount": 0,
    "declCount": 73,
-   "srcHash": "a1155ccc8af3",
-   "source": "areas/riikinhovi.json"
+   "srcHash": "287892b6432d",
+   "source": "areas/metsastys/riikinhovi.json"
   }
  ]
 }
