@@ -31,6 +31,7 @@ CAP_PREFIX = "https://alerts.fmi.fi/cap/"
 # Ilmatieteen laitoksen palvelin ei vastaa GitHub Actionsin verkosta (503), MeteoAlarm vastaa.
 MA_FEED = "https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-finland"
 MA_PREFIX = "https://feeds.meteoalarm.org/"
+GEOCODES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "meteoalarm_fi.geojson")
 FIRE_RE = re.compile(r"maastopalo|metsäpalo|ruohikkopalo|wildfire|forest[ -]?fire|forest-fire", re.I)
 UA = "kaira/0.1 (+https://github.com/gitdaada/kaira)"
 EVENT = "forestFireWeather"
@@ -143,7 +144,7 @@ def parse_cap(xml_bytes):
     a = {"id": text(root, "identifier"), "status": text(root, "status"), "msgType": text(root, "msgType"),
          "sent": text(root, "sent"), "references": text(root, "references")}
     infos = children(root, "info")
-    info = next((i for i in infos if text(i, "language").lower() == "fi-fi"), infos[0] if infos else None)
+    info = next((i for i in infos if text(i, "language").lower().startswith("fi")), infos[0] if infos else None)
     if info is None:
         return None
     codes = [text(c, "value") for c in children(info, "eventCode")]
@@ -157,7 +158,8 @@ def parse_cap(xml_bytes):
     areas = []
     for ar in children(info, "area"):
         polys = [p for p in (parse_polygon(pe.text) for pe in children(ar, "polygon")) if p]
-        areas.append({"nimi": text(ar, "areaDesc"), "polygonit": polys})
+        geo = [text(g, "value") for g in children(ar, "geocode") if text(g, "valueName") == "EMMA_ID"]
+        areas.append({"nimi": text(ar, "areaDesc"), "polygonit": polys, "emma": geo})
     a["areas"] = areas
     return a
 
@@ -173,6 +175,30 @@ def superseded(alerts):
     return out
 
 
+_geo = None
+
+
+def emma_areas():
+    """MeteoAlarmin aluekoodit (EMMA_ID) -> (nimi, [renkaat]). Käytetään, kun varoituksessa ei ole polygonia."""
+    global _geo
+    if _geo is None:
+        _geo = {}
+        try:
+            for f in json.load(open(GEOCODES, encoding="utf-8"))["features"]:
+                _geo[f["properties"]["code"]] = (f["properties"]["nimi"], [p[0] for p in f["geometry"]["coordinates"]])
+        except (OSError, ValueError, KeyError) as e:
+            gh("warning", "Aluekoodien rajoja ei voitu lukea: %r" % e)
+    return _geo
+
+
+def expand(area):
+    """Alue polygoneineen; polygonittomasta alueesta yksi alue jokaista tunnettua aluekoodia kohden."""
+    if area["polygonit"]:
+        return [(area["nimi"], area["polygonit"])]
+    geo = emma_areas()
+    return [geo[c] for c in area.get("emma", []) if c in geo]
+
+
 def build(alerts, now):
     gone = superseded(alerts)
     out = []
@@ -186,12 +212,11 @@ def build(alerts, now):
         if not taso:
             continue
         for ar in a["areas"]:
-            if not ar["polygonit"]:
-                continue
-            out.append({"id": clean(a["id"], 120), "taso": taso, "alue": clean(ar["nimi"], 120),
-                        "otsikko": clean(a["headline"], 160), "kuvaus": clean(a["description"], 400),
-                        "alkaa": onset.isoformat() if onset else None, "paattyy": expires.isoformat(),
-                        "polygonit": ar["polygonit"][:20]})
+            for nimi, polys in expand(ar):
+                out.append({"id": clean(a["id"], 120), "taso": taso, "alue": clean(nimi, 120),
+                            "otsikko": clean(a["headline"], 160), "kuvaus": clean(a["description"], 400),
+                            "alkaa": onset.isoformat() if onset else None, "paattyy": expires.isoformat(),
+                            "polygonit": polys[:40]})
     out.sort(key=lambda w: (w["alkaa"] or "", w["alue"], w["taso"]))
     return out[:MAX_ALERTS]
 
@@ -207,9 +232,10 @@ def diagnose(entries, n=3):
         if not a:
             gh("warning", "Diagnostiikka: ei CAP-hälytys: %s" % href)
             continue
-        gh("notice", "Diagnostiikka: %s | %s %s %s | onset %s expires %s | alueita %d, polygoneja %d, pisteitä %d" % (
+        gh("notice", "Diagnostiikka: %s | %s %s %s | onset %s expires %s | alueita %d, polygoneja %d, aluekoodit %s -> %s" % (
             clean(title, 80), a["msgType"], ",".join(a["codes"]), a["severity"], a["onset"], a["expires"], len(a["areas"]),
-            sum(len(x["polygonit"]) for x in a["areas"]), sum(len(p) for x in a["areas"] for p in x["polygonit"])))
+            sum(len(x["polygonit"]) for x in a["areas"]), ",".join(c for x in a["areas"] for c in x.get("emma", [])) or "-",
+            ", ".join(n for x in a["areas"] for n, _ in expand(x)) or "-"))
 
 
 def read_feed():
@@ -237,7 +263,7 @@ def main():
         if a:
             alerts.append(a)
     warnings = build(alerts, now)
-    missing = sum(1 for a in alerts if EVENT in a["codes"] and not any(ar["polygonit"] for ar in a["areas"]))
+    missing = sum(1 for a in alerts if EVENT in a["codes"] and not any(expand(ar) for ar in a["areas"]))
     if missing:
         gh("warning", "%d maastopalovaroitukselta puuttuu aluerajaus (polygon), niitä ei näytetä kartalla" % missing)
     data = {"lahde": "Ilmatieteen laitos", "varoitukset": warnings}

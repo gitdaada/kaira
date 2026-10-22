@@ -190,3 +190,12 @@ ma_cap = open(os.path.join(FX, "cap_fire.xml"), encoding="utf-8").read().replace
     "<parameter><valueName>awareness_type</valueName><value>8; forest-fire</value></parameter>")
 assert mp.EVENT in mp.parse_cap(ma_cap.encode())["codes"]  # MeteoAlarmin luokitus tunnistetaan
 print("MeteoAlarm-varalähde läpi")
+# MeteoAlarm: polygoniton varoitus saa rajan aluekoodista (EMMA_ID)
+nopoly = ma_cap.replace("<polygon>61.0,21.5 61.0,22.5 61.8,22.5 61.8,21.5 61.0,21.5</polygon>", "").replace(
+    "<geocode><valueName>ISO 3166-2</valueName><value>FI-17</value></geocode>",
+    "<geocode><valueName>EMMA_ID</valueName><value>FI031</value></geocode><geocode><valueName>EMMA_ID</valueName><value>FI999</value></geocode>")
+na = mp.parse_cap(nopoly.encode())
+assert na["areas"][0]["emma"] == ["FI031", "FI999"] and not na["areas"][0]["polygonit"]
+wn = mp.build([na], now)
+assert [x["alue"] for x in wn] == ["Satakunta"] and len(wn[0]["polygonit"]) >= 1 and len(wn[0]["polygonit"][0]) > 10, wn  # tuntematon koodi ohitetaan
+print("MeteoAlarm-aluekoodit läpi")

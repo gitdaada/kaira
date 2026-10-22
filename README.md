@@ -117,7 +117,7 @@ Ajon voi käynnistää käsin: *Actions → ajo → Run workflow*. GitHub keskey
 - Metsätieto ja elinympäristömallin lähtötiedot: Luonnonvarakeskus, MVMI 2023, CC BY 4.0.
 - Luonnonsuojelualueet: Syke / Metsähallitus, CC BY 4.0. Uudet hakkuut: Suomen metsäkeskus, CC BY 4.0.
 - Sää ja tuuli: Ilmatieteen laitos, CC BY 4.0; varalla Open-Meteo (CC BY 4.0, ilmainen vain ei-kaupalliseen käyttöön).
-- Maastopalovaroitukset: Ilmatieteen laitos, varoitukset CAP-muodossa (alerts.fmi.fi). Varoitus on voimassa vain Ilmatieteen laitoksen ilmoittamana; tarkista ajantasainen tilanne ilmatieteenlaitos.fi/varoitukset.
+- Maastopalovaroitukset: Ilmatieteen laitos, varoitukset CAP-muodossa (alerts.fmi.fi). Koska Ilmatieteen laitoksen palvelin ei vastaa GitHub Actionsin verkosta, varoitukset haetaan tarvittaessa EUMETNET MeteoAlarmin kautta (CC BY 4.0). MeteoAlarmin varoitusalueiden rajat (`pipeline/data/meteoalarm_fi.geojson`, CC BY 4.0) on poimittu meteoalarm-Python-kirjaston (MIT) aineistosta ja yksinkertaistettu; rajat ovat likimääräisiä. Varoitus on voimassa vain Ilmatieteen laitoksen ilmoittamana; tarkista ajantasainen tilanne ilmatieteenlaitos.fi/varoitukset.
 - Sadetutkaennuste: MET Norway, Nowcast 2.0, CC BY 4.0.
 - Vesitilanne ja jäänpaksuus: Syke, Hydrologiarajapinta, CC BY 4.0; sademäärä: Ilmatieteen laitos, CC BY 4.0. Jokien uomat: © OpenStreetMapin tekijät, ODbL.
 - Järvien syvyysalueet ja syvyyskäyrät: Syke, CC BY 4.0 (vain mitatut järvet).

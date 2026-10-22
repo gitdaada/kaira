@@ -62,10 +62,26 @@
     }
     return c;
   }
-  /** Voimassa olevat varoitukset pisteessä, vakavin ensin. */
+  /** Pisteen etäisyys renkaan reunasta kilometreinä (tasoprojektio riittää lähietäisyydellä). */
+  function edgeKm(lat, lon, r) {
+    var kx = 111.32 * Math.cos(lat * Math.PI / 180), ky = 110.54, best = Infinity;
+    for (var i = 1; i < r.length; i++) {
+      var ax = (r[i - 1][0] - lon) * kx, ay = (r[i - 1][1] - lat) * ky, bx = (r[i][0] - lon) * kx, by = (r[i][1] - lat) * ky;
+      var dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy, t = l2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / l2)) : 0;
+      var px = ax + t * dx, py = ay + t * dy, d = Math.sqrt(px * px + py * py);
+      if (d < best) best = d;
+    }
+    return best;
+  }
+  /**
+   * Voimassa olevat varoitukset pisteessä, vakavin ensin. Aluerajat ovat likimääräisiä (esim. rannikko),
+   * joten myös alle 2 km päässä rajasta oleva piste lasketaan varoitusalueeseen: varoitus näytetään mieluummin kuin jätetään näyttämättä.
+   */
+  var EDGE_KM = 2, PAD = 0.05;
   function at(lat, lon, list) {
     return (list || nowList()).filter(function (w) {
-      return lon >= w.bbox[0] && lon <= w.bbox[2] && lat >= w.bbox[1] && lat <= w.bbox[3] && w.polys.some(function (r) { return inRing(lon, lat, r); });
+      if (lon < w.bbox[0] - PAD * 2 || lon > w.bbox[2] + PAD * 2 || lat < w.bbox[1] - PAD || lat > w.bbox[3] + PAD) return false;
+      return w.polys.some(function (r) { return inRing(lon, lat, r) || edgeKm(lat, lon, r) < EDGE_KM; });
     }).sort(function (a, b) { return RANK[b.taso] - RANK[a.taso]; });
   }
   function when(w) {
@@ -138,7 +154,7 @@
     if (next.length) { body.appendChild(h('h3', { text: 'Alkamassa 48 tunnin sisällä' })); body.appendChild(h('div', null, next.map(row))); }
     var upd = S.data.paivitetty ? K.fmtDate(Date.parse(S.data.paivitetty)) + ' klo ' + K.hm(Date.parse(S.data.paivitetty)) : '–';
     body.appendChild(h('p', { class: 'muted small', text: 'Lähde: Ilmatieteen laitos. Varoitukset tarkistetaan tunnin välein; viimeisin muutos ' + upd +
-      '. Haettu puhelimeen klo ' + K.hm(S.fetched) + '. Ilman verkkoa näytetään viimeksi haetut varoitukset. Ajantasaiset varoitukset: ilmatieteenlaitos.fi/varoitukset.' }));
+      '. Haettu puhelimeen klo ' + K.hm(S.fetched) + '. Ilman verkkoa näytetään viimeksi haetut varoitukset. Aluerajat ovat likimääräisiä: varoitus koskee koko nimettyä aluetta. Ajantasaiset varoitukset: ilmatieteenlaitos.fi/varoitukset.' }));
   }
   function openSheet() { K.openSheet('palo', 'Maastopalovaroitukset', renderSheet); load(); }
   K.openFire = openSheet;
