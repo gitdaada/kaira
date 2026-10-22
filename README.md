@@ -63,6 +63,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 - Lähimmät kohteet etäisyyden mukaan, kohteen kompassi ja *Suunnista tänne*
 - GPX-reittien tuonti, näyttö, offline-tallennus ja suunnistus reitin alkuun
 - Voimassa olevat maastopalovaroitukset: alueet kartalla, avotulikielto laavun ja tulipaikan tiedoissa
+- Marjojen ja sienten kasvupaikka-arvio (mustikka, puolukka, kantarelli, suppilovahvero, herkkutatti) piirretyillä alueilla ja lupa-alueilla; arvio metsätiedosta, ei satoennuste
 
 ## Käyttöönotto
 
@@ -76,6 +77,7 @@ Julkaisu: Cloudflare Pages julkaisee `docs/`-kansion automaattisesti jokaisesta 
 
 - **Metsästys:** lupa-alueiden rajat ovat kansiossa [`areas/metsastys/`](areas/metsastys/README.md). Uusi tiedosto käynnistää metsäkartan rakentamisen GitHub Actionsissa.
 - **Kalastus:** piirretyt kalastusalueet ovat kansiossa `areas/kalastus/`. Uusi tiedosto käynnistää Vesitilanne-ajon, joka hakee alueen nimetyt joet ja purot (OpenStreetMap), niiden vesitilanteen, kosket ja suvannot sekä mitattujen järvien syvyysalueet. Tulokset tallentuvat kansioon `docs/layers/` (luettelo `docs/layers/index.json`). Jokia voi määritellä myös käsin tiedostossa `pipeline/joet.json`.
+- **Eränkäynti:** piirretyt alueet ovat kansiossa `areas/erankaynti/`. Rakenna metsäkartat -ajo laskee niille marja- ja sienitasot (`pipeline/marjat.py`); lupa-alueet saavat tasot samalla.
 - **Piirto sovelluksessa:** Työkalut → Piirrä alue → Valmis → Lähetä analysoitavaksi. GitHub avautuu valmiiksi täytettynä, ja repon omistaja tallentaa tiedoston (*Commit changes*). Lähetetty alue on julkinen. Merkinnät ja saaliit eivät lähde laitteesta.
 
 ## Miten tämä toimii
@@ -92,7 +94,7 @@ Julkaisu: Cloudflare Pages julkaisee `docs/`-kansion automaattisesti jokaisesta 
 
 | Ajo | Ajastus | Tuottaa |
 | --- | --- | --- |
-| Rakenna metsäkartat (`build.py`) | Maanantaisin ja kun `areas/metsastys/` muuttuu | `docs/data/<alue>/`, `docs/data/areas.json` |
+| Rakenna metsäkartat (`build.py`) | Maanantaisin ja kun `areas/metsastys/` tai `areas/erankaynti/` muuttuu | `docs/data/<alue>/` (myös marjat.png ja sienet.png), `docs/data/areas.json` |
 | Vesitilanne (`syvyys.py`, `vesitilanne.py`) | Päivittäin ja kun `areas/kalastus/` muuttuu | `docs/data/vesitilanne.json`, `docs/data/jaa.json`, `docs/layers/` |
 | Kohteet (`kohteet.py`) | Viikoittain | `docs/data/kohteet/{tuvat,laavut,tulipaikat}.geojson` |
 | Maastopalovaroitukset (`maastopalo.py`) | Tunnin välein, tallennus vain muutoksesta | `docs/data/maastopalo.json` |
@@ -116,7 +118,7 @@ Ajon voi käynnistää käsin: *Actions → ajo → Run workflow*. GitHub keskey
 ## Tietolähteet ja lisenssit
 
 - Pohjakartta ja ilmakuva: Maanmittauslaitos, CC BY 4.0. Ilman avainta: © OpenStreetMapin tekijät, ODbL (vain verkossa).
-- Metsätieto ja elinympäristömallin lähtötiedot: Luonnonvarakeskus, MVMI 2023, CC BY 4.0.
+- Metsätieto sekä elinympäristö-, marja- ja sienimallin lähtötiedot: Luonnonvarakeskus, MVMI 2023, CC BY 4.0. Mustikka-arvio perustuu Luken malliin (Turtiainen ym. 2016, Silva Fennica 50(4) 1573); puolukka- ja sieniarviot ovat suuntaa antavia asiantuntija-arvioita.
 - Luonnonsuojelualueet: Syke / Metsähallitus, CC BY 4.0. Uudet hakkuut: Suomen metsäkeskus, CC BY 4.0.
 - Sää ja tuuli: Ilmatieteen laitos, CC BY 4.0; varalla Open-Meteo (CC BY 4.0, ilmainen vain ei-kaupalliseen käyttöön).
 - Maastopalovaroitukset: Ilmatieteen laitos, varoitukset CAP-muodossa (alerts.fmi.fi). Koska Ilmatieteen laitoksen palvelin ei vastaa GitHub Actionsin verkosta, varoitukset haetaan tarvittaessa EUMETNET MeteoAlarmin kautta (CC BY 4.0). MeteoAlarmin varoitusalueiden rajat (`pipeline/data/meteoalarm_fi.geojson`, CC BY 4.0) on poimittu meteoalarm-Python-kirjaston (MIT) aineistosta ja yksinkertaistettu; rajat ovat likimääräisiä. Varoitus on voimassa vain Ilmatieteen laitoksen ilmoittamana; tarkista ajantasainen tilanne ilmatieteenlaitos.fi/varoitukset.

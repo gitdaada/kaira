@@ -142,7 +142,8 @@
       .then(function (j) { store.set('index', j); return j; })
       .catch(function () { return store.get('index', { areas: [] }); })
       .then(function (j) {
-        S.index = j; S.areas = (j && Array.isArray(j.areas)) ? j.areas.filter(function (a) { return a && /^[a-z0-9-]+$/.test(a.id) && a.forest; }) : [];
+        // Eränkäynnin alueet (osio erankaynti) ovat vain marja- ja sienitasoja varten, eivät lupa-alueita.
+        S.index = j; S.areas = (j && Array.isArray(j.areas)) ? j.areas.filter(function (a) { return a && /^[a-z0-9-]+$/.test(a.id) && a.forest && a.osio !== 'erankaynti'; }) : [];
         S.prevIds = prevIds;
         return j;
       });
@@ -187,6 +188,7 @@
       img.src = url;
     });
   }
+  K.decodePng = decodeImage; // myös eränkäynnin marja- ja sienitasot
   function loadForest(a) {
     return fetch(a.forest.file, { credentials: 'omit' })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })

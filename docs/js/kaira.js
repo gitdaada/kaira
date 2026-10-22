@@ -49,7 +49,9 @@
     // Metsästys ja eränkäynti
     showFire: true,
     // Kaikki osiot: salamat ja lumensyvyys
-    showLightning: true, showSnow: true
+    showLightning: true, showSnow: true,
+    // Eränkäynti: marjojen ja sienten kasvupaikat
+    bMustikka: false, bPuolukka: false, bKantarelli: false, bSuppilo: false, bHerkku: false
   };
   var ENUMS = {
     basemap: ['maastokartta', 'taustakartta', 'ortokuva'], habitat: ['off', 'metso', 'teeri', 'pyy'],

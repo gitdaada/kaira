@@ -107,6 +107,7 @@
         ]),
         block('Kartan merkit', [
           row(h('span', { class: 'help-ico' }, sw('repeating-linear-gradient(135deg,#F2C200 0 4px,transparent 4px 8px)')), 'Keltainen, oranssi tai punainen katkoviiva-alue', 'Voimassa oleva maastopalovaroitus (Ilmatieteen laitos): avotulen teko on kielletty. Sääkortissa näkyy Maastopalovaroitus, kun olet varoitusalueella. Kaikki varoitukset: Valikko → Maastopalovaroitukset.'),
+          row(h('span', { class: 'help-ico' }, sw('linear-gradient(90deg,#3b5bdb,#e03131,#f59f00,#8d6e63,#5c3d2e)')), 'Marjat ja sienet', 'Tasot → Marjat ja sienet: mustikan (sininen), puolukan (punainen), kantarellin (keltainen), suppilovahveron (harmaanruskea) ja herkkutatin (tummanruskea) kasvupaikka-arvio. Vahva väri = hyvä, haalea = sopiva. Vain piirretyillä alueilla ja lupa-alueilla. Arvio metsätiedosta, ei satoennuste.'),
           row(k('autiotupa'), 'Ruskea talo', 'Autiotupa.'),
           row(k('kammi'), 'Vihreä talo', 'Autiokammi.'),
           row(k('paivatupa'), 'Sininen talo', 'Päivätupa, tarkoitettu päiväkäyttöön.'),

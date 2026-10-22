@@ -7,6 +7,8 @@ on:
     branches: [main]
     paths:
       - "areas/metsastys/**"
+      - "areas/erankaynti/**"
+      - "pipeline/marjat.py"
       - "pipeline/build.py"
       - "pipeline/cuts.py"
       - "pipeline/habitat.py"

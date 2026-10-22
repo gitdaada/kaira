@@ -31,6 +31,7 @@ jobs:
           python3 tests/test_encoding.py
           python3 tests/test_cuts.py
           python3 tests/test_habitat.py
+          python3 tests/test_marjat.py
       - name: Laskentaytimen testit
         run: node tests/jcore.test.js
       - name: Cloudflare Pages -rajat (ilmaistaso)

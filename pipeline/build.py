@@ -47,15 +47,17 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cuts as cutsmod  # noqa: E402
 import habitat as habmod  # noqa: E402
+import marjat as berrymod  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 AREAS_DIR = ROOT / "areas" / "metsastys"
+ERA_DIR = ROOT / "areas" / "erankaynti"  # eränkäynnin alueet: marja- ja sienitasot (tunnus alkaa era-)
 OUT_DIR = ROOT / "docs" / "data"
 CACHE_DIR = Path(os.environ.get("MK_CACHE_DIR", ROOT / ".cache"))
 CONFIG_PATH = ROOT / "pipeline" / "config.json"
 MAX_ASSET_BYTES = 24 * 1024 * 1024  # Cloudflare Pages Free: enintään 25 MiB tiedostoa kohden
 
-ENCODING_VERSION = 1          # nosta, jos forest.png:n koodaus muuttuu
+ENCODING_VERSION = 2          # nosta, jos tuotteiden koodaus muuttuu (2: marja- ja sienitasot)
 EARTH_R = 6378137.0
 USER_AGENT = "metsakartta-build/1.0 (+https://github.com)"
 
@@ -63,7 +65,7 @@ FOREST_ATTRIBUTION = "Metsätieto: Luonnonvarakeskus, MVMI {year} (CC BY 4.0)"
 PROTECTED_ATTRIBUTION = "Suojelualueet: Syke / Metsähallitus (CC BY 4.0)"
 CUTS_ATTRIBUTION = "Uudet hakkuut: Suomen metsäkeskus, latvusmalli ja metsänkäyttöilmoitukset (CC BY 4.0)"
 DATA_FILES = (("forest", "forest.png"), ("boundary", "boundary.geojson"), ("protected", "protected.geojson"),
-              ("cuts", "cuts.geojson"), ("habitat", "habitat.png"))
+              ("cuts", "cuts.geojson"), ("habitat", "habitat.png"), ("marjat", "marjat.png"), ("sienet", "sienet.png"))
 
 
 # ---------------------------------------------------------------------------
@@ -542,12 +544,16 @@ def products(A: dict, cfg: dict, low: np.ndarray | None, hab_layers: dict | None
     r[~inside] = 0
     g[~inside] = 0
     bands = [r, g]
-    hab = None
+    hab = ber = None
     if hab_layers is not None:
         hab = habmod.habitat_scores(hab_layers, A["valid"], low, cfg["habitat"])
         for k in ("metso", "teeri", "pyy"):
             hab[k][~inside] = 0
             bands.append(hab[k])
+        ber = berrymod.berry_scores(hab_layers, A["valid"], low)
+        for k in berrymod.LAJIT:
+            ber[k][~inside] = 0
+            bands.append(ber[k])
     to3857 = Transformer.from_crs("EPSG:3067", "EPSG:3857", always_xy=True)
     sx0, sy0, sx1, sy1 = to3857.transform_bounds(*bounds, densify_pts=21)
     lat_c = merc_to_lonlat(0, (sy0 + sy1) / 2)[1]
@@ -571,6 +577,8 @@ def products(A: dict, cfg: dict, low: np.ndarray | None, hab_layers: dict | None
     if hab is not None:
         out["hab"] = dst[2:5]
         out["habStats"] = habmod.area_stats(hab, A["valid"], t_a.a)
+        out["berry"] = dst[5:10]
+        out["berryStats"] = habmod.area_stats(ber, A["valid"], t_a.a)
     return out
 
 
@@ -580,6 +588,14 @@ def write_products(P: dict, out: Path) -> None:
         write_forest_png(out / "habitat.png", P["hab"][0], P["hab"][1], P["hab"][2])
     elif (out / "habitat.png").exists():
         (out / "habitat.png").unlink()
+    if "berry" in P:
+        b = P["berry"]
+        write_forest_png(out / "marjat.png", b[0], b[1])         # R mustikka, G puolukka
+        write_forest_png(out / "sienet.png", b[2], b[3], b[4])   # R kantarelli, G suppilovahvero, B herkkutatti
+    else:
+        for f in ("marjat.png", "sienet.png"):
+            if (out / f).exists():
+                (out / f).unlink()
 
 
 def finish_entry(entry: dict, area_id: str, out: Path, info: dict) -> dict:
@@ -597,6 +613,13 @@ def finish_entry(entry: dict, area_id: str, out: Path, info: dict) -> dict:
             entry["habitatHa"] = info["habStats"]
     else:
         entry.pop("habitat", None)
+    for k in ("marjat", "sienet"):
+        if k in files:
+            entry[k] = f"data/{area_id}/{k}.png?v={version}"
+        else:
+            entry.pop(k, None)
+    if info.get("berryStats"):
+        entry["marjatHa"] = info["berryStats"]
     if "cuts" in files:
         entry["cuts"] = f"data/{area_id}/cuts.geojson?v={version}"
         entry["cutsCount"] = int(info.get("latvusmalli", 0))
@@ -622,6 +645,8 @@ def refresh_cuts(prev: dict, path: Path, area_id: str, cfg: dict, age_src: Raste
     write_products(P, out)
     if "habStats" in P:
         info["habStats"] = P["habStats"]
+    if "berryStats" in P:
+        info["berryStats"] = P["berryStats"]
     entry = finish_entry(dict(prev), area_id, out, info)
     entry["cutsUpdated"] = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     log(f"  Hakkuutiedot päivitetty, uusi versio {entry['version']}")
@@ -662,6 +687,9 @@ def build_area(path: Path, area_id: str, cfg: dict, age_src: RasterSource, heigh
     if "habStats" in P:
         info["habStats"] = P["habStats"]
         log(f"  Elinympäristö (ha sopiva/hyvä): {P['habStats']}")
+    if "berryStats" in P:
+        info["berryStats"] = P["berryStats"]
+        log(f"  Marjat ja sienet (ha sopiva/hyvä): {P['berryStats']}")
     write_products(P, out)
     meta = P["meta"]
 
@@ -716,6 +744,8 @@ def main() -> int:
 
     sources = sorted(p for p in AREAS_DIR.glob("*.geojson") if not p.name.startswith(("_", ".")))
     sources += sorted(p for p in AREAS_DIR.glob("*.json") if not p.name.startswith(("_", ".")))
+    if ERA_DIR.is_dir():
+        sources += sorted(p for p in ERA_DIR.glob("*.geojson") if not p.name.startswith(("_", ".")))
     if not sources:
         log("areas/metsastys/-kansiossa ei ole aluerajauksia (.geojson).")
 
@@ -726,7 +756,8 @@ def main() -> int:
 
     result, failed, seen = [], [], set()
     for path in sources:
-        area_id = slugify(path.stem)
+        era = path.parent == ERA_DIR
+        area_id = ("era-" if era else "") + slugify(path.stem)
         if area_id in seen:
             log(f"VAROITUS: tunnus {area_id} on jo käytössä, ohitetaan {path.name}")
             continue
@@ -754,7 +785,9 @@ def main() -> int:
         try:
             entry = build_area(path, area_id, cfg, age_src, height_src, protected, habsrc)
             entry["srcHash"] = src_hash
-            entry["source"] = f"areas/metsastys/{path.name}"
+            entry["source"] = f"areas/{path.parent.name}/{path.name}"
+            if era:
+                entry["osio"] = "erankaynti"
             result.append(entry)
         except Exception as exc:  # noqa: BLE001
             traceback.print_exc()

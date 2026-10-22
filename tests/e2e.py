@@ -156,6 +156,37 @@ def snow_xml():
                        (63.85, 25.94, now, "snow_aws", "30.0")])
 
 
+def berry_fixture(site):
+    """Eränkäynnin testialue marja- ja sienitasoineen sijainnin kohdalle (100 x 100 ruutua, n. 3,6 km)."""
+    import math
+    lat, lon, n, res = 63.4806, 25.9395, 100, 36.0
+    mx = lon * 20037508.342789 / 180
+    my = math.log(math.tan((90 + lat) * math.pi / 360)) * 6378137
+    x0, y1 = mx - n * res / 2, my + n * res / 2
+    x1, y0 = x0 + n * res, y1 - n * res
+    def ll(x, y):
+        return [round(math.degrees(2 * math.atan(math.exp(y / 6378137)) - math.pi / 2), 6), round(x / 6378137 * 180 / math.pi, 6)]
+    d = site / "data" / "era-testi"
+    d.mkdir(parents=True, exist_ok=True)
+    m = Image.new("RGB", (n, n), (0, 0, 0)); px = m.load()
+    s2 = Image.new("RGB", (n, n), (0, 0, 0)); py = s2.load()
+    for i in range(n):
+        for j in range(n):
+            px[i, j] = (220, 140 if i < n // 2 else 0, 0)        # mustikka hyvä kaikkialla, puolukka sopiva vasemmalla
+            py[i, j] = (0, 0, 200 if j < n // 2 else 0)          # herkkutatti hyvä yläpuolella
+    m.save(d / "marjat.png"); s2.save(d / "sienet.png")
+    b0, b1 = ll(x0, y0), ll(x1, y1)
+    ring = [[b0[1], b0[0]], [b1[1], b0[0]], [b1[1], b1[0]], [b0[1], b1[0]], [b0[1], b0[0]]]
+    (d / "boundary.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {},
+        "geometry": {"type": "Polygon", "coordinates": [ring]}}]}), encoding="utf-8")
+    idx_path = site / "data" / "areas.json"
+    idx = json.loads(idx_path.read_text(encoding="utf-8"))
+    idx["areas"].append({"id": "era-testi", "name": "Marjatesti", "osio": "erankaynti", "areaHa": 1296, "center": [lat, lon], "version": "t1", "bytes": 5000,
+                         "forest": {"width": n, "height": n, "res": res, "mercBounds": [x0, y0, x1, y1], "bounds": [b0, b1], "file": "data/era-testi/forest.png?v=t1"},
+                         "boundary": "data/era-testi/boundary.geojson?v=t1", "marjat": "data/era-testi/marjat.png?v=t1", "sienet": "data/era-testi/sienet.png?v=t1"})
+    idx_path.write_text(json.dumps(idx, ensure_ascii=False), encoding="utf-8")
+
+
 def check(cond, msg):
     if not cond:
         raise AssertionError(msg)
@@ -171,6 +202,7 @@ def main():
     shutil.copytree(SITE, site)
     for rel, data in fixtures().items():
         (site / rel).write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    berry_fixture(site)
     app_srv = serve(partial(Quiet, directory=str(site)), APP_PORT)
     tile_srv = serve(TileHandler, TILE_PORT)
     errors = []
@@ -216,6 +248,7 @@ def main():
         pg.locator(".start-card", has_text="Metsästys").click()
         pg.wait_for_selector("#sheet:not([hidden])")
         check(pg.locator("#sheetTitle").inner_text() == "Lupa-alueet", "metsästyksessä avautuu lupa-alueiden luettelo")
+        check(pg.locator(".card-main", has_text="Marjatesti").count() == 0, "eränkäynnin alue ei näy lupa-alueissa")
         pg.locator(".card-main", has_text="Jahti").click()
         pg.wait_for_function("K.hunt.S.forest !== null", timeout=20000)
         check(True, "lupa-alueen metsätieto latautui")
@@ -402,6 +435,19 @@ def main():
         pg.screenshot(path=str(SHOTS / "06-suunnistus.png"))
         pg.locator("#targetCard .btn", has_text="Lopeta").click()
         check(pg.evaluate("K.target === null"), "suunnistus lopetettu")
+        # Marjat ja sienet: tasot vain eränkäynnissä, piirretyillä alueilla
+        pg.evaluate("K.settings.bMustikka = true; K.settings.bHerkku = true; K.saveSettings(); K.map.setView([63.4806, 25.9395], 13, {animate:false})")
+        pg.wait_for_function("K.berries.S.dec['era-testi|marjat'] && K.berries.S.dec['era-testi|sienet']", timeout=15000)
+        r = pg.evaluate("K.berries.at(L.latLng(63.4815, 25.9395)).map(function (x) { return x.laji.id + ':' + x.taso; })")
+        check(r == ["mustikka:2", "herkkutatti:2"], "marja- ja sienitiedot pisteessä (%s)" % r)
+        check(pg.evaluate("K.berries.at(L.latLng(63.4795, 25.9395)).map(function (x) { return x.laji.id; })") == ["mustikka"], "herkkutatti vain alueen yläosassa")
+        pg.locator("#navLayers").click()
+        pg.wait_for_function("document.getElementById('sheetBody').innerText.indexOf('Marjatesti') >= 0", timeout=10000)
+        body = pg.locator("#sheetBody").inner_text().lower()
+        check("marjat ja sienet" in body and "suppilovahvero" in body and "marjatesti" in body, "Tasot: marja- ja sienikytkimet ja alueet")
+        pg.locator("#sheetClose").click()
+        pg.screenshot(path=str(SHOTS / "05c-marjat.png"))
+        pg.evaluate("K.settings.bMustikka = false; K.settings.bHerkku = false; K.saveSettings(); K.berries.refresh()")
         # GPX
         pg.locator("#navInfo").click()
         pg.wait_for_selector("#sheetBody .btn-primary", )
