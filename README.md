@@ -30,7 +30,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 - Metsän ikä värikoodattuna Metsähallituksen lupa-alueilla, taimikot vinoviivoin
 - Luonnonsuojelualueet, uudet hakkuut ja hakkuuilmoitukset
 - Kanalintujen elinympäristö: metso, teeri ja pyy
-- Mustikan ja puolukan kasvupaikka-arvio (lintujen ravintoa) lupa-alueilla
+- Mustikan ja puolukan kasvupaikka-arvio (lintujen ravintoa) lupa-alueilla, napautustieto metsätiedon kortissa
 - Tuuliviuhka (hajusi kulku) ja koiran hajuolosuhteet
 - Havaintojen ja saaliin kirjaus, kauden yhteenveto, CSV-vienti ja Metsäkartan merkintöjen tuonti
 - Voimassa olevat maastopalovaroitukset (Ilmatieteen laitos) kartalla, sääkortissa ja tietokortissa
@@ -45,6 +45,9 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 | Musta viiva | Lupa-alueen raja |
 | Punainen reunus / katkoviiva | Uusi hakkuuaukko / hakkuuilmoitus |
 | Oranssi alue | Kanalintulajin elinympäristö |
+| Violetti alue | Mustikan kasvupaikka (vahva = hyvä, haalea = sopiva) |
+| Punainen alue | Puolukan kasvupaikka |
+| Keltainen, oranssi tai punainen katkoviiva-alue | Voimassa oleva maastopalovaroitus |
 | Violetti viuhka | Tuuliviuhka |
 
 **Kalastus** (Joki-oppaasta)
@@ -60,7 +63,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 
 **Eränkäynti**
 
-- Autiotuvat, autiokammit, päivätuvat, kodat, laavut ja tulipaikat koko Suomesta (OpenStreetMap, päivittyy kuukausittain)
+- Autiotuvat, autiokammit, päivätuvat, kodat, laavut ja tulipaikat koko Suomesta (OpenStreetMap, päivittyy viikoittain)
 - Lähimmät kohteet etäisyyden mukaan, kohteen kompassi ja *Suunnista tänne*
 - GPX-reittien tuonti, näyttö, offline-tallennus ja suunnistus reitin alkuun
 - Voimassa olevat maastopalovaroitukset: alueet kartalla, avotulikielto laavun ja tulipaikan tiedoissa
@@ -88,6 +91,9 @@ Julkaisu: Cloudflare Pages julkaisee `docs/`-kansion automaattisesti jokaisesta 
   - `js/weather.js`: sää, sadetutka ja aurinko kaikissa osioissa
   - `js/tools.js`: mittaus, alueen piirto, etäisyysrenkaat, omat tasot, näkymän tallennus
   - `js/hunt.js`, `js/fish.js`, `js/wild.js`: osioiden toiminnot
+  - `js/palo.js`: maastopalovaroitukset (metsästys ja eränkäynti)
+  - `js/havainnot.js`: salamahavainnot ja lumensyvyys (kaikki osiot)
+  - `js/marjat.js`: marjojen ja sienten kasvupaikat (eränkäynti; mustikka ja puolukka myös metsästyksessä)
   - `js/help.js`: osiokohtainen ohje ja käyttöehdot
   - `js/core.js`, `js/jcore.js`: laskenta ilman käyttöliittymää (testattavissa)
   - `sw.js`: service worker, joka pitää sovelluksen ja tallennetut kartat käytettävissä ilman verkkoa
@@ -99,7 +105,8 @@ Julkaisu: Cloudflare Pages julkaisee `docs/`-kansion automaattisesti jokaisesta 
 | Vesitilanne (`syvyys.py`, `vesitilanne.py`) | Päivittäin ja kun `areas/kalastus/` muuttuu | `docs/data/vesitilanne.json`, `docs/data/jaa.json`, `docs/layers/` |
 | Kohteet (`kohteet.py`) | Viikoittain | `docs/data/kohteet/{tuvat,laavut,tulipaikat}.geojson` |
 | Maastopalovaroitukset (`maastopalo.py`) | Tunnin välein, tallennus vain muutoksesta | `docs/data/maastopalo.json` |
-| Testit | Jokaisessa muutoksessa | – |
+| Testit | Jokaisessa muutoksessa | – (myös riippuvuuksien haavoittuvuudet ja Cloudflaren rajat) |
+| Rajapintojen tarkistus (`tarkistus.py`) | Käsin | Vain lokimerkinnät: rajapintojen vastausten rakenne oikealla datalla |
 
 Ajon voi käynnistää käsin: *Actions → ajo → Run workflow*. GitHub keskeyttää ajastetut ajot, jos repossa ei tapahdu mitään 60 päivään.
 
@@ -141,6 +148,7 @@ python3 tests/test_pipeline.py     # vesitilanne ja kohteet
 python3 tests/test_encoding.py     # metsäkartan koodaus
 python3 tests/test_cuts.py         # hakkuutunnistus
 python3 tests/test_habitat.py      # elinympäristömalli
+python3 tests/test_marjat.py       # marja- ja sienimalli
 node tests/jcore.test.js           # laskentaydin
 python3 tests/e2e.py docs /tmp/kuvat   # selaintesti (Playwright)
 ```

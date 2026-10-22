@@ -12,7 +12,7 @@
   var MIN_ZOOM = 9, CACHE_MAX = 3;
   var SECS = { erankaynti: { lajit: null, prefix: '' }, metsastys: { lajit: ['mustikka', 'puolukka'], prefix: 'm' } };
   var LAJIT = [
-    { id: 'mustikka', nimi: 'Mustikka', set: 'bMustikka', file: 'marjat', ch: 'code', rgb: [59, 91, 219], kuvaus: 'Tuoreet kankaat, varttunut ja kohtalaisen tiheä metsä' },
+    { id: 'mustikka', nimi: 'Mustikka', set: 'bMustikka', file: 'marjat', ch: 'code', rgb: [123, 44, 191], kuvaus: 'Tuoreet kankaat, varttunut ja kohtalaisen tiheä metsä' },
     { id: 'puolukka', nimi: 'Puolukka', set: 'bPuolukka', file: 'marjat', ch: 'ht', rgb: [224, 49, 49], kuvaus: 'Kuivahkot ja kuivat mäntykankaat, valoisa metsä' },
     { id: 'kantarelli', nimi: 'Kantarelli', set: 'bKantarelli', file: 'sienet', ch: 'code', rgb: [245, 159, 0], kuvaus: 'Varttuneet havu- ja sekametsät tuoreilla ja kuivahkoilla kankailla' },
     { id: 'suppilovahvero', nimi: 'Suppilovahvero', set: 'bSuppilo', file: 'sienet', ch: 'ht', rgb: [141, 110, 99], kuvaus: 'Varttuneet kuusikot ja korvet' },
