@@ -105,7 +105,7 @@ def fixtures():
     """Testidata kalastuksen jää- ja syvyysnäkymille (korvaa sovelluksen omat tiedostot vain testissä)."""
     idx = json.loads((SITE / "layers" / "index.json").read_text(encoding="utf-8"))
     idx["tasot"].append({"id": "testijarvi", "nimi": "Testijärvi", "tiedosto": "testijarvi.geojson", "piirretty": True,
-                         "syvyys": "testijarvi-syvyys.geojson"})
+                         "versio": "abc123def0", "syvyys": "testijarvi-syvyys.geojson", "syvyys_versio": "0fed321cba"})
     now = datetime.now(timezone.utc)
     return {
         "layers/index.json": idx,
@@ -351,6 +351,8 @@ def main():
               .eachLayer(function (l) { if (l.getRadius) o = [l.options.fillColor, l.options.fillOpacity, l.options.color]; else if (l.options.color !== '#2b8cbe') o = 'viiva'; });
             return o; })""")
         check(styles == [["#2b8cbe", 1, "#10160f"], ["#7fc8e8", 1, "#10160f"], ["#5bd18b", 1, "#10160f"]], "kosket, suvannot ja kohteet omilla väreillään, joki viivatyylillä (%s)" % styles)
+        pg.wait_for_function("performance.getEntriesByType('resource').some(function (e) { return e.name.indexOf('layers/testijarvi.geojson?v=abc123def0') >= 0; })", timeout=10000)
+        check(True, "kalastusalueen taso haetaan versiolla (päivittynyt taso ei jää välimuistiin)")
         pg.locator("#navInfo").click()
         pg.wait_for_selector("#sheetBody .seg")
         pg.wait_for_function("document.querySelector('#sheetBody').innerText.toLowerCase().indexOf('kalalaji') >= 0", timeout=10000)

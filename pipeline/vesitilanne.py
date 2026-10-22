@@ -715,6 +715,15 @@ def area_layer(area, extra=None, complete=True, sources=("osm",)):
             "properties": {"alue_hash": area["hash"], "kosket_haettu": complete, "koskilahteet": sorted(sources), "lahde": "; ".join(lahde)}}
 
 
+def file_version(path):
+    """Tiedoston sisällön lyhyt tunniste (välimuistin ohitus sovelluksessa)."""
+    import hashlib
+    try:
+        return hashlib.sha1(open(path, "rb").read()).hexdigest()[:10]
+    except OSError:
+        return None
+
+
 def update_index(drawn):
     """docs/layers/index.json: käsin lisätyt tasot säilyvät, piirretyt päivittyvät."""
     path = os.path.join(LAYERS, "index.json")
@@ -728,11 +737,15 @@ def update_index(drawn):
         if a["id"] in ids:
             continue
         entry = {"id": a["id"], "nimi": a["nimi"], "tiedosto": a["id"] + ".geojson", "piirretty": True}
+        v = file_version(os.path.join(LAYERS, entry["tiedosto"]))
+        if v:
+            entry["versio"] = v  # sovellus hakee muuttuneen tason heti, ei välimuistista
         dpath = os.path.join(LAYERS, a["id"] + "-syvyys.geojson")
         try:
             dprops = json.load(open(dpath, encoding="utf-8")).get("properties") or {}
             if dprops.get("alue_hash") == a["hash"] and dprops.get("jarvia"):
                 entry["syvyys"] = a["id"] + "-syvyys.geojson"
+                entry["syvyys_versio"] = file_version(dpath)
         except Exception:  # noqa
             pass
         manual.append(entry)

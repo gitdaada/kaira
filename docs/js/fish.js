@@ -227,16 +227,18 @@
   // Kalastusalueiden tasot (docs/layers/index.json)
   // ---------------------------------------------------------------------------
 
+  /** Tason versio osoitteeseen: muuttunut taso haetaan heti verkosta eikä välimuistista. */
+  function ver(v) { return typeof v === 'string' && /^[a-f0-9]{6,16}$/.test(v) ? '?v=' + v : ''; }
   function loadFishLayers() {
     if (S.layerIndex) { showFishLayers(); return Promise.resolve(); }
     return K.fetchJSON('layers/index.json').then(function (idx) {
       var tasot = (idx.tasot || []).filter(function (t) { return t && /^[a-z0-9_-]+$/i.test(t.id) && /^[a-z0-9_-]+\.geojson$/i.test(t.tiedosto); });
       S.layerIndex = tasot;
       return Promise.all(tasot.map(function (t) {
-        return K.fetchJSON('layers/' + t.tiedosto).then(function (gj) {
+        return K.fetchJSON('layers/' + t.tiedosto + ver(t.versio)).then(function (gj) {
           var clean = JG.cleanGeoJSON(gj);
           S.layers[t.id] = { id: t.id, name: String(t.nimi || t.id).slice(0, 60), gj: clean, layer: K.geoLayer(clean),
-            depthFile: typeof t.syvyys === 'string' && /^[a-z0-9_-]+\.geojson$/i.test(t.syvyys) ? t.syvyys : null };
+            depthFile: typeof t.syvyys === 'string' && /^[a-z0-9_-]+\.geojson$/i.test(t.syvyys) ? t.syvyys + ver(t.syvyys_versio) : null };
         }).catch(function () { /* taso puuttuu */ });
       })).then(showFishLayers);
     }).catch(function () { S.layerIndex = null; });

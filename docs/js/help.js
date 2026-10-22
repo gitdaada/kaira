@@ -85,8 +85,8 @@
           row(h('span', { class: 'help-ico' }, sw('#2fb35a', 'sw-water')), 'Vihreä joki', 'Normaali vesitilanne.'),
           row(h('span', { class: 'help-ico' }, sw('#0b3d91', 'sw-water')), 'Tummansininen joki', 'Korkea vesi.'),
           row(h('span', { class: 'help-ico' }, sw('#8a9aa0', 'sw-water')), 'Harmaa katkoviiva', 'Ei tietoa.'),
-          row(h('span', { class: 'help-ico' }, h('span', { class: 'dot big', style: { background: '#2b8cbe' } })), 'Tummansininen pallo', 'Koski (OpenStreetMap). Napauta nähdäksesi nimen.'),
-          row(h('span', { class: 'help-ico' }, h('span', { class: 'dot big', style: { background: '#7fc8e8' } })), 'Vaaleansininen pallo', 'Suvanto (OpenStreetMap).'),
+          row(h('span', { class: 'help-ico' }, h('span', { class: 'dot big', style: { background: '#2b8cbe' } })), 'Tummansininen pallo', 'Koski kalastusalueella (Maanmittauslaitoksen maastotietokanta ja nimistö sekä OpenStreetMap). Napauta nähdäksesi nimen; nimettömät näkyvät nimellä Koski.'),
+          row(h('span', { class: 'help-ico' }, h('span', { class: 'dot big', style: { background: '#7fc8e8' } })), 'Vaaleansininen pallo', 'Suvanto tai vuopio kalastusalueella (Maanmittauslaitoksen nimistö ja OpenStreetMap).'),
           row(pin('obs-kala', 'Ha'), 'Saalismerkki', 'Lajin lyhenne, esim. Ha = harjus, Lo = lohi, Ta = taimen.'),
           row(h('span', { class: 'help-ico' }, sw('linear-gradient(90deg,#cfeaf7,#69b3e0,#123f78)')), 'Sininen järvi', 'Syvyysalue: mitä tummempi, sitä syvempi. Vain Syken mittaamat järvet. Napauta järveä nähdäksesi syvyysvälin.'),
           row(pin('obs-jaa', '25'), 'Jäämerkki', 'Mitattu jäänpaksuus senttimetreinä. Haalea merkki = mittaus yli viikon vanha.')
