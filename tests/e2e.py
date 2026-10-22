@@ -273,6 +273,18 @@ def main():
         check("Suunnista tänne" in txt, "tietokortissa suunnistus")
         pg.screenshot(path=str(SHOTS / "02-metsastys.png"))
         pg.locator("#infoCard .info-close").click()
+        # Oma (piirretty) alue lupa-alueen päällä: napautus näyttää silti metsätiedon, ei pelkkää alueen nimeä
+        pg.evaluate("""window._own = K.geoLayer({type: 'FeatureCollection', features: [{type: 'Feature', properties: {nimi: 'Oma testialue', tyyppi: 'alue'},
+            geometry: {type: 'Polygon', coordinates: [[[%f, %f], [%f, %f], [%f, %f], [%f, %f], [%f, %f]]]}}]}).addTo(K.map)""" % (
+            a[1] - 0.05, a[0] - 0.03, a[1] + 0.05, a[0] - 0.03, a[1] + 0.05, a[0] + 0.03, a[1] - 0.05, a[0] + 0.03, a[1] - 0.05, a[0] - 0.03))
+        pg.wait_for_timeout(200)
+        pg.mouse.click(195, 470)
+        pg.wait_for_selector("#infoCard:not([hidden])")
+        own_txt = pg.locator("#infoCard").inner_text()
+        check("Oma testialue" not in own_txt.split("\n")[0] and own_txt.split("\n")[0] == txt.split("\n")[0],
+              "oman alueen sisällä napautus näyttää metsätiedon (%s)" % own_txt.split("\n")[0])
+        pg.locator("#infoCard .info-close").click()
+        pg.evaluate("K.map.removeLayer(window._own)")
         # GPS ja tuuliviuhka
         pg.locator("#locateBtn").click()
         pg.wait_for_function("K.pos !== null", timeout=10000)

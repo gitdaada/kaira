@@ -1,7 +1,7 @@
 /* Kairan service worker: pitää sovelluksen, datan ja tallennetut kartat käytettävissä ilman verkkoa. */
 'use strict';
 
-var SHELL_CACHE = 'kaira-shell-2026-10-22h';
+var SHELL_CACHE = 'kaira-shell-2026-10-22i';
 var TILE_CACHE = 'kaira-tiles-v1';
 var DATA_CACHE = 'kaira-data-v1';
 var ASSET_CACHE = 'kaira-assets-v1';

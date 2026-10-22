@@ -455,11 +455,15 @@
   // --- Kartan napautus: työkalut ja osiot rekisteröivät käsittelijän, jolla on etusija ---
   var clickHandlers = [];
   K.onMapClick = function (fn, prio) { clickHandlers.push({ fn: fn, prio: prio || 0 }); clickHandlers.sort(function (a, b) { return b.prio - a.prio; }); };
-  map.on('click', function (e) {
+  /** Ajaa osioiden napautuskäsittelijät; true, jos jokin näytti tiedon. Myös omien alueiden napautus käyttää tätä. */
+  K.runMapClick = function (ll, e) {
     for (var i = 0; i < clickHandlers.length; i++) {
-      try { if (clickHandlers[i].fn(e.latlng, e)) return; } catch (err) { console.error(err); }
+      try { if (clickHandlers[i].fn(ll, e)) return true; } catch (err) { console.error(err); }
     }
-    K.tapInfo(e.latlng);
+    return false;
+  };
+  map.on('click', function (e) {
+    if (!K.runMapClick(e.latlng, e)) K.tapInfo(e.latlng);
   });
 
   // ---------------------------------------------------------------------------

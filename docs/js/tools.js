@@ -40,8 +40,9 @@
           if (K.drawing) { if (!document.body.classList.contains('drawing-free')) K.drawAdd(e.latlng); return; }
           var p = f.properties || {}, ll = e.latlng;
           if (f.geometry.type === 'Point') ll = L.latLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
-          // Alueen sisällä napautus näyttää ensin pistekohtaisen tiedon (esim. järven syvyys), jos jokin osio tarjoaa sen.
-          if (/Polygon/.test(f.geometry.type) && K.pointInfo(ll)) return;
+          // Alueen sisällä napautus näyttää ensin pistekohtaisen tiedon (esim. järven syvyys tai metsän ikä), jos jokin osio
+          // tarjoaa sen; alueen oma kortti vain, kun muuta tietoa ei ole.
+          if (/Polygon/.test(f.geometry.type) && (K.pointInfo(ll) || K.runMapClick(ll, e))) return;
           K.tapInfo(ll, { title: K.featureTitle(p), detail: [TYPE_NAMES[p.tyyppi] || '', p.kuvaus || p.description || ''].filter(Boolean).join(' · '), targetName: K.featureTitle(p) });
         });
       }
