@@ -17,6 +17,7 @@ import os
 import re
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -44,12 +45,15 @@ def get(url, timeout=60, tries=3):
     last = None
     for i in range(tries):
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/xml, application/atom+xml"})
+            req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 return r.read()
+        except urllib.error.HTTPError as e:
+            body = e.read()[:300].decode("utf-8", "replace") if hasattr(e, "read") else ""
+            last = RuntimeError("HTTP %s %s (%s): %s" % (e.code, e.reason, e.headers.get("Server", "?"), re.sub(r"\s+", " ", body)))
         except Exception as e:  # noqa: BLE001
             last = e
-            time.sleep(5 * (i + 1))
+        time.sleep(10 * (i + 1))
     raise last
 
 
