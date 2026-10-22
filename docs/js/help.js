@@ -58,6 +58,7 @@
           row(h('span', { class: 'help-ico' }, sw(null, 'sw-hab2')), 'Oranssi alue', 'Valitun kanalintulajin elinympäristö: vahva = hyvä, haalea = sopiva.'),
           row(h('span', { class: 'help-ico' }, sw(null, 'sw-wind')), 'Violetti viuhka', 'Tuuliviuhka: hajusi kulku sijainnistasi myötätuuleen. Mitä heikompi tuuli, sitä leveämpi viuhka.'),
           row(h('span', { class: 'help-ico' }, sw('repeating-linear-gradient(135deg,#F2C200 0 4px,transparent 4px 8px)')), 'Keltainen, oranssi tai punainen katkoviiva-alue', 'Voimassa oleva maastopalovaroitus (Ilmatieteen laitos): avotulen teko on kielletty. Sääkortissa näkyy Maastopalovaroitus, kun olet varoitusalueella. Kaikki varoitukset: Valikko → Maastopalovaroitukset.'),
+          row(h('span', { class: 'help-ico' }, sw('linear-gradient(90deg,#3b5bdb,#e03131)')), 'Sininen ja punainen alue', 'Tasot → Marjat: mustikan (sininen) ja puolukan (punainen) kasvupaikka-arvio, vahva = hyvä, haalea = sopiva. Marjat ovat metsäkanalintujen tärkeää ravintoa. Napautus näyttää marjatiedon metsätiedon kortissa.'),
           row(pin('obs-havainto', 'M'), 'Omat merkinnät', 'Sininen = havainto, keltainen = seisonta, punainen = saalis. Kirjain kertoo lajin.')
         ]),
         block('Vinkit', [

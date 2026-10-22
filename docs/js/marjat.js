@@ -1,6 +1,7 @@
 /*
- * Kaira / Eränkäynti: marjojen ja sienten kasvupaikka-arvio (mustikka, puolukka, kantarelli, suppilovahvero,
- * herkkutatti) piirretyillä alueilla. Tasot lasketaan GitHub Actionsissa MVMI-metsätiedosta (pipeline/marjat.py):
+ * Kaira: marjojen ja sienten kasvupaikka-arvio piirretyillä alueilla ja lupa-alueilla. Eränkäynnissä mustikka,
+ * puolukka, kantarelli, suppilovahvero ja herkkutatti; metsästyksessä mustikka ja puolukka (lintujen ravintoa),
+ * omilla kytkimillään. Tasot lasketaan GitHub Actionsissa MVMI-metsätiedosta (pipeline/marjat.py):
  * marjat.png (R mustikka, G puolukka) ja sienet.png (R kantarelli, G suppilovahvero, B herkkutatti) samassa
  * ruudukossa kuin alueen metsäkuva. Arvio kasvupaikasta, ei satoennuste.
  */
@@ -8,7 +9,8 @@
   'use strict';
 
   var K = window.K, MK = window.MK, h = K.h, settings = K.settings, map = K.map;
-  var SEC = 'erankaynti', MIN_ZOOM = 9, CACHE_MAX = 3;
+  var MIN_ZOOM = 9, CACHE_MAX = 3;
+  var SECS = { erankaynti: { lajit: null, prefix: '' }, metsastys: { lajit: ['mustikka', 'puolukka'], prefix: 'm' } };
   var LAJIT = [
     { id: 'mustikka', nimi: 'Mustikka', set: 'bMustikka', file: 'marjat', ch: 'code', rgb: [59, 91, 219], kuvaus: 'Tuoreet kankaat, varttunut ja kohtalaisen tiheä metsä' },
     { id: 'puolukka', nimi: 'Puolukka', set: 'bPuolukka', file: 'marjat', ch: 'ht', rgb: [224, 49, 49], kuvaus: 'Kuivahkot ja kuivat mäntykankaat, valoisa metsä' },
@@ -19,8 +21,11 @@
   LAJIT.forEach(function (l) { l.colors = [MK.packRGBA(l.rgb[0], l.rgb[1], l.rgb[2], 95), MK.packRGBA(l.rgb[0], l.rgb[1], l.rgb[2], 175)]; });
 
   var S = { areas: null, dec: {}, order: [], loading: {} };
-  function active() { return K.section === SEC; }
-  function enabled() { return LAJIT.filter(function (l) { return settings[l.set]; }); }
+  function conf() { return SECS[K.section] || null; }
+  function active() { return !!conf(); }
+  function key(l) { return conf().prefix + l.set; }
+  function shown() { var c = conf(); return c ? LAJIT.filter(function (l) { return !c.lajit || c.lajit.indexOf(l.id) >= 0; }) : []; }
+  function enabled() { return shown().filter(function (l) { return settings[key(l)]; }); }
   function safeUrl(u) { return typeof u === 'string' && /^data\/[a-z0-9-]+\/(marjat|sienet|boundary)\.(png|geojson)(\?v=[a-z0-9]+)?$/.test(u) ? u : null; }
 
   function loadAreas() {
@@ -110,8 +115,8 @@
       });
     });
   }
-  K.on('section', function (sec) { if (sec === SEC) refresh(); });
-  K.on('leave', function (sec) { if (sec === SEC) { if (map.hasLayer(layer)) map.removeLayer(layer); if (map.hasLayer(outlines)) map.removeLayer(outlines); } });
+  K.on('section', function () { refresh(); });
+  K.on('leave', function () { setTimeout(refresh, 0); });
   map.on('moveend', function () { if (active() && enabled().length) refresh(); });
 
   /** Pisteen marja- ja sienitiedot: [{laji, taso}] (taso 1 = sopiva, 2 = hyvä). */
@@ -129,24 +134,29 @@
     });
     return res;
   }
+  /** Tietokorttiin lisättävä rivi (molemmat osiot): metsästyksessä metsätiedon korttiin, eränkäynnissä omaan korttiin. */
+  K.berryNotice = function (ll) {
+    if (!active() || !enabled().length || !ll) return null;
+    var r = at(ll).sort(function (x, y) { return y.taso - x.taso; });
+    if (!r.length) return null;
+    return h('div', { class: 'berry-notice' },
+      h('b', { text: r.map(function (x) { return x.laji.nimi + ': ' + (x.taso === 2 ? 'hyvä' : 'sopiva'); }).join(' · ') }),
+      h('span', { class: 'small muted', text: 'Kasvupaikka-arvio metsätiedosta, ei satoennuste.' }));
+  };
+  // Eränkäynnissä marja- tai sienialueen napautus avaa oman kortin (metsästyksessä rivi tulee metsätiedon korttiin).
   K.onMapClick(function (ll) {
-    if (!active() || !enabled().length || K.measuring || K.drawing) return false;
-    var r = at(ll);
-    if (!r.length) return false;
-    r.sort(function (x, y) { return y.taso - x.taso; });
-    K.tapInfo(ll, {
-      title: r.map(function (x) { return x.laji.nimi; }).join(', '),
-      detail: r.map(function (x) { return x.laji.nimi + ': ' + (x.taso === 2 ? 'hyvä' : 'sopiva'); }).join(' · '),
-      extras: [h('div', { class: 'small muted', text: 'Arvio kasvupaikasta metsätiedon perusteella, ei satoennuste. Vuoden sato vaihtelee säiden mukaan.' })]
-    });
+    if (K.section !== 'erankaynti' || !enabled().length || K.measuring || K.drawing || !at(ll).length) return false;
+    K.tapInfo(ll, { title: 'Marjat ja sienet' });
     return true;
   }, 12);
 
   K.on('layers', function (body, sec) {
-    if (sec !== SEC) return;
-    body.appendChild(h('h3', { text: 'Marjat ja sienet' }));
-    LAJIT.forEach(function (l) {
-      var row = K.toggleRow(l.nimi, l.kuvaus, settings[l.set], function (v) { settings[l.set] = v; K.saveSettings(); refresh(); });
+    if (!SECS[sec]) return;
+    var hunt = sec === 'metsastys';
+    body.appendChild(h('h3', { text: hunt ? 'Marjat (lintujen ravintoa)' : 'Marjat ja sienet' }));
+    shown().forEach(function (l) {
+      var k = key(l);
+      var row = K.toggleRow(l.nimi, l.kuvaus, settings[k], function (v) { settings[k] = v; K.saveSettings(); refresh(); });
       var lbl = row.querySelector('span');
       if (lbl) lbl.insertBefore(h('span', { class: 'sw berry-sw', style: { background: 'rgb(' + l.rgb.join(',') + ')' } }), lbl.firstChild);
       body.appendChild(row);
@@ -154,8 +164,9 @@
     var n = S.areas ? S.areas.length : null;
     body.appendChild(h('p', { class: 'muted small', text: 'Vahva väri = hyvä, haalea = sopiva kasvupaikka. Arvio metsätiedosta (Luke, MVMI), ei satoennuste. ' +
       'Tasot näkyvät vain piirretyillä alueilla ja lupa-alueilla' + (n !== null ? ' (' + n + ' aluetta)' : '') + ', kun karttaa on lähennetty. ' +
-      'Uusi alue: Työkalut → Piirrä alue → Lähetä analysoitavaksi.' }));
-    if (S.areas && S.areas.length && enabled().length) {
+      (hunt ? 'Mustikka ja puolukka ovat metson, teeren ja pyyn tärkeää ravintoa. Tallenna lupa-alue offline-käyttöön, niin marjataso tulee mukaan.' :
+        'Uusi alue: Työkalut → Piirrä alue → Lähetä analysoitavaksi.') }));
+    if (!hunt && S.areas && S.areas.length && enabled().length) {
       S.areas.forEach(function (a) {
         var b = a.forest.bounds;
         body.appendChild(h('div', { class: 'btn-row btn-row-sub' },

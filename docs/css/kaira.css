@@ -548,3 +548,4 @@ input[type="range"] { width: 100%; accent-color: var(--color-accent-primary); he
 /* Marjat ja sienet */
 .berry-sw { display: inline-block; width: 14px; height: 14px; border-radius: 4px; margin-right: 8px; vertical-align: -2px; opacity: 0.85; }
 .berry-area { flex: 1 1 100%; color: var(--muted-on-dark); }
+.berry-notice { display: grid; gap: 2px; margin-top: 6px; padding: 6px 10px; border-left: 4px solid #3b5bdb; background: rgba(59, 91, 219, 0.12); border-radius: 8px; font-size: 13.5px; }

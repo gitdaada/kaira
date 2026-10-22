@@ -51,7 +51,9 @@
     // Kaikki osiot: salamat ja lumensyvyys
     showLightning: true, showSnow: true,
     // Eränkäynti: marjojen ja sienten kasvupaikat
-    bMustikka: false, bPuolukka: false, bKantarelli: false, bSuppilo: false, bHerkku: false
+    bMustikka: false, bPuolukka: false, bKantarelli: false, bSuppilo: false, bHerkku: false,
+    // Metsästys: marjat (lintujen ravintoa)
+    mbMustikka: false, mbPuolukka: false
   };
   var ENUMS = {
     basemap: ['maastokartta', 'taustakartta', 'ortokuva'], habitat: ['off', 'metso', 'teeri', 'pyy'],
@@ -429,6 +431,8 @@
     o = o || {};
     var extras = (o.extras || []).slice(), fire = K.fireNotice ? K.fireNotice(ll) : null;
     if (fire) extras.unshift(fire); // maastopalovaroitus (metsästys ja eränkäynti) ensimmäisenä
+    var berry = K.berryNotice ? K.berryNotice(ll) : null;
+    if (berry) extras.push(berry); // marjat ja sienet (metsästys ja eränkäynti)
     K.showCard({
       title: o.title || 'Valittu kohta', detail: o.detail, detailMuted: o.detailMuted, swatch: o.swatch, extras: extras, ll: ll,
       meta: K.pointMeta(ll.lat, ll.lng),
@@ -886,8 +890,12 @@
           if (!spec.cleanPrefix) return;
           // Saman alueen vanhat versiot pois välimuistista.
           var prefix = K.absUrl(spec.cleanPrefix);
+          // Vain tämän tallennuksen tiedostojen vanhat versiot (?v=): saman alueen muut tiedostot (esim. toisen osion
+          // marja- ja sienitasot) jäävät talteen.
+          var base = function (u) { return u.split('?')[0]; }, paths = dataUrls.map(base);
           return dc.keys().then(function (keys) {
-            return Promise.all(keys.filter(function (k) { return k.url.indexOf(prefix) === 0 && dataUrls.indexOf(k.url) < 0; }).map(function (k) { return dc.delete(k); }));
+            return Promise.all(keys.filter(function (k) { return k.url.indexOf(prefix) === 0 && dataUrls.indexOf(k.url) < 0 && paths.indexOf(base(k.url)) >= 0; })
+              .map(function (k) { return dc.delete(k); }));
           });
         })
         .then(function () {

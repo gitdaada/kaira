@@ -796,7 +796,7 @@
 
   function areaSpec(a) {
     return { id: 'alue-' + a.id, name: a.name, kind: 'lupa-alue', bounds: a.forest.bounds, version: a.version,
-      dataUrls: [a.forest.file, a.boundary, a.protected, a.cuts, a.habitat], extraBytes: a.bytes || 0, cleanPrefix: 'data/' + a.id + '/' };
+      dataUrls: [a.forest.file, a.boundary, a.protected, a.cuts, a.habitat, a.marjat], extraBytes: a.bytes || 0, cleanPrefix: 'data/' + a.id + '/' };
   }
   function renderAreasSheet(body) {
     markAreasSeen();

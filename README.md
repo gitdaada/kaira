@@ -30,6 +30,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 - Metsän ikä värikoodattuna Metsähallituksen lupa-alueilla, taimikot vinoviivoin
 - Luonnonsuojelualueet, uudet hakkuut ja hakkuuilmoitukset
 - Kanalintujen elinympäristö: metso, teeri ja pyy
+- Mustikan ja puolukan kasvupaikka-arvio (lintujen ravintoa) lupa-alueilla
 - Tuuliviuhka (hajusi kulku) ja koiran hajuolosuhteet
 - Havaintojen ja saaliin kirjaus, kauden yhteenveto, CSV-vienti ja Metsäkartan merkintöjen tuonti
 - Voimassa olevat maastopalovaroitukset (Ilmatieteen laitos) kartalla, sääkortissa ja tietokortissa
