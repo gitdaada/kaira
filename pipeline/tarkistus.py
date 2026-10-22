@@ -37,6 +37,8 @@ def iso(t):
 
 
 def main():
+    # Ensin: GitHub näyttää enintään 10 merkintää tyyppiä kohden askeleessa.
+    rapids_sources()
     now = dt.datetime.now(dt.timezone.utc)
     # Salamat: rakenne ensimmäisestä havainnosta (haetaan taaksepäin, kunnes löytyy)
     for days in (1, 7, 30):
@@ -96,7 +98,6 @@ def main():
             gh("notice", "Loki: " + line)
     except Exception as e:  # noqa: BLE001
         gh("warning", "Vesistökäyrät: %r" % e)
-    rapids_sources()
     return 0
 
 
