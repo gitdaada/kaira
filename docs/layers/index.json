@@ -1,6 +1,12 @@
 {
  "tasot": [
   {
+   "id": "hossajoki",
+   "nimi": "Hossajoki",
+   "tiedosto": "hossajoki.geojson",
+   "piirretty": true
+  },
+  {
    "id": "tenomuotka",
    "nimi": "Tenomuotka",
    "tiedosto": "tenomuotka.geojson",
