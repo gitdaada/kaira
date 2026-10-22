@@ -135,17 +135,81 @@ def rapids_sources():
         except Exception as ex:  # noqa: BLE001
             gh("warning", "OSM %s: %r" % (a["id"], ex))
         time.sleep(3)
-        url = MML_OGC + "collections/koski/items?" + urllib.parse.urlencode(dict({"bbox": "%f,%f,%f,%f" % (w, s, e, n), "limit": "100"}, **({"api-key": key} if key else {})))
+        if not key:
+            gh("notice", "MML %s: ei avainta (MML_API_KEY)" % a["id"])
+            continue
+        inside = lambda lon, lat: any(point_in_ring(lon, lat, r) for r in a["rings"])  # noqa: E731
+        big = "%f,%f,%f,%f" % (w - m * 2.5, s - m, e + m * 2.5, n + m)
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": V.UA, "Accept": "application/geo+json"})
-            with urllib.request.urlopen(req, timeout=60) as r:
-                fc = json.loads(r.read())
-            fs = fc.get("features", [])
-            gh("notice", "MML koski %s: %d kohdetta, esim. %s" % (a["id"], len(fs), json.dumps([{"geom": (f.get("geometry") or {}).get("type"), "props": f.get("properties")} for f in fs[:3]], ensure_ascii=False)[:700]))
+            fs = mml_items(MML_OGC + "collections/koski/items", big, key)
+            rows = []
+            for f in fs:
+                c = feature_center(f.get("geometry") or {})
+                rows.append((V.dist_km((s + n) / 2, (w + e) / 2, c[1], c[0]), c, (f.get("geometry") or {}).get("type"), inside(c[0], c[1])))
+            rows.sort()
+            gh("notice", "MML koski %s (alue + 10 km): %d kohdetta, alueella %d. Ominaisuudet: %s. Lähimmät: %s" % (
+                a["id"], len(fs), sum(r[3] for r in rows), json.dumps(fs[0].get("properties") if fs else None, ensure_ascii=False)[:400],
+                "; ".join("%.2f km %s %.5f,%.5f%s" % (r[0], r[2], r[1][1], r[1][0], " (alueella)" if r[3] else "") for r in rows[:8])))
         except urllib.error.HTTPError as ex:
-            gh("notice", "MML koski %s: HTTP %s (%s)" % (a["id"], ex.code, "avain asetettu" if key else "ei avainta"))
+            gh("warning", "MML koski %s: HTTP %s" % (a["id"], ex.code))
         except Exception as ex:  # noqa: BLE001
             gh("warning", "MML koski %s: %r" % (a["id"], ex))
+        # Nimistö: koskien ja suvantojen nimet
+        try:
+            fs = mml_items(MML_NAMES + "collections/placenames/items", big, key)
+            hits = []
+            for f in fs:
+                pr = f.get("properties") or {}
+                nm = str(pr.get("spelling") or pr.get("name") or "")
+                if re.search(r"(koski|kongas|köngäs|niva|suvanto|suanto|vuopio|oja|eno|joki)$", nm, re.I):
+                    c = feature_center(f.get("geometry") or {})
+                    hits.append("%s [%s] %.2f km%s" % (nm, pr.get("placeType") or pr.get("placeTypeCode") or pr.get("type"),
+                                                      V.dist_km((s + n) / 2, (w + e) / 2, c[1], c[0]), " (alueella)" if inside(c[0], c[1]) else ""))
+            gh("notice", "MML nimistö %s: %d nimeä, vesinimiä %d. Ominaisuudet: %s. %s" % (
+                a["id"], len(fs), len(hits), json.dumps(fs[0].get("properties") if fs else None, ensure_ascii=False)[:300], "; ".join(sorted(hits)[:20])))
+        except urllib.error.HTTPError as ex:
+            gh("warning", "MML nimistö %s: HTTP %s" % (a["id"], ex.code))
+        except Exception as ex:  # noqa: BLE001
+            gh("warning", "MML nimistö %s: %r" % (a["id"], ex))
+
+
+def point_in_ring(x, y, ring):
+    ins, j = False, len(ring) - 1
+    for i in range(len(ring)):
+        xi, yi = ring[i][:2]
+        xj, yj = ring[j][:2]
+        if (yi > y) != (yj > y) and x < (xj - xi) * (y - yi) / ((yj - yi) or 1e-12) + xi:
+            ins = not ins
+        j = i
+    return ins
+
+
+def feature_center(g):
+    """Geometrian keskikohta (lon, lat): pisteen sijainti, viivan tai alueen pisteiden keskiarvo."""
+    t, c = g.get("type"), g.get("coordinates")
+    if t == "Point":
+        return c[0], c[1]
+    pts = c if t in ("LineString", "MultiPoint") else [p for part in c for p in (part if t != "MultiPolygon" else part[0])]
+    return sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)
+
+
+MML_NAMES = "https://avoin-paikkatieto.maanmittauslaitos.fi/geographic-names/features/v1/"
+
+
+def mml_items(base, bbox, key, limit=1000, pages=5):
+    """OGC API Features -haku sivuittain (next-linkit). Avain vain kyselyparametrina, ei lokiin."""
+    url = base + "?" + urllib.parse.urlencode({"bbox": bbox, "limit": str(limit), "api-key": key})
+    out = []
+    for _ in range(pages):
+        req = urllib.request.Request(url, headers={"User-Agent": V.UA, "Accept": "application/geo+json"})
+        with urllib.request.urlopen(req, timeout=90) as r:
+            fc = json.loads(r.read())
+        out += fc.get("features", [])
+        nxt = [l.get("href") for l in fc.get("links", []) if l.get("rel") == "next"]
+        if not nxt or not fc.get("features"):
+            break
+        url = nxt[0] if "api-key=" in nxt[0] else nxt[0] + ("&" if "?" in nxt[0] else "?") + urllib.parse.urlencode({"api-key": key})
+    return out
 
 
 if __name__ == "__main__":
