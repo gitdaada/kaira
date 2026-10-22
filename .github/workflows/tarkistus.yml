@@ -1,0 +1,20 @@
+# Rajapintojen tarkistus: käynnistetään käsin (tai tarkistusskriptin muuttuessa). Tulostaa vastausten rakenteen
+# ajon merkintöihin. Ei tallenna mitään repoon, vain lukuoikeus.
+name: Rajapintojen tarkistus
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "pipeline/tarkistus.py"
+      - ".github/workflows/tarkistus.yml"
+permissions:
+  contents: read
+jobs:
+  tarkista:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Tarkista
+        run: python3 pipeline/tarkistus.py
