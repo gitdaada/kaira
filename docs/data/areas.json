@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-22T08:12:15Z",
+ "generated": "2026-10-22T08:41:37Z",
  "encoding": 2,
  "mvmiYear": 2023,
  "attribution": [
@@ -620,6 +620,95 @@
    ],
    "srcHash": "0c7948a9df42",
    "source": "areas/metsastys/länsi-suomussalmi.json"
+  },
+  {
+   "id": "era-marjatesti",
+   "name": "Marjatesti",
+   "areaHa": 1970,
+   "center": [
+    63.487277,
+    25.948732
+   ],
+   "forest": {
+    "width": 341,
+    "height": 348,
+    "res": 35.839,
+    "mercBounds": [
+     2882064.863,
+     9213956.027,
+     2894285.962,
+     9226427.999
+    ],
+    "bounds": [
+     [
+      63.460051,
+      25.890029
+     ],
+     [
+      63.510068,
+      25.999813
+     ]
+    ],
+    "checksum": {
+     "sumR": 3944610,
+     "sumG": 4413579
+    },
+    "file": "data/era-marjatesti/forest.png?v=4f22a405b092"
+   },
+   "protectedCount": 3,
+   "built": "2026-10-22T08:41:37Z",
+   "version": "4f22a405b092",
+   "bytes": 615000,
+   "boundary": "data/era-marjatesti/boundary.geojson?v=4f22a405b092",
+   "protected": "data/era-marjatesti/protected.geojson?v=4f22a405b092",
+   "habitat": "data/era-marjatesti/habitat.png?v=4f22a405b092",
+   "habitatHa": {
+    "metso": [
+     337,
+     178
+    ],
+    "teeri": [
+     673,
+     200
+    ],
+    "pyy": [
+     49,
+     8
+    ]
+   },
+   "marjat": "data/era-marjatesti/marjat.png?v=4f22a405b092",
+   "sienet": "data/era-marjatesti/sienet.png?v=4f22a405b092",
+   "marjatHa": {
+    "mustikka": [
+     318,
+     5
+    ],
+    "puolukka": [
+     344,
+     124
+    ],
+    "kantarelli": [
+     334,
+     285
+    ],
+    "suppilovahvero": [
+     19,
+     10
+    ],
+    "herkkutatti": [
+     408,
+     454
+    ]
+   },
+   "cuts": "data/era-marjatesti/cuts.geojson?v=4f22a405b092",
+   "cutsCount": 32,
+   "declCount": 65,
+   "chmYears": [
+    2025
+   ],
+   "srcHash": "1d4eea8d3de4",
+   "source": "areas/erankaynti/marjatesti.geojson",
+   "osio": "erankaynti"
   },
   {
    "id": "riikinhovi",
