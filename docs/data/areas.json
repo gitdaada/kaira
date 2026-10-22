@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-22T17:26:46Z",
+ "generated": "2026-10-22T17:55:53Z",
  "encoding": 2,
  "mvmiYear": 2023,
  "attribution": [
@@ -8,95 +8,6 @@
   "Uudet hakkuut: Suomen metsäkeskus, latvusmalli ja metsänkäyttöilmoitukset (CC BY 4.0)"
  ],
  "areas": [
-  {
-   "id": "ita-suomussalmi",
-   "name": "Itä Suomussalmi",
-   "areaHa": 229883,
-   "center": [
-    64.819586,
-    29.442841
-   ],
-   "forest": {
-    "width": 3965,
-    "height": 4826,
-    "res": 37.689,
-    "mercBounds": [
-     3199984.545,
-     9485266.008,
-     3349421.43,
-     9667153.122
-    ],
-    "bounds": [
-     [
-      64.52853,
-      28.74595
-     ],
-     [
-      65.222231,
-      30.088365
-     ]
-    ],
-    "checksum": {
-     "sumR": 481937087,
-     "sumG": 397721305
-    },
-    "file": "data/ita-suomussalmi/forest.png?v=0612fd0191e5"
-   },
-   "protectedCount": 37,
-   "built": "2026-10-22T08:01:20Z",
-   "version": "0612fd0191e5",
-   "bytes": 55758506,
-   "boundary": "data/ita-suomussalmi/boundary.geojson?v=0612fd0191e5",
-   "protected": "data/ita-suomussalmi/protected.geojson?v=0612fd0191e5",
-   "habitat": "data/ita-suomussalmi/habitat.png?v=0612fd0191e5",
-   "habitatHa": {
-    "metso": [
-     29548,
-     12229
-    ],
-    "teeri": [
-     78330,
-     10102
-    ],
-    "pyy": [
-     1880,
-     188
-    ]
-   },
-   "marjat": "data/ita-suomussalmi/marjat.png?v=0612fd0191e5",
-   "sienet": "data/ita-suomussalmi/sienet.png?v=0612fd0191e5",
-   "marjatHa": {
-    "mustikka": [
-     21725,
-     3812
-    ],
-    "puolukka": [
-     42234,
-     13862
-    ],
-    "kantarelli": [
-     35020,
-     24256
-    ],
-    "suppilovahvero": [
-     2176,
-     1692
-    ],
-    "herkkutatti": [
-     37816,
-     43197
-    ]
-   },
-   "cuts": "data/ita-suomussalmi/cuts.geojson?v=0612fd0191e5",
-   "cutsCount": 283,
-   "declCount": 2082,
-   "chmYears": [
-    2024
-   ],
-   "srcHash": "c3d47d3fbdbb",
-   "source": "areas/metsastys/Itä-suomussalmi.json",
-   "cutsUpdated": "2026-10-22T17:15:34Z"
-  },
   {
    "id": "ita-suomussalmi-osa1",
    "name": "Itä-Suomussalmi (osa1)",
@@ -184,6 +95,94 @@
    ],
    "srcHash": "45cfc5ad3036",
    "source": "areas/metsastys/ita-suomussalmi-osa1.geojson"
+  },
+  {
+   "id": "ita-suomussalmi-osa2",
+   "name": "Itä-Suomussalmi (osa2)",
+   "areaHa": 140023,
+   "center": [
+    64.710063,
+    29.43733
+   ],
+   "forest": {
+    "width": 3859,
+    "height": 2573,
+    "res": 37.472,
+    "mercBounds": [
+     3202694.368,
+     9488247.648,
+     3347298.816,
+     9584663.104
+    ],
+    "bounds": [
+     [
+      64.540047,
+      28.770293
+     ],
+     [
+      64.909841,
+      30.069297
+     ]
+    ],
+    "checksum": {
+     "sumR": 283246023,
+     "sumG": 235698069
+    },
+    "file": "data/ita-suomussalmi-osa2/forest.png?v=13c75528a548"
+   },
+   "protectedCount": 24,
+   "built": "2026-10-22T17:44:44Z",
+   "version": "13c75528a548",
+   "bytes": 32678316,
+   "boundary": "data/ita-suomussalmi-osa2/boundary.geojson?v=13c75528a548",
+   "protected": "data/ita-suomussalmi-osa2/protected.geojson?v=13c75528a548",
+   "habitat": "data/ita-suomussalmi-osa2/habitat.png?v=13c75528a548",
+   "habitatHa": {
+    "metso": [
+     19037,
+     8783
+    ],
+    "teeri": [
+     47735,
+     5810
+    ],
+    "pyy": [
+     422,
+     25
+    ]
+   },
+   "marjat": "data/ita-suomussalmi-osa2/marjat.png?v=13c75528a548",
+   "sienet": "data/ita-suomussalmi-osa2/sienet.png?v=13c75528a548",
+   "marjatHa": {
+    "mustikka": [
+     11939,
+     1899
+    ],
+    "puolukka": [
+     28852,
+     11815
+    ],
+    "kantarelli": [
+     19862,
+     14480
+    ],
+    "suppilovahvero": [
+     967,
+     652
+    ],
+    "herkkutatti": [
+     22803,
+     23160
+    ]
+   },
+   "cuts": "data/ita-suomussalmi-osa2/cuts.geojson?v=13c75528a548",
+   "cutsCount": 87,
+   "declCount": 1256,
+   "chmYears": [
+    2024
+   ],
+   "srcHash": "78d23097d3cd",
+   "source": "areas/metsastys/ita-suomussalmi-osa2.geojson"
   },
   {
    "id": "jahti",
