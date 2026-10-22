@@ -19,6 +19,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 - Oma sijainti ja seuranta, kartan kääntö kahdella sormella, kompassiseuranta
 - Sää sijainnissa: tuntiennuste noin 60 h (tallentuu offline-käyttöön), animoitu sadetutka 0–2 h, aurinko ja hämärä
 - Etäisyyden ja suunnan mittaus, etäisyysrenkaat 1, 5 ja 20 km
+- Salamahavainnot (viimeinen tunti) ja lumensyvyys sääasemilta 20 km säteellä sijainnista
 - Suunnistus mihin tahansa kohtaan: katkoviiva ja suuntakortti
 - Hätäkoordinaatit (WGS84, asteet ja minuutit, ETRS-TM35FIN)
 - Alueen piirto napauttamalla tai sormella: oma taso, offline-tallennus ja GeoJSON-lataus
@@ -50,6 +51,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 - Perhosuositus hyönteisen kehitysvaiheen mukaan (pohjalla, nousussa, pinturi, aikuinen), lohelle veden tilan mukaan
 - Animoidut solmuohjeet, toimivat ilman verkkoa
 - Jokien vesitilanne väreinä (punainen = alhainen, vihreä = normaali, tummansininen = korkea)
+- Virtaama, vedenkorkeus ja veden lämpötila 30 vuorokauden käyrinä tavallisen vaihteluvälin kanssa (Valikko → Vesistöt tai napauta jokea)
 - Piirretyt kalastusalueet: raja, kosket ja suvannot (OpenStreetMap)
 - Jäänpaksuus: Syken mittaukset kalastusalueilla ja 5 km säteellä sijainnista (arvo, mittauspäivä, etäisyys ja varoitus)
 - Järvien syvyysalueet piirretyillä kalastusalueilla, vain Syken mittaamat järvet
@@ -101,7 +103,7 @@ Ajon voi käynnistää käsin: *Actions → ajo → Run workflow*. GitHub keskey
 ## Tietosuoja ja tietoturva
 
 - Sovellus ei kerää, tallenna eikä lähetä henkilötietoja. Siinä ei ole kirjautumista, evästeitä, analytiikkaa, palvelinta eikä ulkopuolisia skriptejä tai fontteja.
-- Sijainti käsitellään vain laitteessa. Maastopalovaroitukset haetaan GitHub Actionsissa koko maasta, joten niitä varten sijaintia ei lähetetä minnekään. Sää- ja sadetietoa haettaessa Ilmatieteen laitokselle, MET Norwaylle ja varalla Open-Meteolle lähetetään noin kilometrin tarkkuuteen pyöristetyt koordinaatit, vain kun sovellus on auki.
+- Sijainti käsitellään vain laitteessa. Maastopalovaroitukset haetaan GitHub Actionsissa koko maasta, joten niitä varten sijaintia ei lähetetä minnekään. Sää-, sade-, salama- ja lumitietoa haettaessa Ilmatieteen laitokselle, MET Norwaylle ja varalla Open-Meteolle lähetetään noin kilometrin tarkkuuteen pyöristetyt koordinaatit, vain kun sovellus on auki.
 - Merkinnät, saaliit, reitit, tuodut tasot, API-avain ja offline-kartat ovat vain laitteen selaimessa.
 - Sisältöturvakäytäntö (CSP) sallii yhteydet vain sovellukseen itseensä sekä Maanmittauslaitokselle, OpenStreetMapille, Ilmatieteen laitokselle, Open-Meteolle ja MET Norwaylle.
 - Tuodut tiedostot (GeoJSON, GPX, CSV) tarkistetaan: vain sijainnit ja tunnetut tekstikentät luetaan, eikä sisältöä tulkita HTML:nä.
@@ -119,7 +121,8 @@ Ajon voi käynnistää käsin: *Actions → ajo → Run workflow*. GitHub keskey
 - Sää ja tuuli: Ilmatieteen laitos, CC BY 4.0; varalla Open-Meteo (CC BY 4.0, ilmainen vain ei-kaupalliseen käyttöön).
 - Maastopalovaroitukset: Ilmatieteen laitos, varoitukset CAP-muodossa (alerts.fmi.fi). Koska Ilmatieteen laitoksen palvelin ei vastaa GitHub Actionsin verkosta, varoitukset haetaan tarvittaessa EUMETNET MeteoAlarmin kautta (CC BY 4.0). MeteoAlarmin varoitusalueiden rajat (`pipeline/data/meteoalarm_fi.geojson`, CC BY 4.0) on poimittu meteoalarm-Python-kirjaston (MIT) aineistosta ja yksinkertaistettu; rajat ovat likimääräisiä. Varoitus on voimassa vain Ilmatieteen laitoksen ilmoittamana; tarkista ajantasainen tilanne ilmatieteenlaitos.fi/varoitukset.
 - Sadetutkaennuste: MET Norway, Nowcast 2.0, CC BY 4.0.
-- Vesitilanne ja jäänpaksuus: Syke, Hydrologiarajapinta, CC BY 4.0; sademäärä: Ilmatieteen laitos, CC BY 4.0. Jokien uomat: © OpenStreetMapin tekijät, ODbL.
+- Salamahavainnot ja lumensyvyys: Ilmatieteen laitos, avoin data, CC BY 4.0 (haetaan puhelimessa, sijainti pyöristettynä noin 1 km).
+- Vesitilanne, virtaama, vedenkorkeus, veden lämpötila ja jäänpaksuus: Syke, Hydrologiarajapinta, CC BY 4.0; sademäärä: Ilmatieteen laitos, CC BY 4.0. Jokien uomat: © OpenStreetMapin tekijät, ODbL.
 - Järvien syvyysalueet ja syvyyskäyrät: Syke, CC BY 4.0 (vain mitatut järvet).
 - Tuvat, laavut ja tulipaikat: © OpenStreetMapin tekijät, ODbL. Varaus- ja vuokratuvat jätetään pois. Tarkista ajantasaiset tiedot ylläpitäjältä (useimmiten luontoon.fi).
 - Perhosuositukset ovat lähtötaulukko yleisesti käytetyistä perhoista. Perhojen valokuvat: Wikimedia Commons, tekijät ja lisenssit sovelluksessa ja tiedostossa `docs/img/perhot/kuvat/lahteet.json`.

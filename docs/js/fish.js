@@ -129,12 +129,62 @@
     return h('div', null, box, h('p', { class: 'muted small', text: S.water ? 'Verrattu saman vuodenajan tavalliseen vaihteluun (25–75 % aiempina vuosina). Päivitetty ' +
       isoDate(S.water.paivitetty) + '. Napauta jokea nähdäksesi arvot.' : 'Vesitilannetta ei ole vielä ladattu.' }));
   }
-  function waterInfo(j, ll) {
-    var c = WATER[j.luokka] || WATER.tuntematon, extras = [], m = j.mittaus, r = j.sade14;
-    if (m) {
-      extras.push(h('div', { class: 'small', text: (m.suure === 'virtaama' ? 'Virtaama ' : 'Vedenkorkeus ') + fmtNum(m.arvo, m.yksikko) + ' (' + isoDate(m.aika) + '), asema ' + m.asema + '.' }));
-      if (m.p25 !== null && m.p25 !== undefined) extras.push(h('div', { class: 'small muted', text: 'Tavallisesti tähän aikaan ' + fmtNum(m.p25, m.yksikko) + '–' + fmtNum(m.p75, m.yksikko) + ' (' + m.vuodet + ' vuotta).' }));
+  // --- Käyrät: 30 vrk mitattu arvo ja tavallinen vaihteluväli (25–75 % aiempina vuosina samaan aikaan) ---
+  var SUURE = { virtaama: { nimi: 'Virtaama', color: '#4cc3d9' }, vedenkorkeus: { nimi: 'Vedenkorkeus', color: '#7aa2ff' }, lampotila: { nimi: 'Veden lämpötila', color: '#ff9f43' } };
+  function dayMs(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || ''); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN; }
+  function dm(ms) { var d = new Date(ms); return d.getUTCDate() + '.' + (d.getUTCMonth() + 1) + '.'; }
+  function cleanSeries(a) {
+    return (Array.isArray(a) ? a : []).map(function (r) { return Array.isArray(r) ? [dayMs(r[0]), Number(r[1]), r.length > 2 ? Number(r[2]) : null] : null; })
+      .filter(function (r) { return r && isFinite(r[0]) && isFinite(r[1]) && (r[2] === null || isFinite(r[2])); }).slice(-60);
+  }
+  /** Pieni viivakaavio (SVG). Tekstit ja värit attribuutteina, ei tyylejä (CSP). */
+  function chart(m) {
+    var line = cleanSeries(m.sarja), bandRows = cleanSeries(m.kaista);
+    if (line.length < 2) return null;
+    var W = 320, H = 112, L = 40, R = 10, T = 10, B = 20;
+    var xs = line.map(function (p) { return p[0]; }).concat(bandRows.map(function (p) { return p[0]; }));
+    var ys = line.map(function (p) { return p[1]; });
+    bandRows.forEach(function (b) { ys.push(b[1], b[2]); });
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    if (y1 - y0 < 1e-9) { y0 -= 1; y1 += 1; }
+    var pad = (y1 - y0) * 0.08; y0 -= pad; y1 += pad;
+    var X = function (t) { return L + (W - L - R) * (x1 > x0 ? (t - x0) / (x1 - x0) : 0.5); };
+    var Y = function (v) { return T + (H - T - B) * (1 - (v - y0) / (y1 - y0)); };
+    var svg = K.sv('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'water-chart', role: 'img', 'aria-label': SUURE[m.suure].nimi + ' 30 vuorokautta' });
+    K.sv('rect', { x: L, y: T, width: W - L - R, height: H - T - B, fill: 'none', stroke: 'rgba(140,147,158,0.35)', 'stroke-width': 1 }, svg);
+    if (bandRows.length > 1) {
+      var up = bandRows.map(function (b) { return X(b[0]).toFixed(1) + ',' + Y(b[2]).toFixed(1); });
+      var down = bandRows.slice().reverse().map(function (b) { return X(b[0]).toFixed(1) + ',' + Y(b[1]).toFixed(1); });
+      K.sv('polygon', { points: up.concat(down).join(' '), fill: 'rgba(74,124,89,0.38)', stroke: 'none' }, svg);
     }
+    K.sv('polyline', { points: line.map(function (p) { return X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1); }).join(' '), fill: 'none', stroke: SUURE[m.suure].color, 'stroke-width': 2.2, 'stroke-linejoin': 'round' }, svg);
+    var last = line[line.length - 1];
+    K.sv('circle', { cx: X(last[0]).toFixed(1), cy: Y(last[1]).toFixed(1), r: 3.5, fill: SUURE[m.suure].color }, svg);
+    var txt = function (x, y, t, anchor) { var e = K.sv('text', { x: x, y: y, fill: '#A9B0B9', 'font-size': 10.5, 'text-anchor': anchor || 'start' }, svg); e.textContent = t; };
+    txt(L - 4, T + 9, fmtNum(y1 - pad), 'end');
+    txt(L - 4, H - B, fmtNum(y0 + pad), 'end');
+    txt(L, H - 5, dm(x0));
+    txt(W - R, H - 5, dm(x1), 'end');
+    return svg;
+  }
+  function measureBlock(m) {
+    if (!m || !SUURE[m.suure]) return null;
+    var head = SUURE[m.suure].nimi + ' ' + fmtNum(m.arvo, m.yksikko) + ' (' + isoDate(m.aika) + ')';
+    var sub = 'Asema ' + m.asema + (m.etaisyys_km ? ', ' + K.fmt1(m.etaisyys_km) + ' km uomasta' : '') +
+      (m.p25 !== null && m.p25 !== undefined ? '. Tavallisesti tähän aikaan ' + fmtNum(m.p25) + '–' + fmtNum(m.p75, m.yksikko) + ' (' + m.vuodet + ' v).' : '.');
+    var c = chart(m);
+    return h('div', { class: 'water-measure' }, h('b', { text: head }), h('span', { class: 'small muted', text: sub }), c);
+  }
+  function measures(j) {
+    var list = Array.isArray(j.mittaukset) && j.mittaukset.length ? j.mittaukset : (j.mittaus ? [j.mittaus] : []);
+    return list.concat(j.lampotila ? [j.lampotila] : []);
+  }
+  var CHART_NOTE = 'Viiva = mitattu 30 vrk, vihreä alue = tavallinen vaihteluväli (25–75 % aiempina vuosina samaan aikaan).';
+
+  function waterInfo(j, ll) {
+    var c = WATER[j.luokka] || WATER.tuntematon, extras = [], r = j.sade14;
+    measures(j).forEach(function (m) { var b = measureBlock(m); if (b) extras.push(b); });
+    if (extras.length) extras.push(h('div', { class: 'small muted', text: CHART_NOTE }));
     if (r) {
       extras.push(h('div', { class: 'small', text: 'Sade 14 vrk: ' + fmtNum(r.mm, 'mm') + ', sääasema ' + r.asema + (r.etaisyys_km ? ' (' + Math.round(r.etaisyys_km) + ' km)' : '') + '.' }));
       if (r.p25 !== null && r.p25 !== undefined) extras.push(h('div', { class: 'small muted', text: 'Tavallisesti samaan aikaan ' + fmtNum(r.p25, 'mm') + '–' + fmtNum(r.p75, 'mm') + ' (' + r.vuodet + ' vuotta).' }));
@@ -361,6 +411,20 @@
     body.appendChild(h('p', { class: 'muted small', text: 'Lähde: Syke, Hydrologiarajapinta (CC BY 4.0). Päivitetty ' + isoDate(S.ice.paivitetty) + '. Mukana mittaukset viimeisen ' + S.ice.jakso + ' vuorokauden ajalta.' }));
   }
   function openIce() { K.openSheet('ice', 'Jäänpaksuus', renderIceList); }
+  function renderWaterList(body) {
+    if (!S.water) { body.appendChild(h('p', { class: 'muted', text: 'Ladataan vesitilannetta…' })); loadWater().then(function () { if (K.sheetName() === 'water-list') K.renderSheet(); }); return; }
+    var joet = (S.water.joet || []).slice().sort(function (a, b) { return String(a.nimi).localeCompare(String(b.nimi), 'fi'); });
+    if (!joet.length) { body.appendChild(h('p', { class: 'muted', text: 'Ei jokia. Piirrä kalastusalue ja lähetä se analysoitavaksi.' })); return; }
+    joet.forEach(function (j) {
+      var c = WATER[j.luokka] || WATER.tuntematon, blocks = measures(j).map(measureBlock).filter(Boolean);
+      body.appendChild(h('div', { class: 'card water-card' },
+        h('div', { class: 'card-main' }, h('div', { class: 'card-title' }, h('span', { class: 'sw sw-water', style: { background: c.color } }), ' ' + j.nimi),
+          h('div', { class: 'card-sub', text: 'Vesitilanne: ' + c.nimi + (j.menetelma === 'sade' ? ' (arvio sademäärästä)' : '') })),
+        blocks.length ? h('div', { class: 'water-blocks' }, blocks) : h('p', { class: 'small muted water-blocks', text: 'Ei mittausasemaa lähellä tätä jokea.' })));
+    });
+    body.appendChild(h('p', { class: 'muted small', text: CHART_NOTE + ' Lähde: Syke, Hydrologiarajapinta (CC BY 4.0). Päivitetty ' + isoDate(S.water.paivitetty) + '.' }));
+  }
+  function openWaterList() { K.openSheet('water-list', 'Vesistöt', renderWaterList); }
   K.on('pos', function () { if (active() && S.ice && settings.showIce) renderIce(); });
 
   // ---------------------------------------------------------------------------
@@ -538,6 +602,7 @@
   K.on('menu', function (list, sec) {
     if (sec !== SEC) return;
     list.appendChild(K.menuItem('fishPlus', 'Saaliit', catches.length + ' merkintää · CSV-vienti', function () { K.openSheet('catch-list', 'Saaliit', renderCatchList); }));
+    list.appendChild(K.menuItem('drop', 'Vesistöt', 'Vesitilanne, veden lämpötila, virtaama ja vedenkorkeus käyrinä', openWaterList));
     list.appendChild(K.menuItem('drop', 'Jäänpaksuus', 'Syken mittaukset lähelläsi ja kalastusalueilla', openIce));
   });
   K.defineNav(SEC, {
@@ -570,5 +635,5 @@
   K.on('section', function (sec) { if (sec === SEC) enter(); });
   K.on('leave', function (sec) { if (sec === SEC) leave(); });
 
-  K.fish = { S: S, catches: function () { return catches; }, iceStations: iceStations, depthAt: depthAt, openIce: openIce };
+  K.fish = { S: S, catches: function () { return catches; }, iceStations: iceStations, depthAt: depthAt, openIce: openIce, openWaterList: openWaterList, waterInfo: waterInfo };
 })();

@@ -1,7 +1,7 @@
 /* Kairan service worker: pitää sovelluksen, datan ja tallennetut kartat käytettävissä ilman verkkoa. */
 'use strict';
 
-var SHELL_CACHE = 'kaira-shell-2026-10-22a';
+var SHELL_CACHE = 'kaira-shell-2026-10-22b';
 var TILE_CACHE = 'kaira-tiles-v1';
 var DATA_CACHE = 'kaira-data-v1';
 var ASSET_CACHE = 'kaira-assets-v1';
@@ -9,7 +9,7 @@ var SHELL = [
   './',
   'css/kaira.css',
   'js/rotate.js', 'js/core.js', 'js/jcore.js', 'js/solmut.js',
-  'js/kaira.js', 'js/weather.js', 'js/tools.js', 'js/hunt.js', 'js/fish.js', 'js/wild.js', 'js/palo.js', 'js/help.js', 'js/main.js',
+  'js/kaira.js', 'js/weather.js', 'js/tools.js', 'js/hunt.js', 'js/fish.js', 'js/wild.js', 'js/palo.js', 'js/havainnot.js', 'js/help.js', 'js/main.js',
   'vendor/leaflet/leaflet.js', 'vendor/leaflet/leaflet.css',
   'fonts/inter.woff2', 'fonts/montserrat.woff2',
   'manifest.webmanifest',

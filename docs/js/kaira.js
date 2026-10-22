@@ -47,7 +47,9 @@
     // Eränkäynti
     huts: true, dayHuts: true, laavut: true, tulipaikat: true, showRoutes: true,
     // Metsästys ja eränkäynti
-    showFire: true
+    showFire: true,
+    // Kaikki osiot: salamat ja lumensyvyys
+    showLightning: true, showSnow: true
   };
   var ENUMS = {
     basemap: ['maastokartta', 'taustakartta', 'ortokuva'], habitat: ['off', 'metso', 'teeri', 'pyy'],

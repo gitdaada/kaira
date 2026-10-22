@@ -133,6 +133,29 @@ def fixtures():
     }
 
 
+def fmi_simple(rows):
+    """Ilmatieteen laitoksen "simple"-muotoinen vastaus: rows = [(lat, lon, aika, parametri, arvo)]."""
+    m = "".join('<wfs:member><BsWfs:BsWfsElement gml:id="e%d"><BsWfs:Location><gml:Point srsDimension="2"><gml:pos>%.5f %.5f </gml:pos></gml:Point></BsWfs:Location>'
+                '<BsWfs:Time>%s</BsWfs:Time><BsWfs:ParameterName>%s</BsWfs:ParameterName><BsWfs:ParameterValue>%s</BsWfs:ParameterValue></BsWfs:BsWfsElement></wfs:member>'
+                % (i, r[0], r[1], r[2].strftime("%Y-%m-%dT%H:%M:%SZ"), r[3], r[4]) for i, r in enumerate(rows))
+    return ('<?xml version="1.0" encoding="UTF-8"?><wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs/2.0" '
+            'xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:BsWfs="http://xml.fmi.fi/schema/wfs/2.0">' + m + '</wfs:FeatureCollection>')
+
+
+def lightning_xml():
+    now = datetime.now(timezone.utc)
+    return fmi_simple([(63.50, 25.95, now - timedelta(minutes=5), "peak_current", "-12.0"),
+                       (63.55, 26.05, now - timedelta(minutes=25), "peak_current", "8.0"),
+                       (63.85, 25.94, now - timedelta(minutes=10), "peak_current", "5.0")])  # 41 km: ei mukana
+
+
+def snow_xml():
+    now = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+    return fmi_simple([(63.45, 25.90, now - timedelta(hours=1), "snow_aws", "11.0"), (63.45, 25.90, now, "snow_aws", "12.0"),
+                       (63.52, 26.10, now, "snow_aws", "15.0"), (63.48, 25.95, now, "snow_aws", "NaN"),
+                       (63.85, 25.94, now, "snow_aws", "30.0")])
+
+
 def check(cond, msg):
     if not cond:
         raise AssertionError(msg)
@@ -162,6 +185,10 @@ def main():
 
         def handle(route):
             u = route.request.url
+            if u.startswith("https://opendata.fmi.fi/") and "lightning" in u:
+                return route.fulfill(status=200, content_type="application/xml", body=lightning_xml(), headers={"Access-Control-Allow-Origin": "*"})
+            if u.startswith("https://opendata.fmi.fi/") and "snow_aws" in u:
+                return route.fulfill(status=200, content_type="application/xml", body=snow_xml(), headers={"Access-Control-Allow-Origin": "*"})
             if u.startswith("https://opendata.fmi.fi/"):
                 return route.fulfill(status=200, content_type="application/xml", body=fmi_xml())
             if u.startswith("https://api.met.no/"):
@@ -211,6 +238,13 @@ def main():
         pg.wait_for_function("K.pos !== null", timeout=10000)
         pg.wait_for_function("document.querySelector('.wind-canvas') !== null", timeout=10000)
         check(True, "tuuliviuhka piirtyy sijainnista")
+        # Salamat ja lumensyvyys 20 km säteellä sijainnista
+        pg.wait_for_function("K.obsWx.S.lightPt && Math.abs(K.obsWx.S.lightPt.lat - 63.48) < 0.02 && K.obsWx.S.snow && K.obsWx.S.snow.length", timeout=15000)
+        check(len(pg.evaluate("K.obsWx.S.light")) == 2, "salamat 20 km säteellä (kaukainen pois)")
+        check([x["cm"] for x in pg.evaluate("K.obsWx.S.snow")][:2] == [12, 15], "lumensyvyys: uusin arvo asemittain, NaN ohitettu")
+        pg.wait_for_function("document.getElementById('wxCard').innerText.indexOf('Salamat 2') >= 0 && document.getElementById('wxCard').innerText.indexOf('Lumi 12–15 cm') >= 0", timeout=5000)
+        check(True, "sääkortissa salamat ja lumi")
+        check(pg.locator(".bolt-pin").count() == 2 and pg.locator(".obs-lumi").count() == 2, "salamat ja lumiasemat kartalla")
         # Maastopalovaroitus: voimassa olevat alueet kartalla ja merkki yläpalkissa, kun sijainti on varoitusalueella
         pg.wait_for_function("K.palo.S.data !== null", timeout=10000)
         check([w["alue"] for w in pg.evaluate("K.palo.nowList()")] == ["Testimaakunta", "Kalamajan alue"], "voimassa olevat maastopalovaroitukset (vanhentunut, tuleva ja virheellinen pois)")
@@ -275,6 +309,19 @@ def main():
         check(pg.evaluate("K.fish.catches().length") == 1 and pg.evaluate("K.fish.catches()[0].cm") == 38.5, "saalis tallentui pituuden kanssa")
         pg.wait_for_function("K.fish.S.water && K.fish.S.water.geo", timeout=10000)
         check(True, "vesitilanne latautui")
+        # Vesistökäyrät: virtaama, vedenkorkeus ja veden lämpötila joen tietokortissa
+        pg.evaluate("""(function () {
+          var d = function (k) { var t = new Date(Date.now() - (29 - k) * 864e5); return t.toISOString().slice(0, 10); };
+          var mk = function (suure, base, unit) { var s = [], b = []; for (var k = 0; k < 30; k++) { s.push([d(k), base + Math.sin(k / 4) * base * 0.1]); b.push([d(k), base * 0.9, base * 1.1]); }
+            return { suure: suure, asema: 'Testiasema', etaisyys_km: 0.4, arvo: s[29][1], aika: s[29][0], yksikko: unit, p25: base * 0.9, p75: base * 1.1, vuodet: 20, sarja: s, kaista: b }; };
+          K.fish.waterInfo({ nimi: 'Testijoki', luokka: 'normaali', menetelma: 'mittaus', mittaukset: [mk('virtaama', 22, 'm³/s'), mk('vedenkorkeus', 118, 'cm')],
+            lampotila: Object.assign(mk('lampotila', 6.8, '°C'), { kaista: [] }) }, L.latLng(63.48, 25.94));
+        })()""")
+        pg.wait_for_selector("#infoCard:not([hidden])")
+        txt = pg.locator("#infoCard").inner_text()
+        check(pg.locator("#infoCard .water-chart").count() == 3 and "Virtaama" in txt and "Vedenkorkeus" in txt and "Veden lämpötila" in txt, "joen kortissa kolme käyrää")
+        pg.screenshot(path=str(SHOTS / "04e-vesistokayrat.png"))
+        pg.locator("#infoCard .info-close").click()
         # Jäänpaksuus: vain 5 km säteellä sijainnista tai kalastusalueella olevat asemat
         pg.wait_for_function("K.fish.S.ice && K.fish.S.layers.testijarvi", timeout=10000)
         names = pg.evaluate("K.fish.iceStations().map(function (x) { return x.a.nimi; })")

@@ -33,6 +33,8 @@
         block('Suunnistus ja offline', [
           row(h('span', { class: 'help-ico' }, sw('#FF6B35')), 'Napauta karttaa', 'Näet kohdan koordinaatit ja etäisyyden sinusta. Suunnista tänne piirtää oranssin katkoviivan ja näyttää oikeassa yläkulmassa matkan ja suunnan.'),
           row(ico('draw'), 'Piirrä alue', 'Työkalut → Piirrä alue. Napauta kulmapisteet tai paina Sormi ja vedä reuna sormella (Sormi-tilassa kartta ei liiku). Valmis tallentaa alueen omaksi tasoksi, jonka voi tallentaa offline-käyttöön.'),
+          row(h('span', { class: 'help-ico' }, K.sv ? (function () { var v = K.sv('svg', { viewBox: '0 0 24 24', width: 22, height: 22 }); K.sv('path', { d: 'M13 2 4 14h6l-1 8 9-12h-6z', fill: '#E5484D', stroke: '#10160f', 'stroke-width': 1.4 }, v); return v; })() : null), 'Salamat', 'Viimeisen tunnin salamat 20 km säteellä: punainen alle 15 min, oranssi alle 30 min, keltainen alle tunti sitten. Määrä ja lähin näkyvät sääkortissa.'),
+          row(pin('obs-lumi', '23'), 'Lumensyvyys', 'Sääasemien lumensyvyys senttimetreinä 20 km säteellä. Jos lähellä ei ole asemaa, sääkortissa näkyy lähin enintään 50 km päästä.'),
           row(ico('offline'), 'Kartat ilman verkkoa', 'Lisää Maanmittauslaitoksen ilmainen API-avain asetuksiin. Tallenna alue kotona Wi-Fissä: lupa-alue, kalastusalue, reitti tai nykyinen näkymä.'),
           row(ico('shield'), 'Tietosi pysyvät puhelimessa', 'Merkinnät, saaliit, reitit ja tasot eivät lähde minnekään. Säähän lähtee vain noin kilometrin tarkkuuteen pyöristetty sijainti.')
         ]));
@@ -74,6 +76,7 @@
           row(ico('fly'), 'Perhot', 'Valitse kalalaji ja hyönteinen ja vastaa kysymyksiin. Saat perhon kehitysvaiheen mukaan: pohjalla, nousussa, pinturi tai aikuinen. Lohelle suositus veden tilan mukaan.'),
           row(ico('fly'), 'Solmut', 'Perhot-paneelin Solmut-välilehdellä animoidut ohjeet: verisolmu ja parannettu clinch-solmu. Toimivat ilman verkkoa.'),
           row(ico('layers'), 'Tasot', 'Jokien vesitilanne, kalastusalueet, järvien syvyysalueet, jäänpaksuusmittaukset ja saaliit kartalla.'),
+          row(ico('drop'), 'Vesistöt', 'Valikko → Vesistöt tai napauta jokea: virtaama, vedenkorkeus ja veden lämpötila 30 vuorokauden käyrinä. Vihreä alue on tavallinen vaihteluväli tähän aikaan vuodesta.'),
           row(ico('drop'), 'Jäänpaksuus', 'Valikko → Jäänpaksuus. Syken mittaukset kalastusalueilla ja 5 km säteellä sijainnistasi: paksuus, mittauspäivä ja etäisyys.')
         ]),
         block('Kartan värit', [
