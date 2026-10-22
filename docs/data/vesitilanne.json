@@ -1,5 +1,5 @@
 {
- "paivitetty": "2026-10-22T04:56:38Z",
+ "paivitetty": "2026-10-22T06:21:43Z",
  "joet": [
   {
    "id": "tenomuotka-poroeno",
@@ -32,7 +32,8 @@
  ],
  "loki": [
   "tenomuotka: 2 Syken asemaa rajauksella",
-  "tenomuotka-poroeno: asemaehdokkaat Rommaeno/Vedenkorkeus 0.1 km",
+  "tenomuotka-poroeno/Virtaama: asemaehdokkaat ei yhtään",
+  "tenomuotka-poroeno/Vedenkorkeus: asemaehdokkaat Rommaeno 0.1 km",
   "Syke Rommaeno/Vedenkorkeus: ei dataa",
   "tenomuotka-poroeno: sadeasema Enontekiö Kilpisjärvi kyläkeskus (42 km), 14 vrk 6.0 mm",
   "tenomuotka-poroeno: normaali (sade)",
