@@ -453,6 +453,16 @@ input[type="range"] { width: 100%; accent-color: var(--color-accent-primary); he
 .list-row .lr-dist small { display: block; color: var(--muted-on-dark); font-weight: 600; font-size: 12px; }
 .coords { font-variant-numeric: tabular-nums; }
 .sos-big { font-family: var(--font-head); font-size: 22px; font-weight: 700; margin: 6px 0 2px; }
+a.sos-call { display: block; color: var(--danger); text-decoration: none; }
+a.btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: inherit; }
+a.btn.btn-primary { color: var(--accent-ink); }
+.sos-alarm { margin-top: 14px; padding-top: 4px; border-top: 1px solid var(--line); }
+.sos-preview { white-space: pre-wrap; word-break: break-word; font: 13.5px/1.45 Inter, sans-serif; background: #191C1E; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 6px 0 10px; }
+.sos-send .btn { flex: 1 1 auto; }
+.sos-wa.done { color: var(--muted-on-dark); }
+.sos-rcpt { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 8px; }
+textarea.input { min-height: 72px; resize: vertical; font: inherit; }
+.input-bad { border-color: var(--danger); }
 
 /* --- Aloitusnäkymä --- */
 .start {

@@ -53,8 +53,11 @@
     // Eränkäynti: marjojen ja sienten kasvupaikat
     bMustikka: false, bPuolukka: false, bKantarelli: false, bSuppilo: false, bHerkku: false,
     // Metsästys: marjat (lintujen ravintoa)
-    mbMustikka: false, mbPuolukka: false
+    mbMustikka: false, mbPuolukka: false,
+    // SOS: hätäviestin teksti ja 1-3 vastaanottajaa (vain tässä laitteessa)
+    sosMsg: '', sosTo: []
   };
+  var SOS_MAX = 3;
   var ENUMS = {
     basemap: ['maastokartta', 'taustakartta', 'ortokuva'], habitat: ['off', 'metso', 'teeri', 'pyy'],
     maxZoom: [15, 16], fanLengthM: [100, 200, 300, 500]
@@ -74,6 +77,13 @@
       }
       if (typeof d === 'boolean') { s[k] = v === undefined ? d : !!v; return; }
       if (k === 'apiKey') { s[k] = JG.sanitizeKey(v); return; }
+      if (k === 'sosMsg') { s[k] = JG.cleanText(v, 200); return; }
+      if (k === 'sosTo') {
+        s[k] = (Array.isArray(v) ? v : []).slice(0, SOS_MAX).map(function (r) {
+          return { nimi: JG.cleanText(r && r.nimi, 30), nro: JG.normPhone(r && r.nro) };
+        });
+        return;
+      }
       if (k === 'hidden') {
         var hdn = {};
         if (v && typeof v === 'object') Object.keys(v).slice(0, 200).forEach(function (id) { if (/^[a-z0-9_-]{1,60}$/i.test(id)) hdn[id] = true; });
@@ -1032,13 +1042,64 @@
   // Hätäkoordinaatit
   // ---------------------------------------------------------------------------
 
+  var sosAlarm = false, sosOpened = {};
+  function isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+  function sosRecipients() { return (settings.sosTo || []).filter(function (r) { return r && r.nro; }); }
+  /** Hätäviesti nykyisellä sijainnilla; vanhan sijainnin ikä kerrotaan viestissä. */
+  K.sosMessage = function () {
+    var p = K.pos, aika = null;
+    if (p) {
+      var age = Math.round((Date.now() - p.t) / 60000);
+      aika = K.hm(p.t) + (age >= 5 ? ', ' + age + ' min sitten' : '');
+    }
+    return JG.sosText(settings.sosMsg, p, aika);
+  };
+  function copyText(txt, ok) {
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(function () { K.toast(ok); }, function () { K.toast('Kopiointi ei onnistunut.'); });
+  }
+  function renderAlarm(body) {
+    var txt = K.sosMessage(), to = sosRecipients(), box = h('div', { class: 'sos-alarm', id: 'sosAlarm' });
+    box.appendChild(h('h3', { text: 'Hälytä apua' }));
+    box.appendChild(h('pre', { class: 'sos-preview', text: txt }));
+    if (!K.pos) box.appendChild(h('p', { class: 'warn-text small', text: 'Sijaintia ei vielä ole. Viesti päivittyy, kun GPS paikantaa.' }));
+    var row = h('div', { class: 'btn-row sos-send' });
+    if (to.length) {
+      row.appendChild(h('a', { class: 'btn btn-primary', id: 'sosSms', href: JG.smsLink(to.map(function (r) { return r.nro; }), txt, isIOS()),
+        text: to.length > 1 ? 'Tekstiviesti kaikille (' + to.length + ')' : 'Tekstiviesti: ' + (to[0].nimi || to[0].nro) }));
+      to.forEach(function (r) {
+        row.appendChild(h('a', { class: 'btn sos-wa' + (sosOpened[r.nro] ? ' done' : ''), href: JG.waLink(r.nro, txt), target: '_blank', rel: 'noopener noreferrer',
+          text: 'WhatsApp: ' + (r.nimi || r.nro) + (sosOpened[r.nro] ? ' ✓' : ''),
+          onclick: function () { sosOpened[r.nro] = true; setTimeout(function () { if (K.sheetName() === 'sos') K.renderSheet(); }, 400); } }));
+      });
+    } else {
+      box.appendChild(h('div', { class: 'notice' }, 'Vastaanottajia ei ole vielä. ',
+        h('a', { href: '#', onclick: function (e) { e.preventDefault(); K.openSettings(); }, text: 'Lisää 1–3 vastaanottajaa asetuksiin' }), '.'));
+    }
+    if (navigator.share) row.appendChild(h('button', { type: 'button', class: 'btn', text: 'Jaa muualle', onclick: function () { navigator.share({ text: txt }).catch(function () { /* peruttu */ }); } }));
+    row.appendChild(h('button', { type: 'button', class: 'btn', text: 'Kopioi viesti', onclick: function () { copyText(txt, 'Viesti kopioitu.'); } }));
+    box.appendChild(row);
+    box.appendChild(h('p', { class: 'muted small', text: 'Viesti ei lähde itsestään: paina lähetä viestisovelluksessa. Tekstiviesti lähtee kaikille kerralla ja toimii ilman mobiilidataa, kun puhelimella on kuuluvuus. WhatsApp vaatii datan ja avautuu jokaiselle vastaanottajalle erikseen. Hengenvaarassa soita ensin 112.' }));
+    body.appendChild(box);
+  }
+  function sosButtons(body, wgsTxt) {
+    var row = h('div', { class: 'btn-row', style: { marginTop: '12px' } });
+    if (wgsTxt) row.appendChild(h('button', { class: 'btn btn-primary', type: 'button', text: 'Kopioi koordinaatit', onclick: function () { copyText(wgsTxt, 'Kopioitu.'); } }));
+    row.appendChild(h('button', { class: 'btn btn-danger', type: 'button', id: 'sosAlarmBtn', text: 'Hälytä apua', 'aria-expanded': sosAlarm ? 'true' : 'false',
+      onclick: function () {
+        sosAlarm = !sosAlarm; K.renderSheet();
+        if (sosAlarm) setTimeout(function () { var el = $('sosAlarm'); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'nearest' }); }, 50);
+      } }));
+    body.appendChild(row);
+    if (sosAlarm) renderAlarm(body);
+  }
   function renderSos(body) {
-    body.appendChild(h('p', { class: 'sos-big', text: 'Hätätilanteessa soita 112' }));
+    body.appendChild(h('a', { class: 'sos-big sos-call', href: 'tel:112', text: 'Hätätilanteessa soita 112' }));
     body.appendChild(h('p', { class: 'muted', text: 'Kerro hätäkeskukselle nämä koordinaatit.' }));
     if (!K.pos) {
       body.appendChild(h('div', { class: 'btn-row' }, h('button', { class: 'btn btn-primary btn-block', type: 'button', text: K.gpsActive() ? 'Haetaan sijaintia…' : 'Hae sijainti',
         disabled: K.gpsActive(), onclick: function () { K.startGps(false, 'sos'); K.renderSheet(); } })));
       body.appendChild(h('p', { class: 'muted small', text: 'GPS toimii ilman verkkoa. Ensimmäinen paikannus voi kestää hetken.' }));
+      sosButtons(body, null);
       return;
     }
     var p = K.pos, tm = JG.toTM35FIN(p.lat, p.lon), wgs = p.lat.toFixed(5) + ', ' + p.lon.toFixed(5);
@@ -1048,13 +1109,11 @@
     body.appendChild(row('ETRS-TM35FIN', 'N ' + Math.round(tm.N) + ', E ' + Math.round(tm.E)));
     body.appendChild(row('Tarkkuus', '± ' + Math.round(p.acc) + ' m'));
     body.appendChild(row('Aika', K.hm(p.t)));
-    body.appendChild(h('div', { class: 'btn-row', style: { marginTop: '12px' } }, h('button', { class: 'btn btn-primary', type: 'button', text: 'Kopioi koordinaatit', onclick: function () {
-      var txt = 'WGS84 ' + wgs + ' / ETRS-TM35FIN N ' + Math.round(tm.N) + ' E ' + Math.round(tm.E);
-      (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(function () { K.toast('Kopioitu.'); }, function () { K.toast('Kopiointi ei onnistunut.'); });
-    } })));
+    sosButtons(body, 'WGS84 ' + wgs + ' / ETRS-TM35FIN N ' + Math.round(tm.N) + ' E ' + Math.round(tm.E));
   }
   $('sosBtn').addEventListener('click', function () {
-    K.openSheet('sos', 'Sijaintini koordinaatteina', renderSos, { onClose: function () { K.stopGps('sos'); } });
+    sosAlarm = false; sosOpened = {};
+    K.openSheet('sos', 'Sijaintini koordinaatteina', renderSos, { onClose: function () { K.stopGps('sos'); sosAlarm = false; sosOpened = {}; } });
     K.startGps(false, 'sos');
   });
   K.on('pos', function () { if (K.sheetName() === 'sos') K.renderSheet(); });
@@ -1119,7 +1178,7 @@
     K.emit('menutop', list, K.section);
     var n = Object.keys(offlineRecs).length;
     list.appendChild(K.menuItem('offline', 'Offline-alueet', n ? n + ' tallennettua aluetta' : 'Ei tallennettuja alueita', function () { K.openSheet('offline', 'Offline-alueet', renderOfflineSheet); }));
-    list.appendChild(K.menuItem('gear', 'Asetukset', 'API-avain, offline-tarkkuus, näyttö', K.openSettings));
+    list.appendChild(K.menuItem('gear', 'Asetukset', 'API-avain, offline-tarkkuus, näyttö, hätäviesti', K.openSettings));
     K.emit('menu', list, K.section);
     list.appendChild(K.menuItem('shield', 'Tietolähteet ja tietosuoja', 'Mistä tiedot tulevat, mitä laitteesta lähtee', function () { K.openSheet('sources', 'Tietolähteet ja tietosuoja', renderSourcesSheet); }));
     list.appendChild(K.menuItem('gear', 'Tietoa sovelluksesta', 'Versio ' + K.VERSION + ' · päivityksen tarkistus', function () { K.openSheet('about', 'Tietoa sovelluksesta', renderAboutSheet); }));
@@ -1156,6 +1215,28 @@
     } }));
   }
   K.openSettings = function () { K.openSheet('settings', 'Asetukset', renderSettingsSheet); };
+  function sosRecipientRow(i) {
+    var r = settings.sosTo[i] || { nimi: '', nro: '' };
+    var name = h('input', { class: 'input', type: 'text', maxlength: '30', autocomplete: 'off', placeholder: 'Nimi', 'aria-label': 'Vastaanottaja ' + (i + 1) + ', nimi' });
+    var nro = h('input', { class: 'input', type: 'tel', inputmode: 'tel', maxlength: '24', autocomplete: 'off', placeholder: '040 123 4567', 'aria-label': 'Vastaanottaja ' + (i + 1) + ', puhelinnumero' });
+    name.value = r.nimi; nro.value = r.nro;
+    function save() {
+      var n = JG.normPhone(nro.value);
+      if (nro.value.trim() && !n) {
+        nro.classList.add('input-bad');
+        K.toast('Numero ei kelpaa. Käytä muotoa 040 123 4567 tai +358 40 123 4567.', null, 6000);
+        return;
+      }
+      nro.classList.remove('input-bad');
+      while (settings.sosTo.length <= i) settings.sosTo.push({ nimi: '', nro: '' });
+      settings.sosTo[i] = { nimi: JG.cleanText(name.value, 30), nro: n };
+      name.value = settings.sosTo[i].nimi; nro.value = n;
+      K.saveSettings();
+    }
+    name.addEventListener('change', save);
+    nro.addEventListener('change', save);
+    return h('div', { class: 'field' }, h('span', { class: 'label', text: 'Vastaanottaja ' + (i + 1) }), h('div', { class: 'sos-rcpt' }, name, nro));
+  }
   function renderSettingsSheet(body) {
     body.appendChild(h('h3', { text: 'Maanmittauslaitos' }));
     var keyInput = h('input', { class: 'input', type: 'password', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', id: 'apiKey', placeholder: 'API-avain' });
@@ -1183,10 +1264,19 @@
     }));
     K.emit('settings', body);
 
+    body.appendChild(h('h3', { text: 'Hätäviesti (SOS)' }));
+    var msg = h('textarea', { class: 'input', id: 'sosMsg', rows: '3', maxlength: '200', placeholder: 'Tarvitsen apua.' });
+    msg.value = settings.sosMsg;
+    msg.addEventListener('change', function () { settings.sosMsg = JG.cleanText(msg.value, 200); msg.value = settings.sosMsg; K.saveSettings(); K.toast('Hätäviesti tallennettu.'); });
+    body.appendChild(h('div', { class: 'field' }, h('label', { for: 'sosMsg', text: 'Viesti' }), msg,
+      h('span', { class: 'hint', text: 'SOS-painikkeen Hälytä apua lisää viestin perään sijainnin, ETRS-TM35FIN-koordinaatit ja kartalinkin.' })));
+    for (var i = 0; i < SOS_MAX; i++) body.appendChild(sosRecipientRow(i));
+    body.appendChild(h('p', { class: 'hint small', text: 'Vastaanottajat tallentuvat vain tähän laitteeseen. Viesti lähtee vasta, kun painat lähetä viestisovelluksessa. Kokeile kerran etukäteen jonkun vastaanottajan kanssa.' }));
+
     body.appendChild(h('h3', { text: 'Tiedot tässä laitteessa' }));
-    body.appendChild(h('p', { class: 'muted small', text: 'Merkinnät, saaliit, reitit, tuodut tasot ja offline-kartat ovat vain tässä laitteessa. Poista ne ennen laitteen luovuttamista.' }));
+    body.appendChild(h('p', { class: 'muted small', text: 'Merkinnät, saaliit, reitit, tuodut tasot, hätäviestin vastaanottajat ja offline-kartat ovat vain tässä laitteessa. Poista ne ennen laitteen luovuttamista.' }));
     body.appendChild(h('button', { type: 'button', class: 'btn btn-danger', text: 'Poista kaikki Kairan tiedot', onclick: function () {
-      if (!confirm('Poistetaanko API-avain, merkinnät, saaliit, reitit, tasot ja offline-kartat tästä laitteesta? Tätä ei voi perua.')) return;
+      if (!confirm('Poistetaanko API-avain, merkinnät, saaliit, reitit, tasot, hätäviestin vastaanottajat ja offline-kartat tästä laitteesta? Tätä ei voi perua.')) return;
       store.clearAll();
       caches.keys().then(function (ks) { return Promise.all(ks.filter(function (k) { return k.indexOf('kaira-') === 0; }).map(function (k) { return caches.delete(k); })); })
         .then(function () { location.reload(); });
@@ -1197,7 +1287,8 @@
     [
       'Kaira ei kerää, tallenna eikä lähetä henkilötietoja. Siinä ei ole kirjautumista, evästeitä, analytiikkaa eikä ulkopuolisia skriptejä tai fontteja.',
       'Sijaintisi käsitellään vain tässä laitteessa. Sää- ja sadetietoa haettaessa Ilmatieteen laitokselle, MET Norwaylle ja varalla Open-Meteolle lähetetään noin kilometrin tarkkuuteen pyöristetyt koordinaatit. Tietoja haetaan vain, kun sovellus on auki.',
-      'API-avain, merkinnät, saaliit, reitit, tuodut tasot ja offline-kartat ovat vain tämän laitteen selaimessa.'
+      'API-avain, merkinnät, saaliit, reitit, tuodut tasot ja offline-kartat ovat vain tämän laitteen selaimessa.',
+      'Hätäviestin teksti ja vastaanottajien nimet ja numerot ovat vain tässä laitteessa. Kaira ei lähetä niitä minnekään: hätäviesti välitetään puhelimen tekstiviesti- tai WhatsApp-sovellukseen, josta lähetät sen itse.'
     ].forEach(function (t) { body.appendChild(h('p', { class: 'small', text: t })); });
     body.appendChild(h('h3', { text: 'Tietolähteet' }));
     [

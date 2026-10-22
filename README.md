@@ -21,7 +21,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 - Etäisyyden ja suunnan mittaus, etäisyysrenkaat 1, 5 ja 20 km
 - Salamahavainnot (viimeinen tunti) ja lumensyvyys sääasemilta 20 km säteellä sijainnista
 - Suunnistus mihin tahansa kohtaan: katkoviiva ja suuntakortti
-- Hätäkoordinaatit (WGS84, asteet ja minuutit, ETRS-TM35FIN)
+- Hätäkoordinaatit (WGS84, asteet ja minuutit, ETRS-TM35FIN) ja Hälytä apua: valmis viesti sijainteineen ja kartalinkkeineen tekstiviestinä kaikille tai WhatsAppissa 1–3 asetuksissa valitulle henkilölle. Käyttäjä lähettää viestin itse; vastaanottajat ovat vain laitteessa.
 - Alueen piirto napauttamalla tai sormella: oma taso, offline-tallennus ja GeoJSON-lataus
 - Omat GeoJSON-tasot, näyttö päällä -tila
 
@@ -87,7 +87,7 @@ Julkaisu: Cloudflare Pages julkaisee `docs/`-kansion automaattisesti jokaisesta 
 ## Miten tämä toimii
 
 - `docs/`: sovellus (Cloudflare Pages). Leaflet-kartta ja tavallinen JavaScript ilman käännösvaihetta.
-  - `js/kaira.js`: runko (asetukset, kartta, osiot, alapalkki, sijainti, kompassi, suunnistus, offline, hätäkoordinaatit)
+  - `js/kaira.js`: runko (asetukset, kartta, osiot, alapalkki, sijainti, kompassi, suunnistus, offline, hätäkoordinaatit ja hätäviesti)
   - `js/weather.js`: sää, sadetutka ja aurinko kaikissa osioissa
   - `js/tools.js`: mittaus, alueen piirto, etäisyysrenkaat, omat tasot, näkymän tallennus
   - `js/hunt.js`, `js/fish.js`, `js/wild.js`: osioiden toiminnot

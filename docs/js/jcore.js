@@ -342,6 +342,54 @@
 
   function sanitizeKey(k) { return typeof k === 'string' ? k.trim().replace(/[^A-Za-z0-9._~-]/g, '').slice(0, 100) : ''; }
 
+  // --- Hätäviesti ---------------------------------------------------------------------
+
+  var SOS_DEFAULT = 'Tarvitsen apua.';
+  /** Teksti ilman ohjausmerkkejä (rivinvaihto sallitaan). */
+  function cleanText(s, max) {
+    return typeof s === 'string' ? s.replace(/[\u0000-\u0009\u000B-\u001F\u007F]/g, '').trim().slice(0, max) : '';
+  }
+  /**
+   * Puhelinnumero kansainväliseen muotoon (+358401234567). Nollalla alkava numero on suomalainen, 00 = +.
+   * Pelkät numerot ilman nollaa tai plussaa hyväksytään vain Suomen maatunnuksella. Kelvoton -> ''.
+   */
+  function normPhone(s) {
+    var v = String(s === null || s === undefined ? '' : s).replace(/[\s\-().\/]/g, '');
+    if (!v) return '';
+    if (/^00/.test(v)) v = '+' + v.slice(2);
+    else if (/^0/.test(v)) v = '+358' + v.slice(1);
+    else if (/^358/.test(v)) v = '+' + v;
+    v = v.replace(/^\+3580/, '+358');
+    return /^\+[1-9]\d{6,14}$/.test(v) ? v : '';
+  }
+  /** Hätäviestin teksti: oma viesti, sijainti (WGS84 ja ETRS-TM35FIN) ja kartalinkki. pos {lat, lon, acc}; aika valmiiksi muotoiltuna. */
+  function sosText(msg, pos, aika) {
+    var lines = [cleanText(msg, 200) || SOS_DEFAULT];
+    if (!pos || !isFinite(pos.lat) || !isFinite(pos.lon)) {
+      lines.push('Sijainti: ei saatavilla (GPS ei ole vielä paikantanut).');
+      return lines.join('\n');
+    }
+    var la = pos.lat.toFixed(5), lo = pos.lon.toFixed(5), tm = toTM35FIN(pos.lat, pos.lon), extra = [];
+    if (isFinite(pos.acc)) extra.push('± ' + Math.round(pos.acc) + ' m');
+    if (aika) extra.push('klo ' + aika);
+    lines.push('Sijainti: ' + la + ', ' + lo + (extra.length ? ' (' + extra.join(', ') + ')' : ''));
+    lines.push('ETRS-TM35FIN: N ' + Math.round(tm.N) + ', E ' + Math.round(tm.E));
+    lines.push('Kartta: https://www.google.com/maps/search/?api=1&query=' + la + '%2C' + lo);
+    return lines.join('\n');
+  }
+  /** WhatsApp-keskustelu valmiilla viestillä (lähetys vaatii aina käyttäjän painalluksen). */
+  function waLink(nro, text) {
+    var n = normPhone(nro);
+    return n ? 'https://wa.me/' + n.slice(1) + '?text=' + encodeURIComponent(text) : null;
+  }
+  /** Tekstiviesti kaikille vastaanottajille. iPhone ei tue standardimuotoa usealle vastaanottajalle. */
+  function smsLink(nros, text, ios) {
+    var to = (nros || []).map(normPhone).filter(Boolean);
+    if (!to.length) return null;
+    var body = encodeURIComponent(text);
+    return ios ? 'sms://open?addresses=' + to.join(',') + '&body=' + body : 'sms:' + to.join(',') + '?body=' + body;
+  }
+
   return {
     norm360: norm360, angleDiff: angleDiff, distance: distance, bearing: bearing, destPoint: destPoint,
     dirName: dirName, ringPoints: ringPoints, roundCoord: roundCoord, fmtDistance: fmtDistance,
@@ -349,6 +397,7 @@
     parseFmi: parseFmi, parseNowcast: parseNowcast, nextHours: nextHours, summarize: summarize, rainStart: rainStart,
     compassHeading: compassHeading, tilesForBbox: tilesForBbox, countTiles: countTiles,
     cleanGeoJSON: cleanGeoJSON, bboxOf: bboxOf, areaBbox: areaBbox,
-    pickStages: pickStages, recommend: recommend, sanitizeKey: sanitizeKey
+    pickStages: pickStages, recommend: recommend, sanitizeKey: sanitizeKey,
+    cleanText: cleanText, normPhone: normPhone, sosText: sosText, waLink: waLink, smsLink: smsLink
   };
 });

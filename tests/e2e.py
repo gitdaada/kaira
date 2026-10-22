@@ -505,6 +505,45 @@ def main():
         pg.locator("#sosBtn").click()
         pg.wait_for_selector("#sheet:not([hidden])")
         check("ETRS-TM35FIN" in pg.locator("#sheetBody").inner_text(), "hätäkoordinaatit näkyvät")
+        check(pg.locator("#sheetBody a.sos-call").get_attribute("href") == "tel:112", "SOS: soita 112 -linkki")
+        # Hälytä apua: ilman vastaanottajia ohjataan asetuksiin
+        pg.locator("#sosAlarmBtn").click()
+        pg.wait_for_selector("#sosAlarm")
+        check("Vastaanottajia ei ole" in pg.locator("#sosAlarm").inner_text() and pg.locator("#sosSms").count() == 0, "hälytys ilman vastaanottajia ohjaa asetuksiin")
+        pg.locator("#sosAlarm a", has_text="asetuksiin").click()
+        pg.wait_for_function("document.getElementById('sheetTitle').innerText === 'Asetukset'")
+        pg.locator("#sosMsg").fill("Nilkka nyrjähti, en pääse kävelemään.")
+        pg.locator("#sosMsg").dispatch_event("change")
+        def rcpt(i, nimi, nro):
+            pg.locator('[aria-label="Vastaanottaja %d, nimi"]' % i).fill(nimi)
+            pg.locator('[aria-label="Vastaanottaja %d, puhelinnumero"]' % i).fill(nro)
+            pg.locator('[aria-label="Vastaanottaja %d, puhelinnumero"]' % i).dispatch_event("change")
+        rcpt(1, "Ville", "040 123 4567")
+        rcpt(2, "Anna", "123")
+        check("Numero ei kelpaa" in pg.locator("#toast").inner_text() and "input-bad" in pg.locator('[aria-label="Vastaanottaja 2, puhelinnumero"]').get_attribute("class"),
+              "virheellinen numero hylätään")
+        rcpt(2, "Anna", "+46 70 123 45 67")
+        check(pg.locator('[aria-label="Vastaanottaja 1, puhelinnumero"]').input_value() == "+358401234567", "numero muutetaan kansainväliseen muotoon")
+        check(pg.evaluate("K.settings.sosTo") == [{"nimi": "Ville", "nro": "+358401234567"}, {"nimi": "Anna", "nro": "+46701234567"}]
+              and pg.evaluate("K.settings.sosMsg") == "Nilkka nyrjähti, en pääse kävelemään.", "hätäviestin asetukset tallentuivat")
+        pg.screenshot(path=str(SHOTS / "06b-hataviesti-asetukset.png"), full_page=False)
+        pg.locator("#sheetClose").click()
+        pg.locator("#sosBtn").click()
+        pg.wait_for_selector("#sheet:not([hidden])")
+        pg.locator("#sosAlarmBtn").click()
+        pg.wait_for_selector("#sosSms")
+        pre = pg.locator(".sos-preview").inner_text()
+        check(pre.startswith("Nilkka nyrjähti") and "Sijainti: 63.4806" in pre and "ETRS-TM35FIN: N " in pre and "google.com/maps/search/?api=1&query=63.4806" in pre,
+              "hätäviestissä oma teksti, sijainti, koordinaatit ja kartalinkki")
+        check(pg.evaluate("document.getElementById('sosSms').getAttribute('href') === 'sms:+358401234567,+46701234567?body=' + encodeURIComponent(document.querySelector('.sos-preview').textContent)"),
+              "tekstiviesti kaikille vastaanottajille kerralla")
+        wa = pg.evaluate("Array.from(document.querySelectorAll('#sosAlarm a.sos-wa')).map(function (a) { return [a.textContent, a.getAttribute('href').split('?')[0], a.target, a.rel]; })")
+        check(wa == [["WhatsApp: Ville", "https://wa.me/358401234567", "_blank", "noopener noreferrer"], ["WhatsApp: Anna", "https://wa.me/46701234567", "_blank", "noopener noreferrer"]],
+              "WhatsApp-linkki jokaiselle vastaanottajalle")
+        check(pg.evaluate("document.querySelector('#sosAlarm a.sos-wa').getAttribute('href').indexOf('?text=' + encodeURIComponent(document.querySelector('.sos-preview').textContent)) > 0"),
+              "WhatsAppiin valmis viesti")
+        pg.locator("#sheetBody").evaluate("function (b) { b.scrollTop = b.scrollHeight; }")
+        pg.screenshot(path=str(SHOTS / "06c-halyta-apua.png"))
         pg.locator("#sheetClose").click()
         pg.locator("#navMenu").click()
         pg.locator(".menu-item", has_text="Ohje").click()

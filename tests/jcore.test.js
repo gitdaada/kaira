@@ -124,4 +124,32 @@ test('API-avaimen puhdistus', function () {
   assert.strictEqual(JG.sanitizeKey(' abc-123<script> '), 'abc-123script');
 });
 
+test('hätäviesti: puhelinnumeron muoto', function () {
+  assert.strictEqual(JG.normPhone('040 123 4567'), '+358401234567');
+  assert.strictEqual(JG.normPhone('+358 (0)40-123 4567'), '+358401234567');
+  assert.strictEqual(JG.normPhone('00358401234567'), '+358401234567');
+  assert.strictEqual(JG.normPhone('358401234567'), '+358401234567');
+  assert.strictEqual(JG.normPhone('+46 70 123 45 67'), '+46701234567');
+  ['', '123', '401234567', '+0401234567', 'abc', '+358 40 123 4567 8901 2345', '040<script>', null].forEach(function (v) {
+    assert.strictEqual(JG.normPhone(v), '', String(v));
+  });
+});
+
+test('hätäviesti: teksti ja linkit', function () {
+  var t = JG.sosText('Nilkka nyrjähti, en pääse kävelemään.', { lat: 65.121874, lon: 28.852071, acc: 8.4 }, '11.26');
+  var rows = t.split('\n');
+  assert.strictEqual(rows[0], 'Nilkka nyrjähti, en pääse kävelemään.');
+  assert.strictEqual(rows[1], 'Sijainti: 65.12187, 28.85207 (± 8 m, klo 11.26)');
+  assert.ok(/^ETRS-TM35FIN: N 72\d{5}, E \d{6}$/.test(rows[2]), rows[2]);
+  assert.strictEqual(rows[3], 'Kartta: https://www.google.com/maps/search/?api=1&query=65.12187%2C28.85207');
+  assert.strictEqual(JG.sosText('  ', null).split('\n')[0], 'Tarvitsen apua.');
+  assert.ok(/ei saatavilla/.test(JG.sosText('', null)));
+  assert.strictEqual(JG.sosText('a\u0007b\nc', null).split('\n')[0], 'ab');
+  assert.strictEqual(JG.waLink('040 123 4567', 'Apua & 1/2'), 'https://wa.me/358401234567?text=Apua%20%26%201%2F2');
+  assert.strictEqual(JG.waLink('123', 'x'), null);
+  assert.strictEqual(JG.smsLink(['040 123 4567', 'huono', '+46701234567'], 'A\nB', false), 'sms:+358401234567,+46701234567?body=A%0AB');
+  assert.strictEqual(JG.smsLink(['040 123 4567', '+46701234567'], 'A', true), 'sms://open?addresses=+358401234567,+46701234567&body=A');
+  assert.strictEqual(JG.smsLink([], 'A', false), null);
+});
+
 console.log(n + ' testiä läpi');

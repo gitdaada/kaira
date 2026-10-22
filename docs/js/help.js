@@ -18,7 +18,7 @@
       return [].concat(
         block('Näytön painikkeet', [
           row(h('span', { class: 'help-ico help-txt', text: 'Osio' }), 'Osion vaihto (vasen yläkulma)', 'Valitse Metsästys, Kalastus tai Eränkäynti. Kartta, tasot ja alapalkin painikkeet vaihtuvat osion mukaan.'),
-          row(h('span', { class: 'help-ico help-sos', text: 'SOS' }), 'Hätäkoordinaatit', 'Sijaintisi koordinaatteina hätäpuhelua (112) varten. GPS toimii ilman verkkoa.'),
+          row(h('span', { class: 'help-ico help-sos', text: 'SOS' }), 'Hätäkoordinaatit ja hälytys', 'Sijaintisi koordinaatteina hätäpuhelua (112) varten. GPS toimii ilman verkkoa. Hälytä apua avaa valmiin viestin sijainteineen tekstiviestinä tai WhatsAppissa asetuksissa valitsemillesi 1–3 henkilölle; lähetät sen itse.'),
           row(ico('drop'), 'Sääkortti', 'Lämpötila, tuuli, sade 2 tunnin sisällä ja aurinko sijainnissasi. Napauta: tuntiennuste ja animoitu sadetutka. Nuoli näyttää, mihin tuuli puhaltaa.'),
           row(ico('arrow'), 'Kompassi', 'Napauta: kartta kääntyy katsomasuuntaasi. Uudelleen napautus palauttaa pohjoisen ylös. Karttaa voi kääntää myös kahdella sormella.'),
           row(ico('area'), 'Oma sijainti', '1. napautus: sijainti päälle ja kartta seuraa. 2.: kartta seuraa uudelleen siirron jälkeen. 3.: sijainti pois.')
