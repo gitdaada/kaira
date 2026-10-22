@@ -182,3 +182,11 @@ assert [(x["id"], x["taso"]) for x in w] == [("2.49.0.1.246.0.0.2026.1.100", "ke
 assert all(x["alue"] == "Satakunta" and x["paattyy"].startswith("2099-06-10") for x in w)
 assert mp.superseded([fire]) == {"2.49.0.1.246.0.0.2026.1.050"}
 print("maastopalovaroitukset läpi")
+ma = mp.parse_feed(open(os.path.join(FX, "meteoalarm_feed.xml"), "rb").read(), mp.MA_PREFIX)
+assert [e[2].rsplit("/", 1)[1] for e in ma] == ["aaaa-1111", "bbbb-2222"], ma  # sama varoitus useasta aluekoodista kerran
+assert [bool(mp.FIRE_RE.search(e[0] + " " + e[1])) for e in ma] == [True, False]
+ma_cap = open(os.path.join(FX, "cap_fire.xml"), encoding="utf-8").read().replace(
+    "<eventCode><valueName>profile:cap:https://alerts.fmi.fi/cap/profile/v1.1.0</valueName><value>forestFireWeather</value></eventCode>",
+    "<parameter><valueName>awareness_type</valueName><value>8; forest-fire</value></parameter>")
+assert mp.EVENT in mp.parse_cap(ma_cap.encode())["codes"]  # MeteoAlarmin luokitus tunnistetaan
+print("MeteoAlarm-varalähde läpi")

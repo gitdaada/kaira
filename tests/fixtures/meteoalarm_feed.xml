@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:cap="urn:oasis:names:tc:emergency:cap:1.2">
+  <id>https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-finland</id>
+  <title>MeteoAlarm Finland (testiaineisto)</title>
+  <entry>
+    <cap:geocode><valueName>EMMA_ID</valueName><value>FI017</value></cap:geocode>
+    <link hreflang="en" title="Satakunta" href="https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-finland?geocode=EMMA_ID:FI017"/>
+    <cap:areaDesc>Satakunta</cap:areaDesc>
+    <cap:event>Wildfire warning</cap:event>
+    <cap:severity>Moderate</cap:severity>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-finland/aaaa-1111"/>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-finland/aaaa-1111?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Yellow Forest-fire Warning issued for Finland - Satakunta</title>
+  </entry>
+  <entry>
+    <cap:geocode><valueName>EMMA_ID</valueName><value>FI018</value></cap:geocode>
+    <cap:event>Wildfire warning</cap:event>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-finland/aaaa-1111"/>
+    <title>Yellow Forest-fire Warning issued for Finland - Satakunta</title>
+  </entry>
+  <entry>
+    <cap:event>Strong wind advisory</cap:event>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-finland/bbbb-2222"/>
+    <title>Yellow Wind Warning issued for Finland - Selkämeri</title>
+  </entry>
+</feed>

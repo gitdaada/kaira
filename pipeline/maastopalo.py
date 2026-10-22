@@ -27,6 +27,11 @@ from vesitilanne import simplify_ring  # noqa: E402
 
 FEED = "https://alerts.fmi.fi/cap/feed/atom_fi-FI.xml"
 CAP_PREFIX = "https://alerts.fmi.fi/cap/"
+# Varalähde: EUMETNET MeteoAlarm välittää Ilmatieteen laitoksen varoitukset sellaisinaan (CC BY 4.0).
+# Ilmatieteen laitoksen palvelin ei vastaa GitHub Actionsin verkosta (503), MeteoAlarm vastaa.
+MA_FEED = "https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-finland"
+MA_PREFIX = "https://feeds.meteoalarm.org/"
+FIRE_RE = re.compile(r"maastopalo|metsäpalo|ruohikkopalo|wildfire|forest[ -]?fire|forest-fire", re.I)
 UA = "kaira/0.1 (+https://github.com/gitdaada/kaira)"
 EVENT = "forestFireWeather"
 OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "data", "maastopalo.json")
@@ -78,20 +83,23 @@ def text(el, name, default=""):
     return (c.text or "").strip() if c is not None and c.text else default
 
 
-def parse_feed(xml_bytes):
-    """Atom-syöte -> [(otsikko, CAP-osoite)]. Vain alerts.fmi.fi:n CAP-dokumentit hyväksytään."""
+def parse_feed(xml_bytes, prefix=CAP_PREFIX):
+    """Atom-syöte -> [(otsikko, tiivistelmä, CAP-osoite)]. Vain annetun palvelimen CAP-dokumentit hyväksytään.
+    MeteoAlarmin syötteessä sama varoitus on kerran jokaista aluekoodia kohden, joten osoitteet yhdistetään."""
     root = ET.fromstring(xml_bytes)
-    out = []
+    out, seen = [], set()
     for e in root.iter(ATOM + "entry"):
         title = text(e, "title")
-        summary = text(e, "summary")
+        summary = " ".join(x for x in (text(e, "summary"), text(e, "event")) if x)
         href = None
         for ln in children(e, "link"):
             h = ln.get("href") or ""
-            if h.startswith(CAP_PREFIX) and h.endswith(".xml") and ".." not in h:
+            cap = h.endswith(".xml") or (ln.get("type") or "") == "application/cap+xml"
+            if h.startswith(prefix) and cap and ".." not in h and "?" not in h:
                 href = h
                 break
-        if href:
+        if href and href not in seen:
+            seen.add(href)
             out.append((title, summary, href))
     return out
 
@@ -139,6 +147,10 @@ def parse_cap(xml_bytes):
     if info is None:
         return None
     codes = [text(c, "value") for c in children(info, "eventCode")]
+    # MeteoAlarmin luokitus (awareness_type "8; forest-fire") ja tapahtuman nimi varmistavat tunnistuksen.
+    params = {text(c, "valueName"): text(c, "value") for c in children(info, "parameter")}
+    if EVENT not in codes and (params.get("awareness_type", "").startswith("8") or FIRE_RE.search(text(info, "event"))):
+        codes.append(EVENT)
     a.update({"event": text(info, "event"), "codes": codes, "severity": text(info, "severity"),
               "onset": text(info, "onset") or text(info, "effective"), "expires": text(info, "expires"),
               "headline": text(info, "headline"), "description": text(info, "description")})
@@ -200,26 +212,20 @@ def diagnose(entries, n=3):
             sum(len(x["polygonit"]) for x in a["areas"]), sum(len(p) for x in a["areas"] for p in x["polygonit"])))
 
 
-def probe():
-    """Diagnostiikka, jos syöte ei vastaa: mitkä alerts.fmi.fi:n osoitteet vastaavat tästä verkosta."""
-    for url in (FEED, FEED.replace("fi-FI", "en-GB"), "https://alerts.fmi.fi/cap/profile/current/"):
-        try:
-            gh("notice", "Tarkistus: %s vastasi (%d tavua)" % (url, len(get(url, timeout=30, tries=1))))
-        except Exception as e:  # noqa: BLE001
-            gh("warning", "Tarkistus: %s: %s" % (url, e))
+def read_feed():
+    """Ensisijaisesti Ilmatieteen laitos, varalla MeteoAlarm. Palauttaa (lähde, merkinnät)."""
+    try:
+        return "Ilmatieteen laitos (alerts.fmi.fi)", parse_feed(get(FEED, tries=2), CAP_PREFIX)
+    except Exception as e:  # noqa: BLE001
+        gh("notice", "Ilmatieteen laitoksen syöte ei vastaa (%s), käytetään MeteoAlarmia" % e)
+    return "Ilmatieteen laitos, välittäjänä EUMETNET MeteoAlarm (CC BY 4.0)", parse_feed(get(MA_FEED), MA_PREFIX)
 
 
 def main():
     now = dt.datetime.now(dt.timezone.utc)
-    try:
-        feed = get(FEED)
-    except Exception:
-        if "--diagnose" in sys.argv:
-            probe()
-        raise
-    entries = parse_feed(feed)
-    fire = [e for e in entries if re.search(r"maastopalo", e[0] + " " + e[1], re.I)]
-    gh("notice", "Syötteessä %d varoitusta, joista maastopalovaroituksia %d" % (len(entries), len(fire)))
+    source, entries = read_feed()
+    fire = [e for e in entries if FIRE_RE.search(e[0] + " " + e[1])]
+    gh("notice", "%s: %d varoitusta, joista maastopalovaroituksia %d" % (source, len(entries), len(fire)))
     if "--diagnose" in sys.argv:
         diagnose(fire + [e for e in entries if e not in fire])
     alerts = []
@@ -231,7 +237,10 @@ def main():
         if a:
             alerts.append(a)
     warnings = build(alerts, now)
-    data = {"lahde": "Ilmatieteen laitos, varoitukset (alerts.fmi.fi)", "varoitukset": warnings}
+    missing = sum(1 for a in alerts if EVENT in a["codes"] and not any(ar["polygonit"] for ar in a["areas"]))
+    if missing:
+        gh("warning", "%d maastopalovaroitukselta puuttuu aluerajaus (polygon), niitä ei näytetä kartalla" % missing)
+    data = {"lahde": "Ilmatieteen laitos", "varoitukset": warnings}
     try:
         old = json.load(open(OUT, encoding="utf-8"))
     except (OSError, ValueError):
