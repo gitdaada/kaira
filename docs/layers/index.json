@@ -4,13 +4,15 @@
    "id": "hossajoki",
    "nimi": "Hossajoki",
    "tiedosto": "hossajoki.geojson",
-   "piirretty": true
+   "piirretty": true,
+   "versio": "a24d9b02b5"
   },
   {
    "id": "tenomuotka",
    "nimi": "Tenomuotka",
    "tiedosto": "tenomuotka.geojson",
-   "piirretty": true
+   "piirretty": true,
+   "versio": "f6b5c1ffad"
   }
  ]
 }
