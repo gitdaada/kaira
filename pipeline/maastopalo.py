@@ -241,7 +241,7 @@ def diagnose(entries, n=3):
 def read_feed():
     """Ensisijaisesti Ilmatieteen laitos, varalla MeteoAlarm. Palauttaa (lähde, merkinnät)."""
     try:
-        return "Ilmatieteen laitos (alerts.fmi.fi)", parse_feed(get(FEED, tries=2), CAP_PREFIX)
+        return "Ilmatieteen laitos (alerts.fmi.fi)", parse_feed(get(FEED, tries=1), CAP_PREFIX)
     except Exception as e:  # noqa: BLE001
         gh("notice", "Ilmatieteen laitoksen syöte ei vastaa (%s), käytetään MeteoAlarmia" % e)
     return "Ilmatieteen laitos, välittäjänä EUMETNET MeteoAlarm (CC BY 4.0)", parse_feed(get(MA_FEED), MA_PREFIX)
