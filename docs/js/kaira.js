@@ -45,7 +45,9 @@
     // Kalastus
     water: true, fishLayers: true, showCatch: true, showDepth: true, showIce: true,
     // Eränkäynti
-    huts: true, dayHuts: true, laavut: true, tulipaikat: true, showRoutes: true
+    huts: true, dayHuts: true, laavut: true, tulipaikat: true, showRoutes: true,
+    // Metsästys ja eränkäynti
+    showFire: true
   };
   var ENUMS = {
     basemap: ['maastokartta', 'taustakartta', 'ortokuva'], habitat: ['off', 'metso', 'teeri', 'pyy'],
@@ -139,6 +141,7 @@
     drop: '<svg viewBox="0 0 24 24"><path d="M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z" fill="#67e8f9"/></svg>',
     arrow: '<svg viewBox="0 0 24 24"><path d="M12 2l6 8h-4v12h-4V10H6z" fill="currentColor"/></svg>',
     close: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    flame: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3c1 3.5 5 6 5 10.5A5 5 0 0 1 7 13.5c0-2 1-3.5 2.2-4.7.2 1.7 1.1 2.8 2.3 3.2C11 9 11.2 5.8 12 3z"/></svg>',
     draw: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 7l5-3 9 3 2 9-8 5-7-4z" stroke-dasharray="3 2.5"/><circle cx="4" cy="7" r="1.6" fill="currentColor"/><circle cx="18" cy="7" r="1.6" fill="currentColor"/></svg>'
   };
   K.ICONS = ICONS;
@@ -420,8 +423,10 @@
   /** Yleinen tietokortti kartan kohdasta: koordinaatit, etäisyys ja suunnistus. */
   K.tapInfo = function (ll, o) {
     o = o || {};
+    var extras = (o.extras || []).slice(), fire = K.fireNotice ? K.fireNotice(ll) : null;
+    if (fire) extras.unshift(fire); // maastopalovaroitus (metsästys ja eränkäynti) ensimmäisenä
     K.showCard({
-      title: o.title || 'Valittu kohta', detail: o.detail, detailMuted: o.detailMuted, swatch: o.swatch, extras: o.extras, ll: ll,
+      title: o.title || 'Valittu kohta', detail: o.detail, detailMuted: o.detailMuted, swatch: o.swatch, extras: extras, ll: ll,
       meta: K.pointMeta(ll.lat, ll.lng),
       actions: (o.actions || []).concat([{ label: 'Suunnista tänne', primary: !o.actions || !o.actions.length, fn: function () {
         K.setTarget({ lat: ll.lat, lng: ll.lng, name: o.targetName || o.title || 'Valittu kohta' }); K.closeCard();

@@ -1,7 +1,7 @@
 /* Kairan service worker: pitää sovelluksen, datan ja tallennetut kartat käytettävissä ilman verkkoa. */
 'use strict';
 
-var SHELL_CACHE = 'kaira-shell-2026-10-21e';
+var SHELL_CACHE = 'kaira-shell-2026-10-22a';
 var TILE_CACHE = 'kaira-tiles-v1';
 var DATA_CACHE = 'kaira-data-v1';
 var ASSET_CACHE = 'kaira-assets-v1';
@@ -9,7 +9,7 @@ var SHELL = [
   './',
   'css/kaira.css',
   'js/rotate.js', 'js/core.js', 'js/jcore.js', 'js/solmut.js',
-  'js/kaira.js', 'js/weather.js', 'js/tools.js', 'js/hunt.js', 'js/fish.js', 'js/wild.js', 'js/help.js', 'js/main.js',
+  'js/kaira.js', 'js/weather.js', 'js/tools.js', 'js/hunt.js', 'js/fish.js', 'js/wild.js', 'js/palo.js', 'js/help.js', 'js/main.js',
   'vendor/leaflet/leaflet.js', 'vendor/leaflet/leaflet.css',
   'fonts/inter.woff2', 'fonts/montserrat.woff2',
   'manifest.webmanifest',
@@ -123,6 +123,7 @@ self.addEventListener('fetch', function (e) {
 
   if (path === 'data/areas.json') { e.respondWith(networkFirst(req, DATA_CACHE, 5000, '{"areas":[]}')); return; }
   if (path === 'data/vesitilanne.json') { e.respondWith(networkFirst(req, ASSET_CACHE, 5000, '{"joet":[],"geometriat":[]}')); return; }
+  if (path === 'data/maastopalo.json') { e.respondWith(networkFirst(req, ASSET_CACHE, 5000, '{"varoitukset":[]}')); return; }
   if (path === 'data/jaa.json') { e.respondWith(networkFirst(req, ASSET_CACHE, 5000, '{"asemat":[]}')); return; }
   if (path === 'layers/index.json') { e.respondWith(networkFirst(req, ASSET_CACHE, 5000, '{"tasot":[]}')); return; }
   if (/^data\/kohteet\//.test(path) || /^layers\//.test(path) || /^img\//.test(path) || path === 'data/perhot.json') {

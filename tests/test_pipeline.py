@@ -161,3 +161,24 @@ print("kosket ja suvannot läpi")
 rb = v.river_bbox({"features": [{"geometry": {"type": "LineString", "coordinates": [[21.9, 69.0], [22.1, 69.2]]}}]}, 0.05)
 assert [round(x, 3) for x in rb] == [68.95, 21.8, 69.25, 22.2], rb
 print("uoman rajaus läpi")
+
+# Maastopalovaroitukset (CAP 1.2, Ilmatieteen laitoksen profiili)
+import maastopalo as mp  # noqa: E402
+FX = os.path.join(os.path.dirname(__file__), "fixtures")
+ents = mp.parse_feed(open(os.path.join(FX, "cap_feed.xml"), "rb").read())
+assert [e[2].rsplit("/", 1)[1] for e in ents] == ["2.49.0.1.246.0.0.2026.1.100.xml", "2.49.0.1.246.0.0.2026.1.200.xml"], ents  # väärä palvelin ohitettu
+fire = mp.parse_cap(open(os.path.join(FX, "cap_fire.xml"), "rb").read())
+wind = mp.parse_cap(open(os.path.join(FX, "cap_wind.xml"), "rb").read())
+assert fire["codes"] == ["forestFireWeather"] and fire["headline"].startswith("Keltainen") and fire["msgType"] == "Update"
+assert fire["areas"][0]["polygonit"][0][0] == [21.5, 61.0], fire["areas"]  # lat,lon -> lon,lat
+assert mp.parse_polygon("61,21 61,22") is None and mp.parse_polygon("10,10 10,11 11,11 10,10") is None
+now = dt.datetime(2026, 6, 9, 6, 0, tzinfo=dt.timezone.utc)
+old = dict(fire, id="2.49.0.1.246.0.0.2026.1.050", msgType="Alert", references="")
+cancel = dict(fire, id="x2", msgType="Cancel")
+expired = dict(fire, id="x3", expires="2026-06-09T08:00:00+03:00")
+red = dict(fire, id="x4", severity="Extreme")
+w = mp.build([fire, wind, old, cancel, expired, red], now)
+assert [(x["id"], x["taso"]) for x in w] == [("2.49.0.1.246.0.0.2026.1.100", "keltainen"), ("x4", "punainen")], w  # vanha, peruttu, vanhentunut ja tuuli pois
+assert all(x["alue"] == "Satakunta" and x["paattyy"].startswith("2099-06-10") for x in w)
+assert mp.superseded([fire]) == {"2.49.0.1.246.0.0.2026.1.050"}
+print("maastopalovaroitukset läpi")

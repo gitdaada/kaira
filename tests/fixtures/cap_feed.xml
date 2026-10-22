@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="fi-FI">
+  <id>urn:test:feed</id>
+  <title>Ilmatieteen laitoksen varoitukset (testiaineisto)</title>
+  <updated>2026-06-09T05:05:17Z</updated>
+  <link rel="self" href="https://alerts.fmi.fi/cap/feed/atom_fi-FI.xml"/>
+  <entry>
+    <id>urn:oid:2.49.0.1.246.0.0.2026.1.100</id>
+    <title>Keltainen maastopalovaroitus: Satakunta, ti 5.05 - ke 0.00</title>
+    <updated>2026-06-09T05:05:17Z</updated>
+    <link href="https://alerts.fmi.fi/cap/2026/06-09/02-05-17Z/2.49.0.1.246.0.0.2026.1.100.xml" type="application/cap+xml"/>
+    <summary>Maastopalovaroitus on voimassa.</summary>
+  </entry>
+  <entry>
+    <id>urn:oid:2.49.0.1.246.0.0.2026.1.200</id>
+    <title>Keltainen tuulivaroitus merelle: Itäinen Suomenlahti</title>
+    <link href="https://alerts.fmi.fi/cap/2026/06-09/02-05-17Z/2.49.0.1.246.0.0.2026.1.200.xml"/>
+    <summary>Kovan tuulen varoitus.</summary>
+  </entry>
+  <entry>
+    <id>urn:test:evil</id>
+    <title>Oranssi maastopalovaroitus: väärä palvelin</title>
+    <link href="https://example.com/cap/evil.xml"/>
+  </entry>
+</feed>

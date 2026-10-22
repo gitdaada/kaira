@@ -55,6 +55,7 @@
           row(h('span', { class: 'help-ico' }, sw(null, 'sw-cut-dash')), 'Punainen katkoviiva', 'Hakkuuilmoitus: hakkuu ei välttämättä ole vielä tehty.'),
           row(h('span', { class: 'help-ico' }, sw(null, 'sw-hab2')), 'Oranssi alue', 'Valitun kanalintulajin elinympäristö: vahva = hyvä, haalea = sopiva.'),
           row(h('span', { class: 'help-ico' }, sw(null, 'sw-wind')), 'Violetti viuhka', 'Tuuliviuhka: hajusi kulku sijainnistasi myötätuuleen. Mitä heikompi tuuli, sitä leveämpi viuhka.'),
+          row(h('span', { class: 'help-ico' }, sw('repeating-linear-gradient(135deg,#F2C200 0 4px,transparent 4px 8px)')), 'Keltainen, oranssi tai punainen katkoviiva-alue', 'Voimassa oleva maastopalovaroitus (Ilmatieteen laitos): avotulen teko on kielletty. Sääkortissa näkyy Maastopalovaroitus, kun olet varoitusalueella. Kaikki varoitukset: Valikko → Maastopalovaroitukset.'),
           row(pin('obs-havainto', 'M'), 'Omat merkinnät', 'Sininen = havainto, keltainen = seisonta, punainen = saalis. Kirjain kertoo lajin.')
         ]),
         block('Vinkit', [
@@ -102,6 +103,7 @@
           row(ico('layers'), 'Tasot', 'Valitse näytettävät kohdetyypit ja reitit.')
         ]),
         block('Kartan merkit', [
+          row(h('span', { class: 'help-ico' }, sw('repeating-linear-gradient(135deg,#F2C200 0 4px,transparent 4px 8px)')), 'Keltainen, oranssi tai punainen katkoviiva-alue', 'Voimassa oleva maastopalovaroitus (Ilmatieteen laitos): avotulen teko on kielletty. Sääkortissa näkyy Maastopalovaroitus, kun olet varoitusalueella. Kaikki varoitukset: Valikko → Maastopalovaroitukset.'),
           row(k('autiotupa'), 'Ruskea talo', 'Autiotupa.'),
           row(k('kammi'), 'Vihreä talo', 'Autiokammi.'),
           row(k('paivatupa'), 'Sininen talo', 'Päivätupa, tarkoitettu päiväkäyttöön.'),

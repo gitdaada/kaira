@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+  <identifier>2.49.0.1.246.0.0.2026.1.200</identifier>
+  <sent>2026-06-09T05:05:17+03:00</sent>
+  <status>Actual</status>
+  <msgType>Alert</msgType>
+  <info>
+    <language>fi-FI</language>
+    <event>Tuulivaroitus merelle</event>
+    <severity>Moderate</severity>
+    <eventCode><valueName>profile:cap:https://alerts.fmi.fi/cap/profile/v1.1.0</valueName><value>seaWind</value></eventCode>
+    <onset>2026-06-09T13:00:00+03:00</onset>
+    <expires>2099-06-09T19:00:00+03:00</expires>
+    <headline>Keltainen tuulivaroitus merelle</headline>
+    <area><areaDesc>Itäinen Suomenlahti</areaDesc><polygon>60.0,26.0 60.0,27.0 60.5,27.0 60.5,26.0 60.0,26.0</polygon></area>
+  </info>
+</alert>

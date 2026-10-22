@@ -31,6 +31,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 - Kanalintujen elinympäristö: metso, teeri ja pyy
 - Tuuliviuhka (hajusi kulku) ja koiran hajuolosuhteet
 - Havaintojen ja saaliin kirjaus, kauden yhteenveto, CSV-vienti ja Metsäkartan merkintöjen tuonti
+- Voimassa olevat maastopalovaroitukset (Ilmatieteen laitos) kartalla, sääkortissa ja tietokortissa
 
 | Väri | Merkitys |
 | --- | --- |
@@ -59,6 +60,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 - Autiotuvat, autiokammit, päivätuvat, kodat, laavut ja tulipaikat koko Suomesta (OpenStreetMap, päivittyy kuukausittain)
 - Lähimmät kohteet etäisyyden mukaan, kohteen kompassi ja *Suunnista tänne*
 - GPX-reittien tuonti, näyttö, offline-tallennus ja suunnistus reitin alkuun
+- Voimassa olevat maastopalovaroitukset: alueet kartalla, avotulikielto laavun ja tulipaikan tiedoissa
 
 ## Käyttöönotto
 
@@ -90,7 +92,8 @@ Julkaisu: Cloudflare Pages julkaisee `docs/`-kansion automaattisesti jokaisesta 
 | --- | --- | --- |
 | Rakenna metsäkartat (`build.py`) | Maanantaisin ja kun `areas/metsastys/` muuttuu | `docs/data/<alue>/`, `docs/data/areas.json` |
 | Vesitilanne (`syvyys.py`, `vesitilanne.py`) | Päivittäin ja kun `areas/kalastus/` muuttuu | `docs/data/vesitilanne.json`, `docs/data/jaa.json`, `docs/layers/` |
-| Kohteet (`kohteet.py`) | Kuukausittain | `docs/data/kohteet/{tuvat,laavut,tulipaikat}.geojson` |
+| Kohteet (`kohteet.py`) | Viikoittain | `docs/data/kohteet/{tuvat,laavut,tulipaikat}.geojson` |
+| Maastopalovaroitukset (`maastopalo.py`) | Tunnin välein, tallennus vain muutoksesta | `docs/data/maastopalo.json` |
 | Testit | Jokaisessa muutoksessa | – |
 
 Ajon voi käynnistää käsin: *Actions → ajo → Run workflow*. GitHub keskeyttää ajastetut ajot, jos repossa ei tapahdu mitään 60 päivään.
@@ -98,7 +101,7 @@ Ajon voi käynnistää käsin: *Actions → ajo → Run workflow*. GitHub keskey
 ## Tietosuoja ja tietoturva
 
 - Sovellus ei kerää, tallenna eikä lähetä henkilötietoja. Siinä ei ole kirjautumista, evästeitä, analytiikkaa, palvelinta eikä ulkopuolisia skriptejä tai fontteja.
-- Sijainti käsitellään vain laitteessa. Sää- ja sadetietoa haettaessa Ilmatieteen laitokselle, MET Norwaylle ja varalla Open-Meteolle lähetetään noin kilometrin tarkkuuteen pyöristetyt koordinaatit, vain kun sovellus on auki.
+- Sijainti käsitellään vain laitteessa. Maastopalovaroitukset haetaan GitHub Actionsissa koko maasta, joten niitä varten sijaintia ei lähetetä minnekään. Sää- ja sadetietoa haettaessa Ilmatieteen laitokselle, MET Norwaylle ja varalla Open-Meteolle lähetetään noin kilometrin tarkkuuteen pyöristetyt koordinaatit, vain kun sovellus on auki.
 - Merkinnät, saaliit, reitit, tuodut tasot, API-avain ja offline-kartat ovat vain laitteen selaimessa.
 - Sisältöturvakäytäntö (CSP) sallii yhteydet vain sovellukseen itseensä sekä Maanmittauslaitokselle, OpenStreetMapille, Ilmatieteen laitokselle, Open-Meteolle ja MET Norwaylle.
 - Tuodut tiedostot (GeoJSON, GPX, CSV) tarkistetaan: vain sijainnit ja tunnetut tekstikentät luetaan, eikä sisältöä tulkita HTML:nä.
@@ -114,6 +117,7 @@ Ajon voi käynnistää käsin: *Actions → ajo → Run workflow*. GitHub keskey
 - Metsätieto ja elinympäristömallin lähtötiedot: Luonnonvarakeskus, MVMI 2023, CC BY 4.0.
 - Luonnonsuojelualueet: Syke / Metsähallitus, CC BY 4.0. Uudet hakkuut: Suomen metsäkeskus, CC BY 4.0.
 - Sää ja tuuli: Ilmatieteen laitos, CC BY 4.0; varalla Open-Meteo (CC BY 4.0, ilmainen vain ei-kaupalliseen käyttöön).
+- Maastopalovaroitukset: Ilmatieteen laitos, varoitukset CAP-muodossa (alerts.fmi.fi). Varoitus on voimassa vain Ilmatieteen laitoksen ilmoittamana; tarkista ajantasainen tilanne ilmatieteenlaitos.fi/varoitukset.
 - Sadetutkaennuste: MET Norway, Nowcast 2.0, CC BY 4.0.
 - Vesitilanne ja jäänpaksuus: Syke, Hydrologiarajapinta, CC BY 4.0; sademäärä: Ilmatieteen laitos, CC BY 4.0. Jokien uomat: © OpenStreetMapin tekijät, ODbL.
 - Järvien syvyysalueet ja syvyyskäyrät: Syke, CC BY 4.0 (vain mitatut järvet).

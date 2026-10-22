@@ -131,6 +131,8 @@
     var head = t.nimi + (f.maakunta ? ', ' + f.maakunta : '');
     body.appendChild(h('p', { class: 'muted small', text: head }));
     if (f.kuvaus && f.kuvaus.replace(/\.$/, '') !== head) body.appendChild(h('p', { class: 'small', text: f.kuvaus }));
+    var fire = K.fireNotice ? K.fireNotice(L.latLng(f.lat, f.lon)) : null;
+    if (fire) body.appendChild(fire);
     var svg = sv('svg', { viewBox: '0 0 120 120', class: 'kohde-dial', role: 'img', 'aria-label': 'Suunta kohteeseen' });
     sv('circle', { cx: 60, cy: 60, r: 56, fill: '#191C1E', stroke: 'rgba(140,147,158,0.5)', 'stroke-width': 2 }, svg);
     var dial = sv('g', {}, svg);

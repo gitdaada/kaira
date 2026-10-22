@@ -116,6 +116,16 @@ def fixtures():
              "geometry": {"type": "MultiPolygon", "coordinates": [[square(62.0, 25.0, 0.01)]]}},
             {"type": "Feature", "properties": {"tyyppi": "syvyyskayra", "m": 3},
              "geometry": {"type": "LineString", "coordinates": square(62.0, 25.0, 0.01)}}]},
+        "data/maastopalo.json": {"paivitetty": now.isoformat(), "lahde": "testi", "varoitukset": [
+            {"id": "t1", "taso": "keltainen", "alue": "Testimaakunta", "otsikko": "Keltainen maastopalovaroitus", "alkaa": (now - timedelta(hours=2)).isoformat(),
+             "paattyy": (now + timedelta(hours=10)).isoformat(), "polygonit": [square(63.48, 25.94, 0.3)]},
+            {"id": "t2", "taso": "punainen", "alue": "Kalamajan alue", "otsikko": "Punainen maastopalovaroitus", "alkaa": (now - timedelta(hours=1)).isoformat(),
+             "paattyy": (now + timedelta(hours=5)).isoformat(), "polygonit": [square(64.2736, 27.3272, 0.05)]},
+            {"id": "t3", "taso": "oranssi", "alue": "Vanhentunut", "alkaa": (now - timedelta(days=2)).isoformat(),
+             "paattyy": (now - timedelta(days=1)).isoformat(), "polygonit": [square(63.48, 25.94, 0.5)]},
+            {"id": "t4", "taso": "oranssi", "alue": "Huominen", "alkaa": (now + timedelta(hours=20)).isoformat(),
+             "paattyy": (now + timedelta(hours=30)).isoformat(), "polygonit": [square(61.0, 24.0, 0.5)]},
+            {"id": "t5", "taso": "musta", "alue": "Virheellinen", "paattyy": (now + timedelta(hours=3)).isoformat(), "polygonit": [square(62.0, 25.0, 0.5)]}]},
         "data/jaa.json": {"paivitetty": now.isoformat(), "jakso_vrk": 30, "asemat": [
             {"nimi": "Lähiasema", "jarvi": "Lähijärvi", "lat": 63.49, "lon": 25.95, "cm": 34, "aika": (now - timedelta(days=2)).date().isoformat()},
             {"nimi": "Alueasema", "jarvi": "Testijärvi", "lat": 62.02, "lon": 25.01, "cm": 41, "aika": (now - timedelta(days=12)).date().isoformat()},
@@ -201,6 +211,24 @@ def main():
         pg.wait_for_function("K.pos !== null", timeout=10000)
         pg.wait_for_function("document.querySelector('.wind-canvas') !== null", timeout=10000)
         check(True, "tuuliviuhka piirtyy sijainnista")
+        # Maastopalovaroitus: voimassa olevat alueet kartalla ja merkki yläpalkissa, kun sijainti on varoitusalueella
+        pg.wait_for_function("K.palo.S.data !== null", timeout=10000)
+        check([w["alue"] for w in pg.evaluate("K.palo.nowList()")] == ["Testimaakunta", "Kalamajan alue"], "voimassa olevat maastopalovaroitukset (vanhentunut, tuleva ja virheellinen pois)")
+        pg.wait_for_function("document.getElementById('wxCard').innerText.indexOf('Maastopalovaroitus') >= 0", timeout=10000)
+        check(True, "sääkortissa maastopalovaroitus, kun sijainti on varoitusalueella")
+        check(pg.evaluate("document.querySelectorAll('.leaflet-fire-pane path').length") == 2, "varoitusalueet kartalla")
+        pg.evaluate("K.tapInfo(L.latLng(63.4806, 25.9395), {title: 'Testi'})")
+        check("avotulen teko kielletty" in pg.locator("#infoCard").inner_text(), "tietokortissa maastopalovaroitus")
+        pg.locator("#infoCard .info-close").click()
+        pg.locator("#wxCard").click()
+        pg.wait_for_selector("#sheet:not([hidden])")
+        check("avotulen teko kielletty" in pg.locator("#sheetBody").inner_text(), "sääpaneelissa maastopalovaroitus")
+        pg.locator("#sheetBody button", has_text="Kaikki maastopalovaroitukset").click()
+        pg.wait_for_function("document.getElementById('sheetTitle').innerText === 'Maastopalovaroitukset'")
+        body = pg.locator("#sheetBody").inner_text()
+        check("Testimaakunta" in body and "Huominen" in body and "Vanhentunut" not in body and "Avotuleksi ei katsota" in body, "varoituspaneeli: sijainti, voimassa ja alkamassa")
+        pg.screenshot(path=str(SHOTS / "03b-maastopalo.png"))
+        pg.locator("#sheetClose").click()
         # Merkintä
         pg.locator("#navMain").click()
         pg.wait_for_selector("#sheet:not([hidden]) .obs-form")
@@ -226,6 +254,7 @@ def main():
         pg.evaluate("K.setSection('kalastus')")
         pg.wait_for_timeout(500)
         check(pg.locator(".obs-pin.obs-saalis").count() == 0, "metsästysmerkinnät poistuvat kalastuksessa")
+        check("Maastopalovaroitus" not in pg.locator("#wxCard").inner_text() and pg.evaluate("document.querySelectorAll('.leaflet-fire-pane path').length") == 0, "maastopalovaroitukset eivät näy kalastuksessa")
         check(pg.evaluate("document.querySelectorAll('.wind-canvas').length") == 0, "tuuliviuhka ei näy kalastuksessa")
         check(pg.locator("#navMain .nav-lbl").inner_text() == "Saalis" and pg.locator("#navInfo .nav-lbl").inner_text() == "Perhot", "alapalkki vaihtuu osion mukaan")
         pg.locator("#navInfo").click()
@@ -315,6 +344,11 @@ def main():
         pg.wait_for_selector(".kohde-dial")
         check("Suunta" in pg.locator(".kohde-read").inner_text() or "–" in pg.locator(".kohde-read").inner_text(), "kohteen kompassi näkyy")
         pg.screenshot(path=str(SHOTS / "05-kohde.png"))
+        # Varoitusalueella olevan kohteen paneelissa näkyy avotulikielto
+        pg.evaluate("K.wild.openKohde(K.wild.D.features.filter(function (f) { return f.nimi === 'Kalamaja autiotupa'; })[0])")
+        pg.wait_for_function("document.getElementById('sheetBody').innerText.indexOf('Kalamaja') >= 0 || document.getElementById('sheetTitle').innerText.indexOf('Kalamaja') >= 0")
+        check("Punainen maastopalovaroitus" in pg.locator("#sheetBody").inner_text(), "kohteen paneelissa maastopalovaroitus")
+        pg.screenshot(path=str(SHOTS / "05b-kohde-varoitus.png"))
         pg.locator("#sheetBody .btn-primary", has_text="Suunnista tänne").click()
         pg.wait_for_selector("#targetCard:not([hidden])")
         check(pg.evaluate("!!K.target") and "km" in pg.locator("#targetCard").inner_text(), "suunnistuskortti näyttää matkan")

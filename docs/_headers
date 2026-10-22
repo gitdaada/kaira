@@ -31,3 +31,6 @@
 
 /layers/index.json
   Cache-Control: no-cache
+
+/data/maastopalo.json
+  Cache-Control: no-cache

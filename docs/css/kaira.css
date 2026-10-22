@@ -516,3 +516,17 @@ input[type="range"] { width: 100%; accent-color: var(--color-accent-primary); he
 /* 404-sivu: Pages palauttaa tämän puuttuville poluille (ilman sitä se palauttaisi etusivun). */
 .page-404 { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--color-bg-primary); color: var(--color-text-primary); text-align: center; }
 .page-404 h1 { font-family: var(--font-head); }
+
+/* Maastopalovaroitukset */
+.wx-fire { font-weight: 800; }
+.wx-fire.fire-keltainen { color: #F2C200; }
+.wx-fire.fire-oranssi { color: #FF9A4A; }
+.wx-fire.fire-punainen { color: #FF6B6F; }
+.fire-notice { display: grid; gap: 2px; margin: 0 0 8px; padding: 8px 10px; border-radius: 10px; border-left: 4px solid; background: rgba(255, 122, 26, 0.12); font-size: 13.5px; }
+.fire-notice b { font-size: 14px; }
+.fire-notice.fire-keltainen { border-color: #F2C200; }
+.fire-notice.fire-oranssi { border-color: #FF7A1A; }
+.fire-notice.fire-punainen { border-color: #E5484D; background: rgba(229, 72, 77, 0.14); }
+.fire-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.fire-row:first-child { border-top: 0; }
+.fire-row small { display: block; color: var(--muted-on-dark); font-size: 13px; }
