@@ -1,5 +1,5 @@
 {
- "paivitetty": "2026-10-22T12:20:25Z",
+ "paivitetty": "2026-10-23T04:55:26Z",
  "joet": [
   {
    "id": "hossajoki-hossanjoki",
@@ -13,18 +13,14 @@
      "asema": "Hossanjärvi - luusua",
      "paikka_id": 1270,
      "etaisyys_km": 0.0,
-     "arvo": 27.0,
-     "aika": "2026-10-22",
+     "arvo": 26.2,
+     "aika": "2026-10-23",
      "yksikko": "m³/s",
-     "p25": 10.14,
-     "p75": 16.47,
+     "p25": 10.1,
+     "p75": 16.25,
      "vuodet": 31,
      "luokka": "korkea",
      "sarja": [
-      [
-       "2026-09-22",
-       35.15
-      ],
       [
        "2026-09-23",
        37.3
@@ -143,15 +139,14 @@
       ],
       [
        "2026-10-22",
-       27.0
+       26.78
+      ],
+      [
+       "2026-10-23",
+       26.2
       ]
      ],
      "kaista": [
-      [
-       "2026-09-22",
-       6.9,
-       14.6
-      ],
       [
        "2026-09-23",
        6.9,
@@ -301,6 +296,11 @@
        "2026-10-22",
        10.1,
        16.5
+      ],
+      [
+       "2026-10-23",
+       10.1,
+       16.2
       ]
      ]
     }
@@ -310,18 +310,14 @@
     "asema": "Hossanjärvi - luusua",
     "paikka_id": 1270,
     "etaisyys_km": 0.0,
-    "arvo": 27.0,
-    "aika": "2026-10-22",
+    "arvo": 26.2,
+    "aika": "2026-10-23",
     "yksikko": "m³/s",
-    "p25": 10.14,
-    "p75": 16.47,
+    "p25": 10.1,
+    "p75": 16.25,
     "vuodet": 31,
     "luokka": "korkea",
     "sarja": [
-     [
-      "2026-09-22",
-      35.15
-     ],
      [
       "2026-09-23",
       37.3
@@ -440,15 +436,14 @@
      ],
      [
       "2026-10-22",
-      27.0
+      26.78
+     ],
+     [
+      "2026-10-23",
+      26.2
      ]
     ],
     "kaista": [
-     [
-      "2026-09-22",
-      6.9,
-      14.6
-     ],
      [
       "2026-09-23",
       6.9,
@@ -598,19 +593,24 @@
       "2026-10-22",
       10.1,
       16.5
+     ],
+     [
+      "2026-10-23",
+      10.1,
+      16.2
      ]
     ]
    },
    "sade14": {
-    "mm": 28.3,
+    "mm": 28.2,
     "asema": "Suomussalmi Pesiö",
     "etaisyys_km": 60.3,
-    "p25": 21.9,
-    "p75": 42.2,
+    "p25": 19.8,
+    "p75": 42.0,
     "vuodet": 15,
     "jakso": [
-     "2026-10-08",
-     "2026-10-21"
+     "2026-10-09",
+     "2026-10-22"
     ],
     "luokka": "normaali"
    }
@@ -625,12 +625,12 @@
     "mm": 6.0,
     "asema": "Enontekiö Kilpisjärvi kyläkeskus",
     "etaisyys_km": 41.8,
-    "p25": 4.6,
-    "p75": 17.8,
+    "p25": 5.5,
+    "p75": 21.6,
     "vuodet": 15,
     "jakso": [
-     "2026-10-08",
-     "2026-10-21"
+     "2026-10-09",
+     "2026-10-22"
     ],
     "luokka": "normaali"
    }
@@ -649,7 +649,7 @@
   "hossajoki: 5 Syken asemaa rajauksella",
   "hossajoki-hossanjoki/Virtaama: asemaehdokkaat Hossanjärvi - luusua 0.0 km",
   "hossajoki-hossanjoki/Vedenkorkeus: asemaehdokkaat ei yhtään",
-  "hossajoki-hossanjoki: sadeasema Suomussalmi Pesiö (60 km), 14 vrk 28.3 mm",
+  "hossajoki-hossanjoki: sadeasema Suomussalmi Pesiö (60 km), 14 vrk 28.2 mm",
   "hossajoki-hossanjoki: korkea (mittaus)",
   "tenomuotka: 2 Syken asemaa rajauksella",
   "tenomuotka-poroeno/Virtaama: asemaehdokkaat ei yhtään",
