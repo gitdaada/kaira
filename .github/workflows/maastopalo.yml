@@ -1,9 +1,11 @@
 # Metsästys ja eränkäynti: voimassa olevat maastopalovaroitukset (docs/data/maastopalo.json) Ilmatieteen laitoksen
-# CAP-syötteestä tunnin välein. Tiedosto tallennetaan vain, kun varoitukset muuttuvat. Ei avaimia eikä salaisuuksia.
+# CAP-syötteestä: huhti–syyskuussa tunnin välein, loka–maaliskuussa kuuden tunnin välein (varoituksia ei juuri anneta;
+# säästää Actions-minuutteja). Tiedosto tallennetaan vain, kun varoitukset muuttuvat. Ei avaimia eikä salaisuuksia.
 name: Maastopalovaroitukset
 on:
   schedule:
-    - cron: "7 * * * *"
+    - cron: "7 * * 4-9 *"            # huhti–syyskuu: tunnin välein (UTC)
+    - cron: "7 */6 * 1-3,10-12 *"    # loka–maaliskuu: klo 00.07, 06.07, 12.07 ja 18.07 UTC
   workflow_dispatch:
   push:
     branches: [main]

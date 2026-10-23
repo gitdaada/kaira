@@ -105,7 +105,7 @@ Julkaisu: Cloudflare Pages julkaisee `docs/`-kansion automaattisesti jokaisesta 
 | Rakenna metsäkartat (`build.py`) | Maanantaisin ja kun `areas/metsastys/` tai `areas/erankaynti/` muuttuu | `docs/data/<alue>/` (myös marjat.png ja sienet.png), `docs/data/areas.json` |
 | Vesitilanne (`syvyys.py`, `vesitilanne.py`) | Päivittäin ja kun `areas/kalastus/` muuttuu | `docs/data/vesitilanne.json`, `docs/data/jaa.json`, `docs/layers/` |
 | Kohteet (`kohteet.py`) | Viikoittain | `docs/data/kohteet/{tuvat,laavut,tulipaikat}.geojson` |
-| Maastopalovaroitukset (`maastopalo.py`) | Tunnin välein, tallennus vain muutoksesta | `docs/data/maastopalo.json` |
+| Maastopalovaroitukset (`maastopalo.py`) | Huhti–syyskuussa tunnin välein, loka–maaliskuussa 6 tunnin välein; tallennus vain muutoksesta | `docs/data/maastopalo.json` |
 | Testit | Jokaisessa muutoksessa | – (myös riippuvuuksien haavoittuvuudet ja Cloudflaren rajat) |
 | Rajapintojen tarkistus (`tarkistus.py`) | Käsin | Vain lokimerkinnät: rajapintojen vastausten rakenne oikealla datalla |
 
