@@ -1,7 +1,8 @@
 {
- "paivitetty": "2026-10-24T17:09:37Z",
+ "paivitetty": "2026-10-24T17:16:16Z",
  "lahteet": [
   "Kansallis- ja luonnonpuistojen rajat: Syke, valtion luonnonsuojelualueet (CC BY 4.0)",
+  "Retkeilyalueiden rajat: © OpenStreetMapin tekijät (ODbL)",
   "Perustiedot ja linkit: Wikidata (CC0)",
   "Kuvat: Wikimedia Commons, tekijät ja lisenssit kohteittain"
  ],
@@ -1631,16 +1632,21 @@
    "id": "evon-retkeilyalue",
    "nimi": "Evon retkeilyalue",
    "tyyppi": "retkeilyalue",
-   "ha": null,
+   "ha": 4934,
    "perustettu": null,
    "kunnat": [
     "Hämeenlinna",
     "Padasjoki"
    ],
-   "lat": 61.228,
-   "lon": 25.1,
-   "bbox": null,
-   "raja": null,
+   "lat": 61.23918,
+   "lon": 25.1339,
+   "bbox": [
+    61.17074,
+    25.00143,
+    61.2695,
+    25.25925
+   ],
+   "raja": "data/puistot/evon-retkeilyalue.geojson?v=7a83c4563f",
    "linkki": "https://www.luontoon.fi/fi/kohteet/evon-retkeilyalue",
    "kuva": {
     "src": "img/puistot/evon-retkeilyalue.jpg?v=731fa4bb66",
@@ -1650,6 +1656,98 @@
     "tiedosto": "Lago Valkea Mustajärvi y zona de Senderismo de Evo (Finlandia) 11.jpg"
    },
    "wikidata": "Q11859216"
+  },
+  {
+   "id": "iso-syotteen-retkeilyalue",
+   "nimi": "Iso-Syötteen retkeilyalue",
+   "tyyppi": "retkeilyalue",
+   "ha": 1142,
+   "perustettu": null,
+   "kunnat": [],
+   "lat": 65.61565,
+   "lon": 27.57224,
+   "bbox": [
+    65.5916,
+    27.53478,
+    65.63942,
+    27.61708
+   ],
+   "raja": "data/puistot/iso-syotteen-retkeilyalue.geojson?v=b7a7b6f18d",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/iso-syotteen-retkeilyalue",
+   "kuva": null,
+   "wikidata": null
+  },
+  {
+   "id": "kylmaluoman-retkeilyalue",
+   "nimi": "Kylmäluoman retkeilyalue",
+   "tyyppi": "retkeilyalue",
+   "ha": 7519,
+   "perustettu": null,
+   "kunnat": [
+    "Taivalkoski"
+   ],
+   "lat": 65.58404,
+   "lon": 28.76676,
+   "bbox": [
+    65.54862,
+    28.56516,
+    65.62129,
+    28.95321
+   ],
+   "raja": "data/puistot/kylmaluoman-retkeilyalue.geojson?v=0f76350350",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/kylmaluoman-retkeilyalue",
+   "kuva": null,
+   "wikidata": "Q18682102"
+  },
+  {
+   "id": "oulujarven-retkeilyalue",
+   "nimi": "Oulujärven retkeilyalue",
+   "tyyppi": "retkeilyalue",
+   "ha": 2067,
+   "perustettu": null,
+   "kunnat": [
+    "Vaala",
+    "Kajaani",
+    "Paltamo"
+   ],
+   "lat": 64.39261,
+   "lon": 27.03146,
+   "bbox": [
+    64.36652,
+    26.95883,
+    64.41925,
+    27.10041
+   ],
+   "raja": "data/puistot/oulujarven-retkeilyalue.geojson?v=52825bbb84",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/oulujarven-retkeilyalue",
+   "kuva": {
+    "src": "img/puistot/oulujarven-retkeilyalue.jpg?v=7b7b784ef5",
+    "tekija": "SeppVei",
+    "lisenssi": "Public domain",
+    "lahde": "https://commons.wikimedia.org/wiki/File:Paltaselk%C3%A4.JPG",
+    "tiedosto": "Paltaselkä.JPG"
+   },
+   "wikidata": "Q580019"
+  },
+  {
+   "id": "ruunaan-retkeilyalue",
+   "nimi": "Ruunaan retkeilyalue",
+   "tyyppi": "retkeilyalue",
+   "ha": 3155,
+   "perustettu": null,
+   "kunnat": [],
+   "lat": 63.37303,
+   "lon": 30.52245,
+   "bbox": [
+    63.33425,
+    30.40046,
+    63.41472,
+    30.59043
+   ],
+   "raja": "data/puistot/ruunaan-retkeilyalue.geojson?v=1dcbb8cb23",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/ruunaan-retkeilyalue",
+   "kuva": null,
+   "wikidata": "Q56398812"
   }
  ]
 }
