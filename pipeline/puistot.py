@@ -474,7 +474,8 @@ def find_link(name, pid, candidates):
 
 def municipalities():
     """Kuntanumero -> nimi (Wikidata, P1203)."""
-    q = 'SELECT ?code ?l WHERE { ?m wdt:P1203 ?code . ?m rdfs:label ?l . FILTER(LANG(?l) = "fi") }'
+    # Vain nykyiset kunnat (Q856076), suomenkielinen nimi
+    q = 'SELECT ?code ?l WHERE { ?m wdt:P31 wd:Q856076 ; wdt:P1203 ?code ; rdfs:label ?l . FILTER(LANG(?l) = "fi") }'
     j = get(SPARQL, params={"query": q, "format": "json"}, timeout=120)
     out = {}
     for b in j.get("results", {}).get("bindings", []):
@@ -511,7 +512,11 @@ def lipas_entries(existing):
         note("Kuntien nimiä ei saatu (%r)" % e)
     out, seen = [], set()
     for code, kind in LIPAS_TYPES.items():
-        sites = lipas_sites(code)
+        try:
+            sites = lipas_sites(code)
+        except Exception as e:  # noqa: BLE001
+            gh("warning", "LIPAS %d: %r" % (code, e))
+            continue
         if sites:
             s0 = sites[0]
             gh("notice", "LIPAS %d: %d kohdetta; kentät %s; esim. %s" % (code, len(sites), sorted(s0.keys())[:30],
