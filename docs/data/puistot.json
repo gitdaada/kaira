@@ -1,5 +1,5 @@
 {
- "paivitetty": "2026-10-24T17:00:17Z",
+ "paivitetty": "2026-10-24T17:09:37Z",
  "lahteet": [
   "Kansallis- ja luonnonpuistojen rajat: Syke, valtion luonnonsuojelualueet (CC BY 4.0)",
   "Perustiedot ja linkit: Wikidata (CC0)",
@@ -11,7 +11,7 @@
    "nimi": "Etelä-Konneveden kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 1710,
-   "perustettu": 2014,
+   "perustettu": 2023,
    "kunnat": [
     "Konnevesi",
     "Rautalampi"
@@ -25,7 +25,7 @@
     26.78884
    ],
    "raja": "data/puistot/etela-konneveden-kansallispuisto.geojson?v=45b7549722",
-   "linkki": "https://www.luontoon.fi/etela-konnevesi",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/etela-konneveden-kansallispuisto",
    "kuva": {
     "src": "img/puistot/etela-konneveden-kansallispuisto.jpg?v=98c8626042",
     "tekija": "Kospo75",
@@ -40,7 +40,7 @@
    "nimi": "Helvetinjärven kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 5048,
-   "perustettu": 1982,
+   "perustettu": 2005,
    "kunnat": [
     "Ruovesi"
    ],
@@ -68,7 +68,7 @@
    "nimi": "Hiidenportin kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 4454,
-   "perustettu": 1982,
+   "perustettu": 2023,
    "kunnat": [
     "Sotkamo"
    ],
@@ -81,7 +81,7 @@
     29.14276
    ],
    "raja": "data/puistot/hiidenportin-kansallispuisto.geojson?v=d18679431b",
-   "linkki": "https://www.luontoon.fi/hiidenportti",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/hiidenportin-kansallispuisto",
    "kuva": {
     "src": "img/puistot/hiidenportin-kansallispuisto.jpg?v=7dd4afea95",
     "tekija": "viiviseppanen",
@@ -96,7 +96,7 @@
    "nimi": "Hossan kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 11092,
-   "perustettu": 2017,
+   "perustettu": 2023,
    "kunnat": [
     "Suomussalmi",
     "Kuusamo",
@@ -111,7 +111,7 @@
     29.51214
    ],
    "raja": "data/puistot/hossan-kansallispuisto.geojson?v=c417a7d2fb",
-   "linkki": "https://www.luontoon.fi/hossa",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/hossan-kansallispuisto",
    "kuva": {
     "src": "img/puistot/hossan-kansallispuisto.jpg?v=0dc9414ec5",
     "tekija": "Saruwine",
@@ -126,7 +126,7 @@
    "nimi": "Isojärven kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 2256,
-   "perustettu": 1982,
+   "perustettu": 2023,
    "kunnat": [
     "Kuhmoinen"
    ],
@@ -139,7 +139,7 @@
     25.08888
    ],
    "raja": "data/puistot/isojarven-kansallispuisto.geojson?v=abe0585370",
-   "linkki": "https://www.luontoon.fi/isojarvi",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/isojarven-kansallispuisto",
    "kuva": {
     "src": "img/puistot/isojarven-kansallispuisto.jpg?v=8a864a73d3",
     "tekija": "Tiia Monto",
@@ -154,7 +154,7 @@
    "nimi": "Itäisen Suomenlahden kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 936,
-   "perustettu": 1982,
+   "perustettu": 2023,
    "kunnat": [
     "Kymenlaakson maakunta"
    ],
@@ -167,7 +167,7 @@
     27.71315
    ],
    "raja": "data/puistot/itaisen-suomenlahden-kansallispuisto.geojson?v=c78515abba",
-   "linkki": "https://www.luontoon.fi/itainensuomenlahti",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/itaisen-suomenlahden-kansallispuisto",
    "kuva": {
     "src": "img/puistot/itaisen-suomenlahden-kansallispuisto.jpg?v=9065b9de97",
     "tekija": "Jukka from HELSINKI, Finland",
@@ -182,7 +182,7 @@
    "nimi": "Kauhanevan-Pohjankankaan kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 7108,
-   "perustettu": 1982,
+   "perustettu": 2023,
    "kunnat": [
     "Kauhajoki",
     "Karvia"
@@ -211,7 +211,7 @@
    "nimi": "Kolin kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 2972,
-   "perustettu": 1991,
+   "perustettu": 2023,
    "kunnat": [
     "Pohjois-Karjalan maakunta"
    ],
@@ -224,7 +224,7 @@
     30.01749
    ],
    "raja": "data/puistot/kolin-kansallispuisto.geojson?v=5af32bbbcc",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/kohteet/kolin-kansallispuisto",
    "kuva": {
     "src": "img/puistot/kolin-kansallispuisto.jpg?v=f264835f4d",
     "tekija": "Lobke Thijssen",
@@ -239,7 +239,7 @@
    "nimi": "Koloveden kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 6074,
-   "perustettu": 1990,
+   "perustettu": 2023,
    "kunnat": [
     "Etelä-Savon maakunta",
     "Pohjois-Karjalan maakunta"
@@ -253,7 +253,7 @@
     28.97003
    ],
    "raja": "data/puistot/koloveden-kansallispuisto.geojson?v=6cd3c006c4",
-   "linkki": "https://www.luontoon.fi/kolovesi",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/koloveden-kansallispuisto",
    "kuva": {
     "src": "img/puistot/koloveden-kansallispuisto.jpg?v=2efb404015",
     "tekija": "Paul Lenz",
@@ -268,7 +268,7 @@
    "nimi": "Kurjenrahkan kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 3209,
-   "perustettu": 1998,
+   "perustettu": 2023,
    "kunnat": [
     "Aura",
     "Masku",
@@ -284,7 +284,7 @@
     22.48569
    ],
    "raja": "data/puistot/kurjenrahkan-kansallispuisto.geojson?v=17b9355db9",
-   "linkki": "https://www.luontoon.fi/kurjenrahka",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/kurjenrahkan-kansallispuisto",
    "kuva": {
     "src": "img/puistot/kurjenrahkan-kansallispuisto.jpg?v=2f976f4d59",
     "tekija": "Användare LPfi på Wikipedia",
@@ -299,7 +299,7 @@
    "nimi": "Lauhanvuoren kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 5951,
-   "perustettu": 1982,
+   "perustettu": 2023,
    "kunnat": [
     "Etelä-Pohjanmaan maakunta"
    ],
@@ -327,7 +327,7 @@
    "nimi": "Leivonmäen kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 3138,
-   "perustettu": 2003,
+   "perustettu": 2023,
    "kunnat": [
     "Leivonmäki",
     "Joutsa"
@@ -356,7 +356,7 @@
    "nimi": "Lemmenjoen kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 285792,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Inari",
     "Kittilä"
@@ -385,7 +385,7 @@
    "nimi": "Liesjärven kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 2142,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Tammela"
    ],
@@ -413,7 +413,7 @@
    "nimi": "Linnansaaren kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 9709,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Rantasalmi",
     "Savonlinna",
@@ -443,7 +443,7 @@
    "nimi": "Nuuksion kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 5579,
-   "perustettu": 1994,
+   "perustettu": 2023,
    "kunnat": [
     "Uudenmaan maakunta"
    ],
@@ -456,7 +456,7 @@
     24.70466
    ],
    "raja": "data/puistot/nuuksion-kansallispuisto.geojson?v=0a018e46a8",
-   "linkki": "https://www.nationalparks.fi/nuuksionp",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/nuuksion-kansallispuisto",
    "kuva": {
     "src": "img/puistot/nuuksion-kansallispuisto.jpg?v=2d0af1cf80",
     "tekija": "Christophe Badoux",
@@ -471,7 +471,7 @@
    "nimi": "Oulangan kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 28624,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [],
    "lat": 66.42704,
    "lon": 29.48431,
@@ -497,7 +497,7 @@
    "nimi": "Pallas-Yllästunturin kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 102599,
-   "perustettu": 2005,
+   "perustettu": 2025,
    "kunnat": [
     "Lapin maakunta"
    ],
@@ -525,7 +525,7 @@
    "nimi": "Patvinsuon kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 10547,
-   "perustettu": 1982,
+   "perustettu": 2023,
    "kunnat": [
     "Pohjois-Karjalan maakunta"
    ],
@@ -553,7 +553,7 @@
    "nimi": "Perämeren kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 14888,
-   "perustettu": 1991,
+   "perustettu": 2023,
    "kunnat": [
     "Lapin maakunta"
    ],
@@ -566,7 +566,7 @@
     24.44835
    ],
    "raja": "data/puistot/perameren-kansallispuisto.geojson?v=fe5fe6baf2",
-   "linkki": "https://www.luontoon.fi/perameri",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/perameren-kansallispuisto",
    "kuva": {
     "src": "img/puistot/perameren-kansallispuisto.jpg?v=a979abd7c5",
     "tekija": "Roquai",
@@ -581,7 +581,7 @@
    "nimi": "Petkeljärven kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 670,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [],
    "lat": 62.58576,
    "lon": 31.17411,
@@ -607,7 +607,7 @@
    "nimi": "Puurijärven ja Isonsuon kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 2768,
-   "perustettu": 1993,
+   "perustettu": 2023,
    "kunnat": [],
    "lat": 61.25959,
    "lon": 22.54878,
@@ -618,7 +618,7 @@
     22.65506
    ],
    "raja": "data/puistot/puurijarven-ja-isonsuon-kansallispuisto.geojson?v=123ccf00cf",
-   "linkki": "https://www.luontoon.fi/fi/kohteet/puurijarvi-isosuon-kansallispuisto",
+   "linkki": "https://www.luontoon.fi/fi/puurijarven",
    "kuva": {
     "src": "img/puistot/puurijarven-ja-isonsuon-kansallispuisto.jpg?v=5da7f4683c",
     "tekija": "PtG",
@@ -633,7 +633,7 @@
    "nimi": "Pyhä-Häkin kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 1335,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Saarijärvi"
    ],
@@ -661,7 +661,7 @@
    "nimi": "Pyhä-Luoston kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 14403,
-   "perustettu": 2005,
+   "perustettu": 2023,
    "kunnat": [
     "Lapin maakunta"
    ],
@@ -689,7 +689,7 @@
    "nimi": "Päijänteen kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 1583,
-   "perustettu": 1993,
+   "perustettu": 2023,
    "kunnat": [
     "Padasjoki",
     "Asikkala",
@@ -719,7 +719,7 @@
    "nimi": "Repoveden kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 1575,
-   "perustettu": 2003,
+   "perustettu": 2023,
    "kunnat": [
     "Kymenlaakson maakunta"
    ],
@@ -747,7 +747,7 @@
    "nimi": "Riisitunturin kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 7644,
-   "perustettu": 1982,
+   "perustettu": 2023,
    "kunnat": [
     "Posio"
    ],
@@ -760,7 +760,7 @@
     28.64897
    ],
    "raja": "data/puistot/riisitunturin-kansallispuisto.geojson?v=0d5376713a",
-   "linkki": "https://www.luontoon.fi/riisitunturi",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/riisitunturin-kansallispuisto",
    "kuva": {
     "src": "img/puistot/riisitunturin-kansallispuisto.jpg?v=2ec1946adb",
     "tekija": "Harrim",
@@ -775,7 +775,7 @@
    "nimi": "Rokuan kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 2016,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Muhos",
     "Utajärvi",
@@ -790,7 +790,7 @@
     26.55899
    ],
    "raja": "data/puistot/rokuan-kansallispuisto.geojson?v=1496167e02",
-   "linkki": "https://www.luontoon.fi/rokua",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/rokuan-kansallispuisto",
    "kuva": {
     "src": "img/puistot/rokuan-kansallispuisto.jpg?v=cf48449acc",
     "tekija": "Vesa Krökki ( Vekrokki at fi.wikipedia )",
@@ -805,7 +805,7 @@
    "nimi": "Saaristomeren kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 53506,
-   "perustettu": 1983,
+   "perustettu": 2023,
    "kunnat": [
     "Parainen",
     "Kemiönsaari"
@@ -834,7 +834,7 @@
    "nimi": "Salamajärven kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 6465,
-   "perustettu": 1982,
+   "perustettu": 2023,
    "kunnat": [
     "Keski-Suomen maakunta"
    ],
@@ -862,7 +862,7 @@
    "nimi": "Sallan kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 10050,
-   "perustettu": 2022,
+   "perustettu": 2023,
    "kunnat": [
     "Salla"
    ],
@@ -875,7 +875,7 @@
     29.11897
    ],
    "raja": "data/puistot/sallan-kansallispuisto.geojson?v=26204ef4ec",
-   "linkki": "https://www.luontoon.fi/salla",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/sallan-kansallispuisto",
    "kuva": {
     "src": "img/puistot/sallan-kansallispuisto.jpg?v=ac80a55759",
     "tekija": "Ximonic (Simo Räsänen)",
@@ -890,7 +890,7 @@
    "nimi": "Seitsemisen kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 4688,
-   "perustettu": 1982,
+   "perustettu": 2023,
    "kunnat": [
     "Pirkanmaan maakunta"
    ],
@@ -903,7 +903,7 @@
     23.50859
    ],
    "raja": "data/puistot/seitsemisen-kansallispuisto.geojson?v=b12d9aab8f",
-   "linkki": "https://www.luontoon.fi/seitseminen",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/seitsemisen-kansallispuisto",
    "kuva": {
     "src": "img/puistot/seitsemisen-kansallispuisto.jpg?v=818e52c401",
     "tekija": "kallerna",
@@ -917,8 +917,8 @@
    "id": "selkameren-kansallispuisto",
    "nimi": "Selkämeren kansallispuisto",
    "tyyppi": "kansallispuisto",
-   "ha": 91667,
-   "perustettu": 2011,
+   "ha": 94455,
+   "perustettu": 2015,
    "kunnat": [
     "Merikarvia",
     "Pori",
@@ -933,7 +933,7 @@
     61.9589,
     21.63629
    ],
-   "raja": "data/puistot/selkameren-kansallispuisto.geojson?v=86f1cf3bad",
+   "raja": "data/puistot/selkameren-kansallispuisto.geojson?v=110cbe22b7",
    "linkki": "https://www.luontoon.fi/fi/kohteet/selkameren-kansallispuisto",
    "kuva": {
     "src": "img/puistot/selkameren-kansallispuisto.jpg?v=dd39b0c1e0",
@@ -945,31 +945,11 @@
    "wikidata": "Q4948647"
   },
   {
-   "id": "selkameren-kansallispuisto-rauman-kaupunki",
-   "nimi": "Selkämeren kansallispuisto (Rauman kaupunki)",
-   "tyyppi": "kansallispuisto",
-   "ha": 2788,
-   "perustettu": null,
-   "kunnat": [],
-   "lat": 61.13455,
-   "lon": 21.33703,
-   "bbox": [
-    61.10452,
-    21.27486,
-    61.16255,
-    21.40156
-   ],
-   "raja": "data/puistot/selkameren-kansallispuisto-rauman-kaupunki.geojson?v=6f48258632",
-   "linkki": null,
-   "kuva": null,
-   "wikidata": null
-  },
-  {
    "id": "sipoonkorven-kansallispuisto",
    "nimi": "Sipoonkorven kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 2383,
-   "perustettu": 2011,
+   "perustettu": 2023,
    "kunnat": [
     "Uudenmaan maakunta"
    ],
@@ -982,7 +962,7 @@
     25.2628
    ],
    "raja": "data/puistot/sipoonkorven-kansallispuisto.geojson?v=284280583a",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/kohteet/sipoonkorven-kansallispuisto",
    "kuva": {
     "src": "img/puistot/sipoonkorven-kansallispuisto.jpg?v=08ebe1d166",
     "tekija": "Miika Silfverberg from Vantaa, Finland",
@@ -997,7 +977,7 @@
    "nimi": "Syötteen kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 30277,
-   "perustettu": 2000,
+   "perustettu": 2023,
    "kunnat": [
     "Pudasjärvi",
     "Posio",
@@ -1027,7 +1007,7 @@
    "nimi": "Tammisaaren saariston kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 5494,
-   "perustettu": 1989,
+   "perustettu": 2023,
    "kunnat": [
     "Raasepori"
    ],
@@ -1040,7 +1020,7 @@
     23.60394
    ],
    "raja": "data/puistot/tammisaaren-saariston-kansallispuisto.geojson?v=2c312a901e",
-   "linkki": "https://www.luontoon.fi/tammisaarensaaristo",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/tammisaaren-saariston-kansallispuisto",
    "kuva": {
     "src": "img/puistot/tammisaaren-saariston-kansallispuisto.jpg?v=2c6d20714e",
     "tekija": "H-E Nyman",
@@ -1055,7 +1035,7 @@
    "nimi": "Teijon kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 3564,
-   "perustettu": 2014,
+   "perustettu": 2023,
    "kunnat": [
     "Salo"
    ],
@@ -1083,7 +1063,7 @@
    "nimi": "Tiilikkajärven kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 7222,
-   "perustettu": 1982,
+   "perustettu": 2023,
    "kunnat": [
     "Rautavaara",
     "Sotkamo"
@@ -1098,7 +1078,13 @@
    ],
    "raja": "data/puistot/tiilikkajarven-kansallispuisto.geojson?v=5c7f62b4ad",
    "linkki": "https://www.luontoon.fi/fi/kohteet/tiilikkajarven-kansallispuisto",
-   "kuva": null,
+   "kuva": {
+    "src": "img/puistot/tiilikkajarven-kansallispuisto.jpg?v=514ba827a7",
+    "tekija": "Utsjoki at Finnish Wikipedia",
+    "lisenssi": "Copyrighted free use",
+    "lahde": "https://commons.wikimedia.org/wiki/File:Tiilikkajarven_kansallispuisto_Venajanhiekka.jpg",
+    "tiedosto": "Tiilikkajarven kansallispuisto Venajanhiekka.jpg"
+   },
    "wikidata": "Q2606800"
   },
   {
@@ -1106,7 +1092,7 @@
    "nimi": "Torronsuon kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 3121,
-   "perustettu": 1990,
+   "perustettu": 2023,
    "kunnat": [
     "Tammela"
    ],
@@ -1134,7 +1120,7 @@
    "nimi": "Urho Kekkosen kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 254932,
-   "perustettu": 1983,
+   "perustettu": 2023,
    "kunnat": [
     "Sodankylä",
     "Inari",
@@ -1164,7 +1150,7 @@
    "nimi": "Valkmusan kansallispuisto",
    "tyyppi": "kansallispuisto",
    "ha": 1947,
-   "perustettu": 1996,
+   "perustettu": 2023,
    "kunnat": [
     "Pyhtää",
     "Kotka"
@@ -1178,7 +1164,7 @@
     26.79454
    ],
    "raja": "data/puistot/valkmusan-kansallispuisto.geojson?v=15126c9ae5",
-   "linkki": "https://www.luontoon.fi/valkmusa",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/valkmusan-kansallispuisto",
    "kuva": {
     "src": "img/puistot/valkmusan-kansallispuisto.jpg?v=fcd5ddf1e1",
     "tekija": "Havesj",
@@ -1193,7 +1179,7 @@
    "nimi": "Häädetkeitaan luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 591,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Parkano",
     "Karvia"
@@ -1216,7 +1202,7 @@
    "nimi": "Karkalin luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 103,
-   "perustettu": 1964,
+   "perustettu": 2023,
    "kunnat": [
     "Lohja",
     "Karjalohja"
@@ -1230,7 +1216,7 @@
     23.81535
    ],
    "raja": "data/puistot/karkalin-luonnonpuisto.geojson?v=0afdd832e8",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/kohteet/karkalin-luonnonpuisto",
    "kuva": {
     "src": "img/puistot/karkalin-luonnonpuisto.jpg?v=a5db629641",
     "tekija": "Xepheid",
@@ -1245,7 +1231,7 @@
    "nimi": "Kevon luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 71065,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Utsjoki"
    ],
@@ -1258,7 +1244,7 @@
     27.04602
    ],
    "raja": "data/puistot/kevon-luonnonpuisto.geojson?v=b10f6698f4",
-   "linkki": "https://www.luontoon.fi/kevo",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/kevon-luonnonpuisto",
    "kuva": {
     "src": "img/puistot/kevon-luonnonpuisto.jpg?v=be424a1ba7",
     "tekija": "Lakkahillo",
@@ -1273,7 +1259,7 @@
    "nimi": "Koivusuon luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 2206,
-   "perustettu": 1981,
+   "perustettu": 2023,
    "kunnat": [
     "Ilomantsi"
    ],
@@ -1286,7 +1272,7 @@
     31.46069
    ],
    "raja": "data/puistot/koivusuon-luonnonpuisto.geojson?v=f6127bbe29",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/koivusuon",
    "kuva": null,
    "wikidata": "Q6426381"
   },
@@ -1295,7 +1281,7 @@
    "nimi": "Mallan luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 3080,
-   "perustettu": 1938,
+   "perustettu": 2023,
    "kunnat": [
     "Enontekiö"
    ],
@@ -1308,7 +1294,7 @@
     20.76942
    ],
    "raja": "data/puistot/mallan-luonnonpuisto.geojson?v=f579380e55",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/kohteet/mallan-luonnonpuisto",
    "kuva": {
     "src": "img/puistot/mallan-luonnonpuisto.jpg?v=6354a03629",
     "tekija": "Norppa",
@@ -1323,7 +1309,7 @@
    "nimi": "Maltion luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 14746,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Savukoski"
    ],
@@ -1336,7 +1322,7 @@
     28.97962
    ],
    "raja": "data/puistot/maltion-luonnonpuisto.geojson?v=54deb19e5d",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/maltion",
    "kuva": null,
    "wikidata": "Q6744910"
   },
@@ -1345,7 +1331,7 @@
    "nimi": "Olvassuon luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 6690,
-   "perustettu": 1981,
+   "perustettu": 2023,
    "kunnat": [
     "Utajärvi",
     "Pudasjärvi",
@@ -1360,7 +1346,7 @@
     27.38611
    ],
    "raja": "data/puistot/olvassuon-luonnonpuisto.geojson?v=112999f310",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/olvassuon",
    "kuva": {
     "src": "img/puistot/olvassuon-luonnonpuisto.jpg?v=9af0249736",
     "tekija": "SeppVei",
@@ -1375,7 +1361,7 @@
    "nimi": "Paljakan  luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 2947,
-   "perustettu": null,
+   "perustettu": 2023,
    "kunnat": [],
    "lat": 64.71072,
    "lon": 28.01713,
@@ -1386,7 +1372,7 @@
     28.10879
    ],
    "raja": "data/puistot/paljakan-luonnonpuisto.geojson?v=7da9c012cc",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/kohteet/paljakan-luonnonpuisto",
    "kuva": null,
    "wikidata": null
   },
@@ -1395,7 +1381,7 @@
    "nimi": "Pelson luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 1870,
-   "perustettu": 1981,
+   "perustettu": 2023,
    "kunnat": [
     "Siikalatva"
    ],
@@ -1408,7 +1394,7 @@
     26.32709
    ],
    "raja": "data/puistot/pelson-luonnonpuisto.geojson?v=b897a34150",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/pelson",
    "kuva": null,
    "wikidata": "Q7161732"
   },
@@ -1417,7 +1403,7 @@
    "nimi": "Pisavaaran luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 4886,
-   "perustettu": 1938,
+   "perustettu": 2023,
    "kunnat": [
     "Tervola",
     "Rovaniemi"
@@ -1431,7 +1417,7 @@
     25.17422
    ],
    "raja": "data/puistot/pisavaaran-luonnonpuisto.geojson?v=91a88bd33c",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/pisavaaran",
    "kuva": null,
    "wikidata": "Q7198215"
   },
@@ -1440,7 +1426,7 @@
    "nimi": "Runkauksen luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 7045,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Simo",
     "Tervola"
@@ -1454,7 +1440,7 @@
     25.60989
    ],
    "raja": "data/puistot/runkauksen-luonnonpuisto.geojson?v=6d00dc2730",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/runkauksen",
    "kuva": null,
    "wikidata": "Q7379890"
   },
@@ -1463,7 +1449,7 @@
    "nimi": "Salamanperän luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 1266,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Kivijärvi"
    ],
@@ -1476,7 +1462,7 @@
     24.84615
    ],
    "raja": "data/puistot/salamanperan-luonnonpuisto.geojson?v=fd835a4874",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/kohteet/salamanperan-luonnonpuisto",
    "kuva": null,
    "wikidata": "Q7403563"
   },
@@ -1485,7 +1471,7 @@
    "nimi": "Sinivuoren luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 97,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Orivesi"
    ],
@@ -1498,7 +1484,7 @@
     24.74001
    ],
    "raja": "data/puistot/sinivuoren-luonnonpuisto.geojson?v=e6b8785dc5",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/sinivuoren",
    "kuva": null,
    "wikidata": "Q7524462"
   },
@@ -1507,7 +1493,7 @@
    "nimi": "Sompion luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 17926,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Sodankylä"
    ],
@@ -1520,7 +1506,7 @@
     27.61348
    ],
    "raja": "data/puistot/sompion-luonnonpuisto.geojson?v=54a9421561",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/kohteet/sompion-luonnonpuisto",
    "kuva": null,
    "wikidata": "Q11894078"
   },
@@ -1529,7 +1515,7 @@
    "nimi": "Sukerijärven luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 2148,
-   "perustettu": 1981,
+   "perustettu": 2023,
    "kunnat": [
     "Kuusamo"
    ],
@@ -1542,17 +1528,19 @@
     29.01904
    ],
    "raja": "data/puistot/sukerijarven-luonnonpuisto.geojson?v=bf793ad573",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/sukerijarven",
    "kuva": null,
    "wikidata": "Q7635754"
   },
   {
-   "id": "ulvinsalon-luonnonpuisto-ystavyyden-puisto",
-   "nimi": "Ulvinsalon luonnonpuisto (Ystävyyden puisto)",
+   "id": "ulvinsalon-luonnonpuisto",
+   "nimi": "Ulvinsalon luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 2521,
-   "perustettu": null,
-   "kunnat": [],
+   "perustettu": 2023,
+   "kunnat": [
+    "Kuhmo"
+   ],
    "lat": 63.96994,
    "lon": 30.36794,
    "bbox": [
@@ -1561,17 +1549,17 @@
     63.9929,
     30.45744
    ],
-   "raja": "data/puistot/ulvinsalon-luonnonpuisto-ystavyyden-puisto.geojson?v=7fba271e35",
-   "linkki": null,
+   "raja": "data/puistot/ulvinsalon-luonnonpuisto.geojson?v=9363dddab8",
+   "linkki": "https://www.luontoon.fi/fi/ulvinsalon",
    "kuva": null,
-   "wikidata": null
+   "wikidata": "Q7880868"
   },
   {
    "id": "vaskijarven-luonnonpuisto",
    "nimi": "Vaskijärven luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 2241,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Pöytyä"
    ],
@@ -1584,7 +1572,7 @@
     22.30675
    ],
    "raja": "data/puistot/vaskijarven-luonnonpuisto.geojson?v=c88257b6c3",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/kohteet/vaskijarven-luonnonpuisto",
    "kuva": null,
    "wikidata": "Q11900619"
   },
@@ -1593,7 +1581,7 @@
    "nimi": "Vesijaon luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 114,
-   "perustettu": 1956,
+   "perustettu": 2023,
    "kunnat": [
     "Padasjoki"
    ],
@@ -1606,7 +1594,7 @@
     25.11678
    ],
    "raja": "data/puistot/vesijaon-luonnonpuisto.geojson?v=c9f7f36fc3",
-   "linkki": null,
+   "linkki": "https://www.luontoon.fi/fi/vesijaon",
    "kuva": null,
    "wikidata": "Q5489464"
   },
@@ -1615,7 +1603,7 @@
    "nimi": "Värriön luonnonpuisto",
    "tyyppi": "luonnonpuisto",
    "ha": 12475,
-   "perustettu": 1981,
+   "perustettu": 2023,
    "kunnat": [
     "Salla",
     "Savukoski"
@@ -1653,7 +1641,7 @@
    "lon": 25.1,
    "bbox": null,
    "raja": null,
-   "linkki": "https://www.luontoon.fi/evo",
+   "linkki": "https://www.luontoon.fi/fi/kohteet/evon-retkeilyalue",
    "kuva": {
     "src": "img/puistot/evon-retkeilyalue.jpg?v=731fa4bb66",
     "tekija": "Axel Cotón Gutiérrez",
