@@ -32,6 +32,7 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT_JSON = ROOT / "docs" / "data" / "puistot.json"
 OUT_GEO = ROOT / "docs" / "data" / "puistot"
 OUT_IMG = ROOT / "docs" / "img" / "puistot"
+OUT_LIPAS = ROOT / "docs" / "data" / "ulkoilualueet"
 CACHE = ROOT / ".cache" / "puistot"
 EXTRA = ROOT / "pipeline" / "data" / "puistot_lisat.json"
 CONFIG = ROOT / "pipeline" / "config.json"
@@ -40,7 +41,12 @@ UA = "kaira/0.1 (+https://github.com/gitdaada/kaira)"
 OVERPASS = ("https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter")
 WD_API = "https://www.wikidata.org/w/api.php"
 COMMONS_API = "https://commons.wikimedia.org/w/api.php"
-TYPES = ("kansallispuisto", "luonnonpuisto", "retkeilyalue")
+TYPES = ("kansallispuisto", "luonnonpuisto", "retkeilyalue", "seuturetkeily", "ulkoilualue")
+# LIPAS (Jyväskylän yliopisto, CC BY 4.0): ulkoilualueet, seudulliset retkeilyalueet ja valtion retkeilyalueet
+LIPAS = "https://api.lipas.fi/v2/sports-sites"
+LIPAS_TYPES = {109: "retkeilyalue", 104: "seuturetkeily", 103: "ulkoilualue"}
+SPARQL = "https://query.wikidata.org/sparql"
+WWW_OK = re.compile(r"^https?://[a-z0-9-]+(\.[a-z0-9-]+)+(:\d{2,5})?(/[^\s\"'<>]*)?$", re.I)
 NAME_COLS = ["Nimi", "NimiSuomi", "LsAlueNimi", "Nimi_fi", "Name", "NIMI"]
 TYPE_COLS = ["TyyppiNimi", "Tyyppi", "LsAlueTyyp", "SuojTyyppi", "TyyppiNim", "Type", "TYYPPI"]
 DATE_COLS = ["Voimaantul", "Voimaantulo", "PerustPvm", "PerustamisPvm", "Perustettu", "PaatPvm"]
@@ -132,6 +138,41 @@ def link_ok(url: str):
     if u.startswith("http://"):
         u = "https://" + u[7:]
     return u if LINK_OK.match(u) and len(u) < 300 and not re.search(r"[\s\"'<>]", u) else None
+
+
+def www_ok(url):
+    """Ylläpitäjän verkkosivu (mikä tahansa julkinen osoite), vain http(s) ilman erikoismerkkejä."""
+    u = (url or "").strip()
+    if u.lower().startswith("www."):
+        u = "https://" + u
+    return u if WWW_OK.match(u) and len(u) < 300 else None
+
+
+def clean_text(s, n):
+    """Ohjausmerkit pois, välit siistiksi, katkaisu sanan kohdalta."""
+    t = re.sub(r"[\x00-\x08\x0b-\x1f\x7f]", " ", str(s or ""))
+    t = re.sub(r"[ \t]+", " ", re.sub(r"\s*\n\s*", "\n", t)).strip()
+    if len(t) > n:
+        t = t[:n].rsplit(" ", 1)[0].rstrip(",.;:") + "…"
+    return t
+
+
+def org_fi(v):
+    """LIPASin omistaja- tai ylläpitäjäluokka suomeksi."""
+    v = (v or "").lower()
+    if v.startswith("city"):
+        return "kunta"
+    for k, fi in (("municipal-consortium", "kuntayhtymä"), ("association", "yhdistys"), ("company", "yritys"), ("foundation", "säätiö"),
+                  ("state", "valtio"), ("parish", "seurakunta")):
+        if k in v:
+            return fi
+    return None
+
+
+def chunk_key(lat, lon):
+    """Rajojen ryhmätiedosto: 0,5° x 1° ruutu (esim. c-600-24)."""
+    import math
+    return "c-%d-%d" % (int(math.floor(lat * 2)) * 5, int(math.floor(lon)))
 
 
 def wd_year(claims, prop="P571"):
@@ -431,6 +472,93 @@ def find_link(name, pid, candidates):
     return candidates[0] if candidates else None
 
 
+def municipalities():
+    """Kuntanumero -> nimi (Wikidata, P1203)."""
+    q = 'SELECT ?code ?l WHERE { ?m wdt:P1203 ?code . ?m rdfs:label ?l . FILTER(LANG(?l) = "fi") }'
+    j = get(SPARQL, params={"query": q, "format": "json"}, timeout=120)
+    out = {}
+    for b in j.get("results", {}).get("bindings", []):
+        try:
+            out.setdefault(int(b["code"]["value"]), b["l"]["value"][:40])
+        except (KeyError, ValueError):
+            continue
+    return out
+
+
+def lipas_sites(code):
+    out, page = [], 1
+    while page <= 60:
+        j = get(LIPAS, params={"type-codes": code, "page": page, "page-size": 100}, timeout=120)
+        items = j.get("items") or []
+        out += items
+        pg = j.get("pagination") or {}
+        if not items or page >= int(pg.get("total-pages") or 1):
+            break
+        page += 1
+        time.sleep(0.5)
+    return out
+
+
+def lipas_entries(existing):
+    """LIPASin alueet: [(entry, feature tai None)]. existing: jo listalla olevien nimet (pienellä)."""
+    from shapely.geometry import shape
+    from shapely.ops import transform, unary_union
+    fwd, _ = to_3067()
+    try:
+        munis = municipalities()
+    except Exception as e:  # noqa: BLE001
+        munis = {}
+        note("Kuntien nimiä ei saatu (%r)" % e)
+    out, seen = [], set()
+    for code, kind in LIPAS_TYPES.items():
+        sites = lipas_sites(code)
+        if sites:
+            s0 = sites[0]
+            gh("notice", "LIPAS %d: %d kohdetta; kentät %s; esim. %s" % (code, len(sites), sorted(s0.keys())[:30],
+               json.dumps({k: s0.get(k) for k in ("name", "owner", "admin", "www", "comment")}, ensure_ascii=False)[:400]))
+        for st in sites:
+            lid = st.get("lipas-id")
+            name = clean(st.get("marketing-name") or st.get("name"))
+            if not isinstance(lid, int) or not name or lid in seen:
+                continue
+            nm = name.casefold()
+            stem = nm.split()[0][:5]
+            if nm in existing or (kind == "retkeilyalue" and any(e.startswith(stem) and "retkeily" in e for e in existing)):
+                continue
+            seen.add(lid)
+            loc = st.get("location") or {}
+            feats = (loc.get("geometries") or {}).get("features") or []
+            geoms = []
+            for f in feats:
+                try:
+                    geoms.append(shape(f["geometry"]))
+                except Exception:  # noqa: BLE001
+                    pass
+            polys = [g for g in geoms if g.geom_type in ("Polygon", "MultiPolygon")]
+            entry = {"id": "lipas-%d" % lid, "nimi": name[:80], "tyyppi": kind, "ha": None, "perustettu": None, "kunnat": [], "lat": None, "lon": None,
+                     "bbox": None, "raja": None, "linkki": None, "www": www_ok(st.get("www")), "kuvaus": clean_text(st.get("comment"), 700) or None,
+                     "yllapitaja": org_fi(st.get("admin")) or org_fi(st.get("owner")), "kuva": None, "wikidata": None, "lipas": lid}
+            city = (loc.get("city") or {}).get("city-code")
+            if isinstance(city, int) and munis.get(city):
+                entry["kunnat"] = [munis[city]]
+            feat = None
+            if polys:
+                g = transform(fwd.transform, unary_union([p.buffer(0) for p in polys]))
+                if g.is_empty:
+                    continue
+                fc, info = boundary_feature(name, kind, g)
+                entry.update(info)
+                feat = fc["features"][0]
+                feat["properties"] = {"id": entry["id"], "nimi": name[:80], "tyyppi": "alue"}
+            elif geoms:
+                pt = geoms[0].representative_point() if geoms[0].geom_type != "Point" else geoms[0]
+                entry["lat"], entry["lon"] = round(pt.y, 5), round(pt.x, 5)
+            else:
+                continue
+            out.append((entry, feat))
+    return out
+
+
 def short_hash(b):
     return hashlib.sha1(b).hexdigest()[:10]
 
@@ -556,6 +684,35 @@ def main():
             continue
         out.append(entry)
 
+    # LIPAS: ulkoilualueet ja seudulliset retkeilyalueet; rajat ryhmätiedostoihin (0,5° x 1° ruutu), ladataan pyydettäessä
+    keep_lipas = set()
+    try:
+        existing = {e["nimi"].casefold() for e in out}
+        rows = lipas_entries(existing)
+        chunks = {}
+        for entry, feat in rows:
+            if feat:
+                chunks.setdefault(chunk_key(entry["lat"], entry["lon"]), []).append((entry, feat))
+        OUT_LIPAS.mkdir(parents=True, exist_ok=True)
+        for key, lst in chunks.items():
+            raw = json.dumps({"type": "FeatureCollection", "features": [f for _, f in lst]}, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+            (OUT_LIPAS / (key + ".geojson")).write_bytes(raw)
+            keep_lipas.add(key + ".geojson")
+            for entry, _ in lst:
+                entry["raja"] = "data/ulkoilualueet/%s.geojson?v=%s" % (key, short_hash(raw))
+        out += [e for e, _ in rows if e["lat"] is not None]
+        lahteet.append("Ulkoilu- ja retkeilyalueet: LIPAS, Jyväskylän yliopisto (CC BY 4.0)")
+    except Exception as e:  # noqa: BLE001
+        gh("warning", "LIPASin alueita ei saatu (%r), edelliset säilytetään" % e)
+        keep_prev = [k for k in prev.values() if str(k.get("id", "")).startswith("lipas-")]
+        out += keep_prev
+        keep_lipas = {str(k.get("raja") or "").split("/")[-1].split("?")[0] for k in keep_prev}
+        if keep_prev:
+            lahteet.append("Ulkoilu- ja retkeilyalueet: LIPAS, Jyväskylän yliopisto (CC BY 4.0)")
+    if OUT_LIPAS.exists():
+        for p in OUT_LIPAS.iterdir():
+            if p.is_file() and p.name not in keep_lipas:
+                p.unlink()
     for d, keep in ((OUT_GEO, keep_geo), (OUT_IMG, keep_img)):
         for p in d.iterdir():
             if p.is_file() and p.name not in keep:
@@ -572,8 +729,12 @@ def main():
     if old_cmp != json.dumps({k: v for k, v in result.items() if k != "paivitetty"}, sort_keys=True, ensure_ascii=False):
         OUT_JSON.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     by = {k: sum(1 for e in out if e["tyyppi"] == k) for k in TYPES}
+    core = [e for e in out if not e["id"].startswith("lipas-")]
     gh("notice", "Puistot: %s; ilman linkkiä %s; ilman kuvaa %s; ilman Wikidataa %s" % (
-        by, [e["id"] for e in out if not e["linkki"]], [e["id"] for e in out if not e["kuva"]], [e["id"] for e in out if not e["wikidata"]]))
+        by, [e["id"] for e in core if not e["linkki"]], [e["id"] for e in core if not e["kuva"]], [e["id"] for e in core if not e["wikidata"]]))
+    meiko = [e for e in out if "meiko" in e["nimi"].casefold()]
+    gh("notice", "LIPAS: %d kohdetta, sivu %d, kuvaus %d; esim. %s" % (len(out) - len(core), sum(1 for e in out if e.get("www")), sum(1 for e in out if e.get("kuvaus")),
+       json.dumps(meiko[:2], ensure_ascii=False)[:600]))
     for m in notes[:8]:
         gh("notice", m)
     return 0

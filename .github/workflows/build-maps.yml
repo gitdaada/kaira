@@ -80,7 +80,7 @@ jobs:
           big=$(find docs -type f -size +24M)
           if [ -n "$big" ]; then echo "::error::Liian suuria tiedostoja julkaistavaksi: $big"; exit 1; fi
           # Vain metsäkartat: muu data (kohteet, vesitilanne, jää, perhot) päivittyy omissa ajoissaan.
-          git add -A -- docs/data ':!docs/data/kohteet' ':!docs/data/vesitilanne.json' ':!docs/data/perhot.json' ':!docs/data/jaa.json' ':!docs/data/maastopalo.json' ':!docs/data/puistot.json' ':!docs/data/puistot'
+          git add -A -- docs/data ':!docs/data/kohteet' ':!docs/data/vesitilanne.json' ':!docs/data/perhot.json' ':!docs/data/jaa.json' ':!docs/data/maastopalo.json' ':!docs/data/puistot.json' ':!docs/data/puistot' ':!docs/data/ulkoilualueet'
           if git diff --cached --quiet; then
             echo "Ei muutoksia karttoihin."
             exit 0
