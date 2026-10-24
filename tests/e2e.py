@@ -194,6 +194,30 @@ def berry_fixture(site):
     idx_path.write_text(json.dumps(idx, ensure_ascii=False), encoding="utf-8")
 
 
+
+def parks_fixture(site):
+    """Puistoluettelon testidata: kansallispuisto Kalamajan autiotuvan ympärillä, luonnonpuisto ja retkeilyalue sekä
+    kohteet, joiden linkki ja kuva eivät kelpaa (pois) ja tuntematon tyyppi (pois)."""
+    (site / "data" / "puistot").mkdir(parents=True, exist_ok=True)
+    (site / "img" / "puistot").mkdir(parents=True, exist_ok=True)
+    ring = square(64.2736, 27.3272, 0.05)
+    (site / "data" / "puistot" / "testin-kansallispuisto.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {"nimi": "Testin kansallispuisto", "tyyppi": "alue"}, "geometry": {"type": "Polygon", "coordinates": [ring]}}]}), encoding="utf-8")
+    Image.new("RGB", (720, 540), (60, 110, 70)).save(site / "img" / "puistot" / "testin-kansallispuisto.jpg", "JPEG")
+    kuva = {"src": "img/puistot/testin-kansallispuisto.jpg?v=abc123", "tekija": "Testikuvaaja", "lisenssi": "CC BY-SA 4.0",
+            "lahde": "https://commons.wikimedia.org/wiki/File:Testi.jpg"}
+    data = {"paivitetty": "2026-10-24T00:00:00Z", "lahteet": [], "kohteet": [
+        {"id": "testin-kansallispuisto", "nimi": "Testin kansallispuisto", "tyyppi": "kansallispuisto", "lat": 64.2736, "lon": 27.3272, "ha": 5400,
+         "perustettu": 1982, "kunnat": ["Testikunta"], "bbox": [64.22, 27.22, 64.33, 27.43], "raja": "data/puistot/testin-kansallispuisto.geojson?v=abc123",
+         "linkki": "https://www.luontoon.fi/testi", "kuva": kuva},
+        {"id": "testin-luonnonpuisto", "nimi": "Testin luonnonpuisto", "tyyppi": "luonnonpuisto", "lat": 68.5, "lon": 23.6, "ha": 950, "kunnat": [], "linkki": None, "kuva": None},
+        {"id": "testin-retkeilyalue", "nimi": "Testin retkeilyalue", "tyyppi": "retkeilyalue", "lat": 62.0, "lon": 25.0, "ha": 3100, "kunnat": ["Toinen"]},
+        {"id": "huono", "nimi": "Huono linkki", "tyyppi": "kansallispuisto", "lat": 69.5, "lon": 27.0, "linkki": "javascript:alert(1)",
+         "kuva": {"src": "https://evil.example/x.jpg"}, "raja": "../../etc/passwd"},
+        {"id": "muu", "nimi": "Tuntematon tyyppi", "tyyppi": "muu", "lat": 63.0, "lon": 26.0}]}
+    (site / "data" / "puistot.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+
+
 def check(cond, msg):
     if not cond:
         raise AssertionError(msg)
@@ -210,6 +234,7 @@ def main():
     for rel, data in fixtures().items():
         (site / rel).write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
     berry_fixture(site)
+    parks_fixture(site)
     app_srv = serve(partial(Quiet, directory=str(site)), APP_PORT)
     tile_srv = serve(TileHandler, TILE_PORT)
     errors = []
@@ -476,6 +501,45 @@ def main():
         pg.screenshot(path=str(SHOTS / "06-suunnistus.png"))
         pg.locator("#targetCard .btn", has_text="Lopeta").click()
         check(pg.evaluate("K.target === null"), "suunnistus lopetettu")
+        # Puistot ja retkialueet: Kohteet-paneelin välilehti, etäisyysjärjestys sijainnista, suodatus, haku ja kohteen sivu
+        pg.locator("#navMain").click()
+        pg.wait_for_selector("#sheetBody .seg-tabs")
+        pg.locator("#sheetBody .seg-tabs button", has_text="Puistot").click()
+        pg.wait_for_function("document.querySelectorAll('#sheetBody .park-list .list-row').length >= 3", timeout=10000)
+        rows = pg.evaluate("Array.from(document.querySelectorAll('#sheetBody .park-list .list-row b')).map(function (b) { return b.textContent; })")
+        check(rows == ["Testin kansallispuisto", "Testin retkeilyalue", "Testin luonnonpuisto", "Huono linkki"], "puistot etäisyyden mukaan, tuntematon tyyppi pois (%s)" % rows)
+        bad = pg.evaluate("K.parks.P.data.filter(function (e) { return e.id === 'huono'; })[0]")
+        check(bad["linkki"] is None and bad["kuva"] is None and bad["raja"] is None, "kelpaamaton linkki, kuva ja raja hylätään")
+        pg.locator("#sheetBody .seg-wrap button", has_text="Luonnonpuistot").click()
+        pg.wait_for_function("document.querySelectorAll('#sheetBody .park-list .list-row').length === 1")
+        check(pg.locator("#sheetBody .park-list .list-row b").inner_text() == "Testin luonnonpuisto", "suodatus tyypin mukaan")
+        pg.locator("#sheetBody .seg-wrap button", has_text="Kaikki").click()
+        pg.locator("#sheetBody input[type=search]").fill("testikunta")
+        pg.wait_for_function("document.querySelectorAll('#sheetBody .park-list .list-row').length === 1")
+        check(pg.locator("#sheetBody .park-list .list-row b").inner_text() == "Testin kansallispuisto", "haku nimellä tai kunnalla")
+        pg.screenshot(path=str(SHOTS / "06d-puistot.png"))
+        pg.locator("#sheetBody .park-list .list-row").first.click()
+        pg.wait_for_function("document.getElementById('sheetTitle').innerText === 'Testin kansallispuisto'")
+        body = pg.locator("#sheetBody").inner_text()
+        check("Kansallispuisto · 54 km² · perustettu 1982" in body and "Testikunta" in body and "Testikuvaaja, CC BY-SA 4.0" in body, "kohteen perustiedot ja kuvan tekijä")
+        link = pg.locator("#sheetBody a.btn-primary")
+        check(link.get_attribute("href") == "https://www.luontoon.fi/testi" and link.get_attribute("target") == "_blank" and link.inner_text() == "Avaa luontoon.fi",
+              "linkki Metsähallituksen sivulle")
+        check(pg.evaluate("document.querySelector('#sheetBody .park-fig img').getAttribute('src')") == "img/puistot/testin-kansallispuisto.jpg?v=abc123", "kohteen kuva")
+        pg.locator("#sheetBody button", has_text="Tuvat ja laavut alueella").click()
+        pg.wait_for_function("document.querySelector('#sheetBody .park-inside h3') && document.querySelector('#sheetBody .park-inside h3').innerText.toLowerCase().indexOf('alueella') >= 0", timeout=10000)
+        check("Kalamaja autiotupa" in pg.locator("#sheetBody .park-inside").inner_text(), "alueen tuvat ja laavut rajan sisältä")
+        pg.screenshot(path=str(SHOTS / "06e-puisto.png"))
+        pg.locator("#sheetBody button", has_text="Näytä kartalla").click()
+        pg.wait_for_function("K.parks.P.layer.getLayers().length === 2 && document.getElementById('sheet').hidden", timeout=10000)
+        check("raja kartalla" in pg.locator("#toast").inner_text(), "puiston raja kartalla")
+        pg.wait_for_timeout(1500)  # kartan siirtymäanimaatio loppuun ennen seuraavia testejä
+        pg.locator("#toast button", has_text="Piilota").click()
+        check(pg.evaluate("K.parks.P.layer.getLayers().length") == 0, "rajan piilotus")
+        pg.evaluate("K.parks.openPark(K.parks.P.data.filter(function (e) { return e.id === 'testin-luonnonpuisto'; })[0])")
+        pg.wait_for_function("document.getElementById('sheetTitle').innerText === 'Testin luonnonpuisto'")
+        check("liikkumista on rajoitettu" in pg.locator("#sheetBody").inner_text() and pg.locator("#sheetBody a.btn-primary").count() == 0, "luonnonpuiston huomautus, ei linkkiä ilman osoitetta")
+        pg.locator("#sheetClose").click()
         # Marjat ja sienet: tasot vain eränkäynnissä, piirretyillä alueilla
         pg.evaluate("K.settings.bMustikka = true; K.settings.bHerkku = true; K.saveSettings(); K.map.setView([63.4806, 25.9395], 13, {animate:false})")
         pg.wait_for_function("K.berries.S.dec['era-testi|marjat'] && K.berries.S.dec['era-testi|sienet']", timeout=15000)

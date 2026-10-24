@@ -43,8 +43,8 @@ COMMONS_API = "https://commons.wikimedia.org/w/api.php"
 TYPES = ("kansallispuisto", "luonnonpuisto", "retkeilyalue")
 NAME_COLS = ["Nimi", "NimiSuomi", "LsAlueNimi", "Nimi_fi", "Name", "NIMI"]
 TYPE_COLS = ["TyyppiNimi", "Tyyppi", "LsAlueTyyp", "SuojTyyppi", "TyyppiNim", "Type", "TYYPPI"]
-DATE_COLS = ["PerustPvm", "PerustamisPvm", "Perustettu", "PerustPv", "Voimaantulo", "VoimaanPvm", "PaatosPvm"]
-LICENSE_OK = re.compile(r"^(cc0( 1\.0)?|public domain|pd|cc[ -]by(-sa)?[ -][0-9.]+( [a-z]{2,})?)$", re.I)
+DATE_COLS = ["Voimaantul", "Voimaantulo", "PerustPvm", "PerustamisPvm", "Perustettu", "PaatPvm"]
+LICENSE_OK = re.compile(r"^(cc0( 1\.0)?|public domain|pd|copyrighted free use|attribution|no restrictions|cc[ -]by(-sa)?[ -][0-9.]+( [a-z]{2,})?)$", re.I)
 LINK_OK = re.compile(r"^https://(www\.)?(luontoon\.fi|nationalparks\.fi|metsa\.fi)(/|$)", re.I)
 IMG_W, IMG_H = 720, 540
 KM2, HA = "http://www.wikidata.org/entity/Q712226", "http://www.wikidata.org/entity/Q35852"
@@ -101,6 +101,11 @@ def pick_col(columns, candidates):
         if cand.lower() in low:
             return low[cand.lower()]
     return None
+
+
+def base_name(name: str) -> str:
+    """Nimen tarkenne suluissa pois: saman puiston osat (esim. eri haltija) yhdistyvät."""
+    return re.sub(r"\s*\([^)]*\)\s*$", "", (name or "").strip())
 
 
 def kind_of(type_value: str, name: str):
@@ -229,15 +234,16 @@ def syke_parks():
         if not ncol:
             continue
         for _, r in gdf.iterrows():
-            name = clean(r[ncol])
+            name = base_name(clean(r[ncol]))
             kind = kind_of(clean(r[tcol]) if tcol else "", name)
             if not kind or not name or r.geometry is None or r.geometry.is_empty:
                 continue
             g = groups.setdefault((kind, name), {"geoms": [], "year": None})
             g["geoms"].append(r.geometry.buffer(0))
-            if dcol and not g["year"]:
+            if dcol:
                 m = re.search(r"(18|19|20)\d{2}", clean(r[dcol]))
-                g["year"] = int(m.group(0)) if m else None
+                if m:  # vanhin päätös: puiston perustaminen (laajennukset myöhemmin)
+                    g["year"] = min(int(m.group(0)), g["year"] or 9999)
     return [(k, n, unary_union(g["geoms"]), g["year"]) for (k, n), g in groups.items()]
 
 
@@ -351,6 +357,35 @@ def save_image(pid, info):
     return path
 
 
+def page_ok(url, name):
+    """Sivu vastaa ja on Metsähallituksen sivu, jolla kohteen nimi mainitaan. Palauttaa lopullisen osoitteen."""
+    try:
+        r = S.get(url, timeout=30, allow_redirects=True)
+    except Exception:  # noqa: BLE001
+        return None
+    final = link_ok(r.url)
+    stem = name.split()[0][:5].casefold()
+    if r.status_code == 200 and final and stem in r.text.casefold():
+        return final
+    return None
+
+
+def find_link(name, pid, candidates):
+    """Wikidatan tai OSM:n linkit varmistettuina; muuten luontoon.fi:n kohdesivu nimen perusteella."""
+    for u in candidates:
+        ok = page_ok(u, name)
+        if ok:
+            return ok
+    short = slugify(name.split()[0])
+    guesses = ["https://www.luontoon.fi/fi/kohteet/" + pid, "https://www.luontoon.fi/" + short, "https://www.luontoon.fi/fi/kohteet/" + short]
+    for u in guesses:
+        ok = page_ok(u, name)
+        time.sleep(0.5)
+        if ok:
+            return ok
+    return candidates[0] if candidates else None
+
+
 def short_hash(b):
     return hashlib.sha1(b).hexdigest()[:10]
 
@@ -382,7 +417,13 @@ def main():
     hiking = extra.get("retkeilyalueet", [])
     found = {}
     try:
-        found = osm_areas(names=hiking)
+        osm_all = osm_areas(kinds=["retkeilyalue"])
+        for name in hiking:
+            stem = name.split()[0][:5].casefold()
+            hit = osm_all.get(name) or next((v for k, v in osm_all.items() if k.casefold().startswith(stem)), None)
+            if hit:
+                found[name] = hit
+        gh("notice", "OSM retkeilyalueet: %s" % sorted(osm_all)[:40])
     except Exception as e:  # noqa: BLE001
         gh("warning", "Retkeilyalueiden rajoja ei saatu: %r" % e)
     for name in hiking:
@@ -400,7 +441,10 @@ def main():
             it["wd"] = extra["wikidata"][pid]
         if not it["wd"]:
             try:
-                it["wd"] = choose_entity(it["name"], wd_search(it["name"]))
+                cands = wd_search(it["name"])
+                it["wd"] = choose_entity(it["name"], cands)
+                if not it["wd"] and it["kind"] == "retkeilyalue":
+                    gh("notice", "Wikidata %s: ehdokkaat %s" % (it["name"], [(c.get("id"), c.get("label"), c.get("description")) for c in cands[:5]]))
             except Exception as e:  # noqa: BLE001
                 note("%s: Wikidata-haku epäonnistui (%r)" % (pid, e))
             time.sleep(0.5)
@@ -436,6 +480,8 @@ def main():
                 entry["lat"], entry["lon"] = round(coord["latitude"], 5), round(coord["longitude"], 5)
             ha = wd_area_ha(claims)
             entry["ha"] = round(ha) if ha else None
+            if not coord:
+                note("%s: ei rajaa eikä Wikidatan sijaintia (Wikidata %s)" % (pid, it["wd"]))
         for v in wd_values(claims, "P131")[:4]:
             lab = ((admin.get(v.get("id"), {}).get("labels") or {}).get("fi") or {}).get("value") if isinstance(v, dict) else None
             if lab and lab != "Suomi":
@@ -443,7 +489,7 @@ def main():
         links = [link_ok(u) for u in wd_values(claims, "P856") if isinstance(u, str)] + [link_ok(it["web"] or "")]
         links = [u for u in links if u]
         links.sort(key=lambda u: 0 if "luontoon.fi" in u else 1)
-        entry["linkki"] = link_ok(extra.get("linkit", {}).get(pid, "")) or (links[0] if links else None)
+        entry["linkki"] = link_ok(extra.get("linkit", {}).get(pid, "")) or find_link(it["name"], pid, links)
         # Kuva: sama Commons-tiedosto käytetään uudelleen, jos se on jo tallessa
         fname = next((v for v in wd_values(claims, "P18") if isinstance(v, str)), None)
         old = (prev.get(pid) or {}).get("kuva") or {}
