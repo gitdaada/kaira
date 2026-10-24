@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-22T17:55:53Z",
+ "generated": "2026-10-24T17:49:44Z",
  "encoding": 2,
  "mvmiYear": 2023,
  "attribution": [
@@ -40,15 +40,15 @@
      "sumR": 176035469,
      "sumG": 141290004
     },
-    "file": "data/ita-suomussalmi-osa1/forest.png?v=40b332b799bb"
+    "file": "data/ita-suomussalmi-osa1/forest.png?v=392a9a9c259a"
    },
    "protectedCount": 12,
    "built": "2026-10-22T16:50:39Z",
-   "version": "40b332b799bb",
-   "bytes": 20162697,
-   "boundary": "data/ita-suomussalmi-osa1/boundary.geojson?v=40b332b799bb",
-   "protected": "data/ita-suomussalmi-osa1/protected.geojson?v=40b332b799bb",
-   "habitat": "data/ita-suomussalmi-osa1/habitat.png?v=40b332b799bb",
+   "version": "392a9a9c259a",
+   "bytes": 20166947,
+   "boundary": "data/ita-suomussalmi-osa1/boundary.geojson?v=392a9a9c259a",
+   "protected": "data/ita-suomussalmi-osa1/protected.geojson?v=392a9a9c259a",
+   "habitat": "data/ita-suomussalmi-osa1/habitat.png?v=392a9a9c259a",
    "habitatHa": {
     "metso": [
      9176,
@@ -63,8 +63,8 @@
      128
     ]
    },
-   "marjat": "data/ita-suomussalmi-osa1/marjat.png?v=40b332b799bb",
-   "sienet": "data/ita-suomussalmi-osa1/sienet.png?v=40b332b799bb",
+   "marjat": "data/ita-suomussalmi-osa1/marjat.png?v=392a9a9c259a",
+   "sienet": "data/ita-suomussalmi-osa1/sienet.png?v=392a9a9c259a",
    "marjatHa": {
     "mustikka": [
      7899,
@@ -87,14 +87,15 @@
      16612
     ]
    },
-   "cuts": "data/ita-suomussalmi-osa1/cuts.geojson?v=40b332b799bb",
+   "cuts": "data/ita-suomussalmi-osa1/cuts.geojson?v=392a9a9c259a",
    "cutsCount": 168,
-   "declCount": 629,
+   "declCount": 637,
    "chmYears": [
     2024
    ],
    "srcHash": "45cfc5ad3036",
-   "source": "areas/metsastys/ita-suomussalmi-osa1.geojson"
+   "source": "areas/metsastys/ita-suomussalmi-osa1.geojson",
+   "cutsUpdated": "2026-10-24T17:31:59Z"
   },
   {
    "id": "ita-suomussalmi-osa2",
@@ -128,15 +129,15 @@
      "sumR": 283246023,
      "sumG": 235698069
     },
-    "file": "data/ita-suomussalmi-osa2/forest.png?v=13c75528a548"
+    "file": "data/ita-suomussalmi-osa2/forest.png?v=269ef257ccfd"
    },
    "protectedCount": 24,
    "built": "2026-10-22T17:44:44Z",
-   "version": "13c75528a548",
-   "bytes": 32678316,
-   "boundary": "data/ita-suomussalmi-osa2/boundary.geojson?v=13c75528a548",
-   "protected": "data/ita-suomussalmi-osa2/protected.geojson?v=13c75528a548",
-   "habitat": "data/ita-suomussalmi-osa2/habitat.png?v=13c75528a548",
+   "version": "269ef257ccfd",
+   "bytes": 32679820,
+   "boundary": "data/ita-suomussalmi-osa2/boundary.geojson?v=269ef257ccfd",
+   "protected": "data/ita-suomussalmi-osa2/protected.geojson?v=269ef257ccfd",
+   "habitat": "data/ita-suomussalmi-osa2/habitat.png?v=269ef257ccfd",
    "habitatHa": {
     "metso": [
      19037,
@@ -151,8 +152,8 @@
      25
     ]
    },
-   "marjat": "data/ita-suomussalmi-osa2/marjat.png?v=13c75528a548",
-   "sienet": "data/ita-suomussalmi-osa2/sienet.png?v=13c75528a548",
+   "marjat": "data/ita-suomussalmi-osa2/marjat.png?v=269ef257ccfd",
+   "sienet": "data/ita-suomussalmi-osa2/sienet.png?v=269ef257ccfd",
    "marjatHa": {
     "mustikka": [
      11939,
@@ -175,14 +176,15 @@
      23160
     ]
    },
-   "cuts": "data/ita-suomussalmi-osa2/cuts.geojson?v=13c75528a548",
+   "cuts": "data/ita-suomussalmi-osa2/cuts.geojson?v=269ef257ccfd",
    "cutsCount": 87,
-   "declCount": 1256,
+   "declCount": 1259,
    "chmYears": [
     2024
    ],
    "srcHash": "78d23097d3cd",
-   "source": "areas/metsastys/ita-suomussalmi-osa2.geojson"
+   "source": "areas/metsastys/ita-suomussalmi-osa2.geojson",
+   "cutsUpdated": "2026-10-24T17:40:03Z"
   },
   {
    "id": "jahti",
@@ -653,15 +655,15 @@
      "sumR": 303859713,
      "sumG": 254238398
     },
-    "file": "data/lansi-suomussalmi/forest.png?v=f98be43dd0f8"
+    "file": "data/lansi-suomussalmi/forest.png?v=0be53967f910"
    },
    "protectedCount": 34,
    "built": "2026-10-22T08:12:04Z",
-   "version": "f98be43dd0f8",
-   "bytes": 35588113,
-   "boundary": "data/lansi-suomussalmi/boundary.geojson?v=f98be43dd0f8",
-   "protected": "data/lansi-suomussalmi/protected.geojson?v=f98be43dd0f8",
-   "habitat": "data/lansi-suomussalmi/habitat.png?v=f98be43dd0f8",
+   "version": "0be53967f910",
+   "bytes": 35596869,
+   "boundary": "data/lansi-suomussalmi/boundary.geojson?v=0be53967f910",
+   "protected": "data/lansi-suomussalmi/protected.geojson?v=0be53967f910",
+   "habitat": "data/lansi-suomussalmi/habitat.png?v=0be53967f910",
    "habitatHa": {
     "metso": [
      14296,
@@ -676,8 +678,8 @@
      307
     ]
    },
-   "marjat": "data/lansi-suomussalmi/marjat.png?v=f98be43dd0f8",
-   "sienet": "data/lansi-suomussalmi/sienet.png?v=f98be43dd0f8",
+   "marjat": "data/lansi-suomussalmi/marjat.png?v=0be53967f910",
+   "sienet": "data/lansi-suomussalmi/sienet.png?v=0be53967f910",
    "marjatHa": {
     "mustikka": [
      14864,
@@ -700,15 +702,15 @@
      34946
     ]
    },
-   "cuts": "data/lansi-suomussalmi/cuts.geojson?v=f98be43dd0f8",
+   "cuts": "data/lansi-suomussalmi/cuts.geojson?v=0be53967f910",
    "cutsCount": 73,
-   "declCount": 1632,
+   "declCount": 1653,
    "chmYears": [
     2024
    ],
    "srcHash": "0c7948a9df42",
    "source": "areas/metsastys/länsi-suomussalmi.json",
-   "cutsUpdated": "2026-10-22T17:26:17Z"
+   "cutsUpdated": "2026-10-24T17:49:17Z"
   },
   {
    "id": "era-marjatesti",
