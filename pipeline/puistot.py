@@ -170,6 +170,31 @@ def org_fi(v):
     return None
 
 
+def dist_km(lat1, lon1, lat2, lon2):
+    import math
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    a = math.sin((p2 - p1) / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(math.radians(lon2 - lon1) / 2) ** 2
+    return 12742 * math.asin(math.sqrt(a))
+
+
+def dedupe(rows):
+    """Sama alue kahdesti (eri omistajan kirjaamana): sijainti alle 300 m ja pinta-ala 20 %:n sisällä.
+    Jää se, jossa on eniten tietoa (sivu, kuvaus, ylläpitäjä), tasatilanteessa lyhyempi nimi."""
+    def score(e):
+        return (bool(e.get("www")), bool(e.get("kuvaus")), bool(e.get("yllapitaja")), -len(e["nimi"]))
+    keep = []
+    for entry, feat in sorted(rows, key=lambda r: score(r[0]), reverse=True):
+        dup = False
+        for k, _ in keep:
+            a, b = k.get("ha") or 0, entry.get("ha") or 0
+            if dist_km(k["lat"], k["lon"], entry["lat"], entry["lon"]) < 0.3 and abs(a - b) <= 0.2 * max(a, b, 1):
+                dup = True
+                break
+        if not dup:
+            keep.append((entry, feat))
+    return keep
+
+
 def chunk_key(lat, lon):
     """Rajojen ryhmätiedosto: 0,5° x 1° ruutu (esim. c-600-24)."""
     import math
@@ -562,7 +587,7 @@ def lipas_entries(existing):
             else:
                 continue
             out.append((entry, feat))
-    return out
+    return dedupe(out)
 
 
 def short_hash(b):

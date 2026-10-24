@@ -54,4 +54,8 @@ assert not p.JUNK.search("Meiko") and not p.JUNK.search("Porkkalanniemen virkist
 assert p.www_ok("www.kirkkonummi.fi/meiko") == "https://www.kirkkonummi.fi/meiko" and p.www_ok("javascript:alert(1)") is None
 assert p.org_fi("city-technical-services") == "kunta" and p.org_fi("private-foundation") == "säätiö" and p.org_fi("unknown") is None
 assert p.chunk_key(60.12, 24.44) == "c-600-24" and p.chunk_key(60.6, 24.9) == "c-605-24"
+rows = [({"nimi": "Palakoski - Uudenmaan virkistysalueyhdistys", "lat": 60.30, "lon": 24.30, "ha": 80, "www": None, "kuvaus": None, "yllapitaja": "yhdistys"}, None),
+        ({"nimi": "Palakosken virkistysalue", "lat": 60.301, "lon": 24.301, "ha": 82, "www": "https://x.fi/", "kuvaus": None, "yllapitaja": "kunta"}, None),
+        ({"nimi": "Toinen", "lat": 60.30, "lon": 24.31, "ha": 400, "www": None, "kuvaus": None, "yllapitaja": None}, None)]
+assert sorted(e["nimi"] for e, _ in p.dedupe(rows)) == ["Palakosken virkistysalue", "Toinen"], "sama alue kahdesti: tietorikkaampi jää"
 print("puistot läpi")
