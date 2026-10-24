@@ -38,6 +38,7 @@ def iso(t):
 
 def main():
     # Ensin: GitHub näyttää enintään 10 merkintää tyyppiä kohden askeleessa.
+    mml_tiles()
     rapids_sources()
     now = dt.datetime.now(dt.timezone.utc)
     # Salamat: rakenne ensimmäisestä havainnosta (haetaan taaksepäin, kunnes löytyy)
@@ -99,6 +100,36 @@ def main():
     except Exception as e:  # noqa: BLE001
         gh("warning", "Vesistökäyrät: %r" % e)
     return 0
+
+
+def mml_tiles():
+    """Maanmittauslaitoksen karttatiilet avaimella (Actions-salaisuus): tila, viive ja koko. Osoitetta ei tulosteta."""
+    import math
+    key = os.environ.get("MML_API_KEY", "").strip()
+    lat, lon = 60.12, 24.44  # Kirkkonummi
+    rows = []
+    for layer, ext in (("maastokartta", "png"), ("taustakartta", "png")):
+        for z in (13, 15, 16):
+            n = 2 ** z
+            x = int((lon + 180) / 360 * n)
+            y = int((1 - math.asinh(math.tan(math.radians(lat))) / math.pi) / 2 * n)
+            for k in ([key] if key else []) + [""]:
+                url = "https://avoin-karttakuva.maanmittauslaitos.fi/avoin/wmts/1.0.0/%s/default/WGS84_Pseudo-Mercator/%d/%d/%d.%s" % (layer, z, y, x, ext)
+                if k:
+                    url += "?" + urllib.parse.urlencode({"api-key": k})
+                t0 = time.time()
+                try:
+                    req = urllib.request.Request(url, headers={"User-Agent": V.UA})
+                    with urllib.request.urlopen(req, timeout=30) as r:
+                        body = r.read()
+                        st, ct, hd = r.status, r.headers.get("Content-Type"), {h: r.headers.get(h) for h in ("Retry-After", "X-RateLimit-Remaining") if r.headers.get(h)}
+                except urllib.error.HTTPError as e:
+                    body, st, ct, hd = e.read()[:200], e.code, e.headers.get("Content-Type"), {h: e.headers.get(h) for h in ("Retry-After", "X-RateLimit-Remaining") if e.headers.get(h)}
+                except Exception as e:  # noqa: BLE001
+                    body, st, ct, hd = b"", type(e).__name__, "", {}
+                rows.append("%s z%d %s: %s %s %d t %d ms%s%s" % (layer, z, "avain" if k else "ilman", st, ct, len(body), (time.time() - t0) * 1000,
+                                                                 " " + json.dumps(hd) if hd else "", (" " + body[:120].decode("utf-8", "replace")) if st != 200 else ""))
+    gh("notice", "MML-tiilet (avain %s): %s" % ("asetettu" if key else "puuttuu", " | ".join(rows)))
 
 
 MML_OGC = "https://avoin-paikkatieto.maanmittauslaitos.fi/maastotiedot/features/v1/"
