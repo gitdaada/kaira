@@ -109,7 +109,7 @@ def mml_tiles():
     lat, lon = 60.12, 24.44  # Kirkkonummi
     rows = []
     for layer, ext in (("maastokartta", "png"), ("taustakartta", "png")):
-        for z in (13, 15, 16):
+        for z in (15,):
             n = 2 ** z
             x = int((lon + 180) / 360 * n)
             y = int((1 - math.asinh(math.tan(math.radians(lat))) / math.pi) / 2 * n)
@@ -129,6 +129,27 @@ def mml_tiles():
                     body, st, ct, hd = b"", type(e).__name__, "", {}
                 rows.append("%s z%d %s: %s %s %d t %d ms%s%s" % (layer, z, "avain" if k else "ilman", st, ct, len(body), (time.time() - t0) * 1000,
                                                                  " " + json.dumps(hd) if hd else "", (" " + body[:120].decode("utf-8", "replace")) if st != 200 else ""))
+    # Vertailu: yhteys palvelimeen (DNS ja TCP) sekä MML:n toinen rajapinta (maastotiedot) samalla avaimella
+    import socket
+    for host in ("avoin-karttakuva.maanmittauslaitos.fi", "avoin-paikkatieto.maanmittauslaitos.fi"):
+        t0 = time.time()
+        try:
+            ip = socket.gethostbyname(host)
+            sck = socket.create_connection((host, 443), timeout=15)
+            sck.close()
+            rows.append("%s: DNS %s, TCP ok %d ms" % (host, ip, (time.time() - t0) * 1000))
+        except Exception as e:  # noqa: BLE001
+            rows.append("%s: %s %d ms" % (host, type(e).__name__, (time.time() - t0) * 1000))
+    if key:
+        t0 = time.time()
+        try:
+            url = MML_OGC + "collections?" + urllib.parse.urlencode({"api-key": key, "f": "json"})
+            with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": V.UA}), timeout=30) as r:
+                rows.append("maastotiedot collections: %s %d t %d ms" % (r.status, len(r.read()), (time.time() - t0) * 1000))
+        except urllib.error.HTTPError as e:
+            rows.append("maastotiedot collections: HTTP %s %d ms" % (e.code, (time.time() - t0) * 1000))
+        except Exception as e:  # noqa: BLE001
+            rows.append("maastotiedot collections: %s %d ms" % (type(e).__name__, (time.time() - t0) * 1000))
     gh("notice", "MML-tiilet (avain %s): %s" % ("asetettu" if key else "puuttuu", " | ".join(rows)))
 
 
