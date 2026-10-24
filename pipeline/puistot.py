@@ -46,6 +46,7 @@ TYPES = ("kansallispuisto", "luonnonpuisto", "retkeilyalue", "seuturetkeily", "u
 LIPAS = "https://api.lipas.fi/v2/sports-sites"
 LIPAS_TYPES = {109: "retkeilyalue", 104: "seuturetkeily", 103: "ulkoilualue"}
 SPARQL = "https://query.wikidata.org/sparql"
+JUNK = re.compile(r"testi|\btest|\bv\d+$", re.I)
 WWW_OK = re.compile(r"^https?://[a-z0-9-]+(\.[a-z0-9-]+)+(:\d{2,5})?(/[^\s\"'<>]*)?$", re.I)
 NAME_COLS = ["Nimi", "NimiSuomi", "LsAlueNimi", "Nimi_fi", "Name", "NIMI"]
 TYPE_COLS = ["TyyppiNimi", "Tyyppi", "LsAlueTyyp", "SuojTyyppi", "TyyppiNim", "Type", "TYYPPI"]
@@ -524,8 +525,8 @@ def lipas_entries(existing):
         for st in sites:
             lid = st.get("lipas-id")
             name = clean(st.get("marketing-name") or st.get("name"))
-            if not isinstance(lid, int) or not name or lid in seen:
-                continue
+            if not isinstance(lid, int) or not name or lid in seen or JUNK.search(name):
+                continue  # myös tietokannan testi- ja luonnoskohteet pois
             nm = name.casefold()
             stem = nm.split()[0][:5]
             if nm in existing or (kind == "retkeilyalue" and any(e.startswith(stem) and "retkeily" in e for e in existing)):

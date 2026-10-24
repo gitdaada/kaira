@@ -49,4 +49,9 @@ fc, info = p.boundary_feature("Testipuisto", "kansallispuisto", Polygon(ring))
 assert fc["features"][0]["geometry"]["type"] == "Polygon" and fc["features"][0]["properties"]["tyyppi"] == "alue"
 assert 2500 < info["ha"] < 3000 and 62.0 < info["lat"] < 62.05 and 25.0 < info["lon"] < 25.1
 assert info["bbox"][0] <= info["lat"] <= info["bbox"][2]
+assert p.JUNK.search("kuhankuono v3") and p.JUNK.search("UTP-testikohde Vidskars") and p.JUNK.search("Testialue")
+assert not p.JUNK.search("Meiko") and not p.JUNK.search("Porkkalanniemen virkistys- ja luonnonsuojelualue")
+assert p.www_ok("www.kirkkonummi.fi/meiko") == "https://www.kirkkonummi.fi/meiko" and p.www_ok("javascript:alert(1)") is None
+assert p.org_fi("city-technical-services") == "kunta" and p.org_fi("private-foundation") == "säätiö" and p.org_fi("unknown") is None
+assert p.chunk_key(60.12, 24.44) == "c-600-24" and p.chunk_key(60.6, 24.9) == "c-605-24"
 print("puistot läpi")
