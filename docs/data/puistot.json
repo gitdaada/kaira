@@ -1,8 +1,7 @@
 {
- "paivitetty": "2026-10-24T17:22:27Z",
+ "paivitetty": "2026-10-24T17:34:28Z",
  "lahteet": [
   "Kansallis- ja luonnonpuistojen rajat: Syke, valtion luonnonsuojelualueet (CC BY 4.0)",
-  "Retkeilyalueiden rajat: © OpenStreetMapin tekijät (ODbL)",
   "Perustiedot ja linkit: Wikidata (CC0)",
   "Kuvat: Wikimedia Commons, tekijät ja lisenssit kohteittain"
  ],
@@ -23,9 +22,9 @@
     62.52911,
     26.40573,
     62.66752,
-    26.78884
+    26.78885
    ],
-   "raja": "data/puistot/etela-konneveden-kansallispuisto.geojson?v=45b7549722",
+   "raja": "data/puistot/etela-konneveden-kansallispuisto.geojson?v=a73f641a72",
    "linkki": "https://www.luontoon.fi/fi/kohteet/etela-konneveden-kansallispuisto",
    "kuva": {
     "src": "img/puistot/etela-konneveden-kansallispuisto.jpg?v=98c8626042",
@@ -53,7 +52,7 @@
     62.08302,
     23.97307
    ],
-   "raja": "data/puistot/helvetinjarven-kansallispuisto.geojson?v=4eef2a53d9",
+   "raja": "data/puistot/helvetinjarven-kansallispuisto.geojson?v=99917b4780",
    "linkki": "https://www.luontoon.fi/fi/kohteet/helvetinjarven-kansallispuisto",
    "kuva": {
     "src": "img/puistot/helvetinjarven-kansallispuisto.jpg?v=1d8300aac5",
@@ -79,9 +78,9 @@
     63.84267,
     28.96819,
     63.91502,
-    29.14276
+    29.14275
    ],
-   "raja": "data/puistot/hiidenportin-kansallispuisto.geojson?v=d18679431b",
+   "raja": "data/puistot/hiidenportin-kansallispuisto.geojson?v=d266889331",
    "linkki": "https://www.luontoon.fi/fi/kohteet/hiidenportin-kansallispuisto",
    "kuva": {
     "src": "img/puistot/hiidenportin-kansallispuisto.jpg?v=7dd4afea95",
@@ -107,11 +106,11 @@
    "lon": 29.35051,
    "bbox": [
     65.4028,
-    29.12247,
+    29.12248,
     65.57766,
     29.51214
    ],
-   "raja": "data/puistot/hossan-kansallispuisto.geojson?v=c417a7d2fb",
+   "raja": "data/puistot/hossan-kansallispuisto.geojson?v=a846379eb8",
    "linkki": "https://www.luontoon.fi/fi/kohteet/hossan-kansallispuisto",
    "kuva": {
     "src": "img/puistot/hossan-kansallispuisto.jpg?v=0dc9414ec5",
@@ -139,7 +138,7 @@
     61.74027,
     25.08888
    ],
-   "raja": "data/puistot/isojarven-kansallispuisto.geojson?v=abe0585370",
+   "raja": "data/puistot/isojarven-kansallispuisto.geojson?v=cc0c05a5b8",
    "linkki": "https://www.luontoon.fi/fi/kohteet/isojarven-kansallispuisto",
    "kuva": {
     "src": "img/puistot/isojarven-kansallispuisto.jpg?v=8a864a73d3",
@@ -162,12 +161,12 @@
    "lat": 60.2798,
    "lon": 27.30578,
    "bbox": [
-    60.21238,
+    60.21234,
     26.24962,
-    60.4506,
-    27.71315
+    60.45068,
+    27.71322
    ],
-   "raja": "data/puistot/itaisen-suomenlahden-kansallispuisto.geojson?v=c78515abba",
+   "raja": "data/puistot/itaisen-suomenlahden-kansallispuisto.geojson?v=5ca02c4acf",
    "linkki": "https://www.luontoon.fi/fi/kohteet/itaisen-suomenlahden-kansallispuisto",
    "kuva": {
     "src": "img/puistot/itaisen-suomenlahden-kansallispuisto.jpg?v=9065b9de97",
@@ -192,11 +191,11 @@
    "lon": 22.40365,
    "bbox": [
     62.09999,
-    22.26464,
+    22.26438,
     62.27598,
-    22.52151
+    22.5215
    ],
-   "raja": "data/puistot/kauhanevan-pohjankankaan-kansallispuisto.geojson?v=fef5535e35",
+   "raja": "data/puistot/kauhanevan-pohjankankaan-kansallispuisto.geojson?v=fd0a94ebb6",
    "linkki": "https://www.luontoon.fi/fi/kohteet/kauhanevan-pohjankankaan-kansallispuisto",
    "kuva": {
     "src": "img/puistot/kauhanevan-pohjankankaan-kansallispuisto.jpg?v=7a9527e218",
@@ -224,7 +223,7 @@
     63.15542,
     30.01749
    ],
-   "raja": "data/puistot/kolin-kansallispuisto.geojson?v=5af32bbbcc",
+   "raja": "data/puistot/kolin-kansallispuisto.geojson?v=21496a3f1e",
    "linkki": "https://www.luontoon.fi/fi/kohteet/kolin-kansallispuisto",
    "kuva": {
     "src": "img/puistot/kolin-kansallispuisto.jpg?v=f264835f4d",
@@ -249,11 +248,11 @@
    "lon": 28.82692,
    "bbox": [
     62.17746,
-    28.66628,
+    28.66619,
     62.32593,
-    28.97003
+    28.96969
    ],
-   "raja": "data/puistot/koloveden-kansallispuisto.geojson?v=6cd3c006c4",
+   "raja": "data/puistot/koloveden-kansallispuisto.geojson?v=cf2a6cf687",
    "linkki": "https://www.luontoon.fi/fi/kohteet/koloveden-kansallispuisto",
    "kuva": {
     "src": "img/puistot/koloveden-kansallispuisto.jpg?v=2efb404015",
@@ -282,9 +281,9 @@
     60.67673,
     22.27841,
     60.7667,
-    22.48569
+    22.48554
    ],
-   "raja": "data/puistot/kurjenrahkan-kansallispuisto.geojson?v=17b9355db9",
+   "raja": "data/puistot/kurjenrahkan-kansallispuisto.geojson?v=0e3c5a4b69",
    "linkki": "https://www.luontoon.fi/fi/kohteet/kurjenrahkan-kansallispuisto",
    "kuva": {
     "src": "img/puistot/kurjenrahkan-kansallispuisto.jpg?v=2f976f4d59",
@@ -312,7 +311,7 @@
     62.22349,
     22.28226
    ],
-   "raja": "data/puistot/lauhanvuoren-kansallispuisto.geojson?v=03e5a72a7b",
+   "raja": "data/puistot/lauhanvuoren-kansallispuisto.geojson?v=b6c1473288",
    "linkki": "https://www.luontoon.fi/fi/kohteet/lauhanvuoren-kansallispuisto",
    "kuva": {
     "src": "img/puistot/lauhanvuoren-kansallispuisto.jpg?v=b2abf3a072",
@@ -339,9 +338,9 @@
     61.85408,
     25.95591,
     61.99522,
-    26.0951
+    26.09511
    ],
-   "raja": "data/puistot/leivonmaen-kansallispuisto.geojson?v=f65df120ef",
+   "raja": "data/puistot/leivonmaen-kansallispuisto.geojson?v=840f7d60f7",
    "linkki": "https://www.luontoon.fi/fi/kohteet/leivonmaen-kansallispuisto",
    "kuva": {
     "src": "img/puistot/leivonmaen-kansallispuisto.jpg?v=60f0f57842",
@@ -367,10 +366,10 @@
    "bbox": [
     68.25681,
     24.90317,
-    68.93934,
+    68.93935,
     26.43219
    ],
-   "raja": "data/puistot/lemmenjoen-kansallispuisto.geojson?v=6fd7351b71",
+   "raja": "data/puistot/lemmenjoen-kansallispuisto.geojson?v=2f56225d30",
    "linkki": "https://www.luontoon.fi/fi/kohteet/lemmenjoen-kansallispuisto",
    "kuva": {
     "src": "img/puistot/lemmenjoen-kansallispuisto.jpg?v=5bd6ae5867",
@@ -396,9 +395,9 @@
     60.6238,
     23.79909,
     60.71861,
-    24.06291
+    24.06284
    ],
-   "raja": "data/puistot/liesjarven-kansallispuisto.geojson?v=45e3066c3f",
+   "raja": "data/puistot/liesjarven-kansallispuisto.geojson?v=5dd85519d3",
    "linkki": "https://www.luontoon.fi/fi/kohteet/liesjarven-kansallispuisto",
    "kuva": {
     "src": "img/puistot/liesjarven-kansallispuisto.jpg?v=140be436fb",
@@ -424,11 +423,11 @@
    "lon": 28.58371,
    "bbox": [
     61.97909,
-    28.13086,
-    62.25364,
-    28.71562
+    28.13093,
+    62.25369,
+    28.71565
    ],
-   "raja": "data/puistot/linnansaaren-kansallispuisto.geojson?v=ef3a796827",
+   "raja": "data/puistot/linnansaaren-kansallispuisto.geojson?v=5e6da16eb0",
    "linkki": "https://www.luontoon.fi/fi/kohteet/linnansaaren-kansallispuisto",
    "kuva": {
     "src": "img/puistot/linnansaaren-kansallispuisto.jpg?v=3a3556a293",
@@ -453,10 +452,10 @@
    "bbox": [
     60.24388,
     24.41769,
-    60.37483,
+    60.37482,
     24.70466
    ],
-   "raja": "data/puistot/nuuksion-kansallispuisto.geojson?v=0a018e46a8",
+   "raja": "data/puistot/nuuksion-kansallispuisto.geojson?v=68a9057273",
    "linkki": "https://www.luontoon.fi/fi/kohteet/nuuksion-kansallispuisto",
    "kuva": {
     "src": "img/puistot/nuuksion-kansallispuisto.jpg?v=2d0af1cf80",
@@ -478,11 +477,11 @@
    "lon": 29.48431,
    "bbox": [
     66.25205,
-    29.04066,
-    66.51206,
+    29.04067,
+    66.51213,
     29.66074
    ],
-   "raja": "data/puistot/oulangan-kansallispuisto.geojson?v=a88cd50f2c",
+   "raja": "data/puistot/oulangan-kansallispuisto.geojson?v=9005f765f1",
    "linkki": "https://www.luontoon.fi/fi/kohteet/oulangan-kansallispuisto",
    "kuva": {
     "src": "img/puistot/oulangan-kansallispuisto.jpg?v=621ef43f1e",
@@ -508,9 +507,9 @@
     67.54037,
     23.61921,
     68.36855,
-    24.57231
+    24.57239
    ],
-   "raja": "data/puistot/pallas-yllastunturin-kansallispuisto.geojson?v=42a9555cac",
+   "raja": "data/puistot/pallas-yllastunturin-kansallispuisto.geojson?v=0a5dcd6f7f",
    "linkki": "https://www.luontoon.fi/fi/kohteet/pallas-yllastunturin-kansallispuisto",
    "kuva": {
     "src": "img/puistot/pallas-yllastunturin-kansallispuisto.jpg?v=e41843fbd6",
@@ -538,7 +537,7 @@
     63.17428,
     30.82211
    ],
-   "raja": "data/puistot/patvinsuon-kansallispuisto.geojson?v=a83d599ce3",
+   "raja": "data/puistot/patvinsuon-kansallispuisto.geojson?v=239da3134f",
    "linkki": "https://www.luontoon.fi/fi/kohteet/patvinsuon-kansallispuisto",
    "kuva": {
     "src": "img/puistot/patvinsuon-kansallispuisto.jpg?v=407c9dfc94",
@@ -566,7 +565,7 @@
     65.71407,
     24.44835
    ],
-   "raja": "data/puistot/perameren-kansallispuisto.geojson?v=fe5fe6baf2",
+   "raja": "data/puistot/perameren-kansallispuisto.geojson?v=96bceb2ca5",
    "linkki": "https://www.luontoon.fi/fi/kohteet/perameren-kansallispuisto",
    "kuva": {
     "src": "img/puistot/perameren-kansallispuisto.jpg?v=a979abd7c5",
@@ -587,12 +586,12 @@
    "lat": 62.58576,
    "lon": 31.17411,
    "bbox": [
-    62.56461,
-    31.15044,
+    62.56462,
+    31.15045,
     62.60611,
     31.20557
    ],
-   "raja": "data/puistot/petkeljarven-kansallispuisto.geojson?v=5e67537fac",
+   "raja": "data/puistot/petkeljarven-kansallispuisto.geojson?v=b56699c9c3",
    "linkki": "https://www.luontoon.fi/fi/kohteet/petkeljarven-kansallispuisto",
    "kuva": {
     "src": "img/puistot/petkeljarven-kansallispuisto.jpg?v=aeaae70945",
@@ -616,9 +615,9 @@
     61.19588,
     22.49119,
     61.29686,
-    22.65506
+    22.65511
    ],
-   "raja": "data/puistot/puurijarven-ja-isonsuon-kansallispuisto.geojson?v=123ccf00cf",
+   "raja": "data/puistot/puurijarven-ja-isonsuon-kansallispuisto.geojson?v=f85439f3ab",
    "linkki": "https://www.luontoon.fi/fi/puurijarven",
    "kuva": {
     "src": "img/puistot/puurijarven-ja-isonsuon-kansallispuisto.jpg?v=5da7f4683c",
@@ -646,7 +645,7 @@
     62.86765,
     25.50769
    ],
-   "raja": "data/puistot/pyha-hakin-kansallispuisto.geojson?v=64382f17c4",
+   "raja": "data/puistot/pyha-hakin-kansallispuisto.geojson?v=14b5dc5313",
    "linkki": "https://www.luontoon.fi/fi/kohteet/pyha-hakin-kansallispuisto",
    "kuva": {
     "src": "img/puistot/pyha-hakin-kansallispuisto.jpg?v=0e217e9567",
@@ -674,7 +673,7 @@
     67.2298,
     27.25428
    ],
-   "raja": "data/puistot/pyha-luoston-kansallispuisto.geojson?v=2d6b19a01b",
+   "raja": "data/puistot/pyha-luoston-kansallispuisto.geojson?v=4ffa85d9a2",
    "linkki": "https://www.luontoon.fi/fi/kohteet/pyha-luoston-kansallispuisto",
    "kuva": {
     "src": "img/puistot/pyha-luoston-kansallispuisto.jpg?v=6155fd3492",
@@ -699,12 +698,12 @@
    "lat": 61.39703,
    "lon": 25.41705,
    "bbox": [
-    61.27447,
-    25.18446,
+    61.27455,
+    25.18448,
     61.49589,
-    25.5701
+    25.57009
    ],
-   "raja": "data/puistot/paijanteen-kansallispuisto.geojson?v=dbf56cdb35",
+   "raja": "data/puistot/paijanteen-kansallispuisto.geojson?v=94e08eda88",
    "linkki": "https://www.luontoon.fi/fi/kohteet/paijanteen-kansallispuisto",
    "kuva": {
     "src": "img/puistot/paijanteen-kansallispuisto.jpg?v=8cef058d59",
@@ -727,12 +726,12 @@
    "lat": 61.18735,
    "lon": 26.8977,
    "bbox": [
-    61.15836,
-    26.82653,
+    61.15835,
+    26.82654,
     61.21638,
-    26.95661
+    26.9566
    ],
-   "raja": "data/puistot/repoveden-kansallispuisto.geojson?v=6357aeb81b",
+   "raja": "data/puistot/repoveden-kansallispuisto.geojson?v=c2e2d69cc0",
    "linkki": "https://www.luontoon.fi/fi/kohteet/repoveden-kansallispuisto",
    "kuva": {
     "src": "img/puistot/repoveden-kansallispuisto.jpg?v=29f556c7d8",
@@ -756,11 +755,11 @@
    "lon": 28.51151,
    "bbox": [
     66.19131,
-    28.30181,
-    66.26573,
+    28.30158,
+    66.26603,
     28.64897
    ],
-   "raja": "data/puistot/riisitunturin-kansallispuisto.geojson?v=0d5376713a",
+   "raja": "data/puistot/riisitunturin-kansallispuisto.geojson?v=48bdd38b19",
    "linkki": "https://www.luontoon.fi/fi/kohteet/riisitunturin-kansallispuisto",
    "kuva": {
     "src": "img/puistot/riisitunturin-kansallispuisto.jpg?v=2ec1946adb",
@@ -790,7 +789,7 @@
     64.61899,
     26.55899
    ],
-   "raja": "data/puistot/rokuan-kansallispuisto.geojson?v=1496167e02",
+   "raja": "data/puistot/rokuan-kansallispuisto.geojson?v=7d9375ae3d",
    "linkki": "https://www.luontoon.fi/fi/kohteet/rokuan-kansallispuisto",
    "kuva": {
     "src": "img/puistot/rokuan-kansallispuisto.jpg?v=cf48449acc",
@@ -819,7 +818,7 @@
     60.17879,
     22.77431
    ],
-   "raja": "data/puistot/saaristomeren-kansallispuisto.geojson?v=c26688c38a",
+   "raja": "data/puistot/saaristomeren-kansallispuisto.geojson?v=2ea108bbf3",
    "linkki": "https://www.luontoon.fi/fi/kohteet/saaristomeren-kansallispuisto",
    "kuva": {
     "src": "img/puistot/saaristomeren-kansallispuisto.jpg?v=06a1aab374",
@@ -847,7 +846,7 @@
     63.33001,
     24.8786
    ],
-   "raja": "data/puistot/salamajarven-kansallispuisto.geojson?v=cca3b77a4a",
+   "raja": "data/puistot/salamajarven-kansallispuisto.geojson?v=b3b638b418",
    "linkki": "https://www.luontoon.fi/fi/kohteet/salamajarven-kansallispuisto",
    "kuva": {
     "src": "img/puistot/salamajarven-kansallispuisto.jpg?v=cc8b6748a1",
@@ -875,7 +874,7 @@
     66.85925,
     29.11897
    ],
-   "raja": "data/puistot/sallan-kansallispuisto.geojson?v=26204ef4ec",
+   "raja": "data/puistot/sallan-kansallispuisto.geojson?v=bc9ca38e51",
    "linkki": "https://www.luontoon.fi/fi/kohteet/sallan-kansallispuisto",
    "kuva": {
     "src": "img/puistot/sallan-kansallispuisto.jpg?v=ac80a55759",
@@ -903,7 +902,7 @@
     61.97675,
     23.50859
    ],
-   "raja": "data/puistot/seitsemisen-kansallispuisto.geojson?v=b12d9aab8f",
+   "raja": "data/puistot/seitsemisen-kansallispuisto.geojson?v=194e2d5bea",
    "linkki": "https://www.luontoon.fi/fi/kohteet/seitsemisen-kansallispuisto",
    "kuva": {
     "src": "img/puistot/seitsemisen-kansallispuisto.jpg?v=818e52c401",
@@ -930,11 +929,11 @@
    "lon": 21.30774,
    "bbox": [
     60.60209,
-    20.78767,
+    20.78768,
     61.9589,
     21.63629
    ],
-   "raja": "data/puistot/selkameren-kansallispuisto.geojson?v=110cbe22b7",
+   "raja": "data/puistot/selkameren-kansallispuisto.geojson?v=b32338bec6",
    "linkki": "https://www.luontoon.fi/fi/kohteet/selkameren-kansallispuisto",
    "kuva": {
     "src": "img/puistot/selkameren-kansallispuisto.jpg?v=dd39b0c1e0",
@@ -962,7 +961,7 @@
     60.35743,
     25.2628
    ],
-   "raja": "data/puistot/sipoonkorven-kansallispuisto.geojson?v=284280583a",
+   "raja": "data/puistot/sipoonkorven-kansallispuisto.geojson?v=b48f57a09d",
    "linkki": "https://www.luontoon.fi/fi/kohteet/sipoonkorven-kansallispuisto",
    "kuva": {
     "src": "img/puistot/sipoonkorven-kansallispuisto.jpg?v=08ebe1d166",
@@ -992,7 +991,7 @@
     65.95678,
     28.38813
    ],
-   "raja": "data/puistot/syotteen-kansallispuisto.geojson?v=385a663994",
+   "raja": "data/puistot/syotteen-kansallispuisto.geojson?v=a0442b1e16",
    "linkki": "https://www.luontoon.fi/fi/kohteet/syotteen-kansallispuisto",
    "kuva": {
     "src": "img/puistot/syotteen-kansallispuisto.jpg?v=0f1a0093d2",
@@ -1020,7 +1019,7 @@
     59.88964,
     23.60394
    ],
-   "raja": "data/puistot/tammisaaren-saariston-kansallispuisto.geojson?v=2c312a901e",
+   "raja": "data/puistot/tammisaaren-saariston-kansallispuisto.geojson?v=87255da879",
    "linkki": "https://www.luontoon.fi/fi/kohteet/tammisaaren-saariston-kansallispuisto",
    "kuva": {
     "src": "img/puistot/tammisaaren-saariston-kansallispuisto.jpg?v=2c6d20714e",
@@ -1044,11 +1043,11 @@
    "lon": 22.94893,
    "bbox": [
     60.197,
-    22.8876,
-    60.31485,
+    22.88761,
+    60.31484,
     23.07433
    ],
-   "raja": "data/puistot/teijon-kansallispuisto.geojson?v=8cb60173b8",
+   "raja": "data/puistot/teijon-kansallispuisto.geojson?v=6c68e91fab",
    "linkki": "https://www.luontoon.fi/fi/kohteet/teijon-kansallispuisto",
    "kuva": {
     "src": "img/puistot/teijon-kansallispuisto.jpg?v=41402371eb",
@@ -1072,12 +1071,12 @@
    "lat": 63.65528,
    "lon": 28.31491,
    "bbox": [
-    63.57515,
+    63.57527,
     28.18461,
     63.69758,
-    28.60675
+    28.60673
    ],
-   "raja": "data/puistot/tiilikkajarven-kansallispuisto.geojson?v=5c7f62b4ad",
+   "raja": "data/puistot/tiilikkajarven-kansallispuisto.geojson?v=71961a8d65",
    "linkki": "https://www.luontoon.fi/fi/kohteet/tiilikkajarven-kansallispuisto",
    "kuva": {
     "src": "img/puistot/tiilikkajarven-kansallispuisto.jpg?v=514ba827a7",
@@ -1100,12 +1099,12 @@
    "lat": 60.75022,
    "lon": 23.55339,
    "bbox": [
-    60.71537,
+    60.71538,
     23.50279,
-    60.76622,
+    60.76623,
     23.75917
    ],
-   "raja": "data/puistot/torronsuon-kansallispuisto.geojson?v=db61ec026e",
+   "raja": "data/puistot/torronsuon-kansallispuisto.geojson?v=b618b672a4",
    "linkki": "https://www.luontoon.fi/fi/kohteet/torronsuon-kansallispuisto",
    "kuva": {
     "src": "img/puistot/torronsuon-kansallispuisto.jpg?v=dd452949dc",
@@ -1131,11 +1130,11 @@
    "lon": 28.20233,
    "bbox": [
     67.86076,
-    27.09177,
+    27.09178,
     68.46818,
     29.48259
    ],
-   "raja": "data/puistot/urho-kekkosen-kansallispuisto.geojson?v=3e1d8c8398",
+   "raja": "data/puistot/urho-kekkosen-kansallispuisto.geojson?v=bce6d79268",
    "linkki": "https://www.luontoon.fi/fi/kohteet/urho-kekkosen-kansallispuisto",
    "kuva": {
     "src": "img/puistot/urho-kekkosen-kansallispuisto.jpg?v=7724c592b7",
@@ -1164,7 +1163,7 @@
     60.59844,
     26.79454
    ],
-   "raja": "data/puistot/valkmusan-kansallispuisto.geojson?v=15126c9ae5",
+   "raja": "data/puistot/valkmusan-kansallispuisto.geojson?v=5b5d0f2f6d",
    "linkki": "https://www.luontoon.fi/fi/kohteet/valkmusan-kansallispuisto",
    "kuva": {
     "src": "img/puistot/valkmusan-kansallispuisto.jpg?v=fcd5ddf1e1",
@@ -1188,12 +1187,12 @@
    "lat": 62.05002,
    "lon": 22.74613,
    "bbox": [
-    62.03682,
+    62.03683,
     22.71702,
     62.06148,
     22.79531
    ],
-   "raja": "data/puistot/haadetkeitaan-luonnonpuisto.geojson?v=04fa2aaea0",
+   "raja": "data/puistot/haadetkeitaan-luonnonpuisto.geojson?v=b8c02f4f60",
    "linkki": null,
    "kuva": null,
    "wikidata": "Q5963316"
@@ -1213,10 +1212,10 @@
    "bbox": [
     60.23582,
     23.78089,
-    60.24676,
+    60.24674,
     23.81535
    ],
-   "raja": "data/puistot/karkalin-luonnonpuisto.geojson?v=0afdd832e8",
+   "raja": "data/puistot/karkalin-luonnonpuisto.geojson?v=e506bf77f6",
    "linkki": "https://www.luontoon.fi/fi/kohteet/karkalin-luonnonpuisto",
    "kuva": {
     "src": "img/puistot/karkalin-luonnonpuisto.jpg?v=a5db629641",
@@ -1244,7 +1243,7 @@
     69.77401,
     27.04602
    ],
-   "raja": "data/puistot/kevon-luonnonpuisto.geojson?v=b10f6698f4",
+   "raja": "data/puistot/kevon-luonnonpuisto.geojson?v=7534910444",
    "linkki": "https://www.luontoon.fi/fi/kohteet/kevon-luonnonpuisto",
    "kuva": {
     "src": "img/puistot/kevon-luonnonpuisto.jpg?v=be424a1ba7",
@@ -1272,7 +1271,7 @@
     63.00544,
     31.46069
    ],
-   "raja": "data/puistot/koivusuon-luonnonpuisto.geojson?v=f6127bbe29",
+   "raja": "data/puistot/koivusuon-luonnonpuisto.geojson?v=07246aee61",
    "linkki": "https://www.luontoon.fi/fi/koivusuon",
    "kuva": null,
    "wikidata": "Q6426381"
@@ -1289,12 +1288,12 @@
    "lat": 69.06652,
    "lon": 20.65523,
    "bbox": [
-    69.04092,
+    69.04089,
     20.54864,
     69.09533,
-    20.76942
+    20.76944
    ],
-   "raja": "data/puistot/mallan-luonnonpuisto.geojson?v=f579380e55",
+   "raja": "data/puistot/mallan-luonnonpuisto.geojson?v=730d402e35",
    "linkki": "https://www.luontoon.fi/fi/kohteet/mallan-luonnonpuisto",
    "kuva": {
     "src": "img/puistot/mallan-luonnonpuisto.jpg?v=6354a03629",
@@ -1319,10 +1318,10 @@
    "bbox": [
     67.34234,
     28.43975,
-    67.44552,
+    67.44559,
     28.97962
    ],
-   "raja": "data/puistot/maltion-luonnonpuisto.geojson?v=54deb19e5d",
+   "raja": "data/puistot/maltion-luonnonpuisto.geojson?v=9a9a3838cb",
    "linkki": "https://www.luontoon.fi/fi/maltion",
    "kuva": null,
    "wikidata": "Q6744910"
@@ -1346,7 +1345,7 @@
     65.15615,
     27.38611
    ],
-   "raja": "data/puistot/olvassuon-luonnonpuisto.geojson?v=112999f310",
+   "raja": "data/puistot/olvassuon-luonnonpuisto.geojson?v=3272a58af3",
    "linkki": "https://www.luontoon.fi/fi/olvassuon",
    "kuva": {
     "src": "img/puistot/olvassuon-luonnonpuisto.jpg?v=9af0249736",
@@ -1372,7 +1371,7 @@
     64.75114,
     28.10879
    ],
-   "raja": "data/puistot/paljakan-luonnonpuisto.geojson?v=7da9c012cc",
+   "raja": "data/puistot/paljakan-luonnonpuisto.geojson?v=8ca3290299",
    "linkki": "https://www.luontoon.fi/fi/kohteet/paljakan-luonnonpuisto",
    "kuva": null,
    "wikidata": null
@@ -1392,9 +1391,9 @@
     64.38445,
     26.13447,
     64.47906,
-    26.32709
+    26.32708
    ],
-   "raja": "data/puistot/pelson-luonnonpuisto.geojson?v=b897a34150",
+   "raja": "data/puistot/pelson-luonnonpuisto.geojson?v=bbe05de57d",
    "linkki": "https://www.luontoon.fi/fi/pelson",
    "kuva": null,
    "wikidata": "Q7161732"
@@ -1417,7 +1416,7 @@
     66.32991,
     25.17422
    ],
-   "raja": "data/puistot/pisavaaran-luonnonpuisto.geojson?v=91a88bd33c",
+   "raja": "data/puistot/pisavaaran-luonnonpuisto.geojson?v=72850fdb09",
    "linkki": "https://www.luontoon.fi/fi/pisavaaran",
    "kuva": null,
    "wikidata": "Q7198215"
@@ -1435,12 +1434,12 @@
    "lat": 66.02111,
    "lon": 25.51304,
    "bbox": [
-    65.97933,
+    65.97934,
     25.4288,
     66.1489,
     25.60989
    ],
-   "raja": "data/puistot/runkauksen-luonnonpuisto.geojson?v=6d00dc2730",
+   "raja": "data/puistot/runkauksen-luonnonpuisto.geojson?v=118c57c45a",
    "linkki": "https://www.luontoon.fi/fi/runkauksen",
    "kuva": null,
    "wikidata": "Q7379890"
@@ -1457,12 +1456,12 @@
    "lat": 63.21049,
    "lon": 24.79737,
    "bbox": [
-    63.19083,
+    63.19084,
     24.74584,
     63.23012,
     24.84615
    ],
-   "raja": "data/puistot/salamanperan-luonnonpuisto.geojson?v=fd835a4874",
+   "raja": "data/puistot/salamanperan-luonnonpuisto.geojson?v=cfba383ed8",
    "linkki": "https://www.luontoon.fi/fi/kohteet/salamanperan-luonnonpuisto",
    "kuva": null,
    "wikidata": "Q7403563"
@@ -1484,7 +1483,7 @@
     61.58045,
     24.74001
    ],
-   "raja": "data/puistot/sinivuoren-luonnonpuisto.geojson?v=e6b8785dc5",
+   "raja": "data/puistot/sinivuoren-luonnonpuisto.geojson?v=12c99143e4",
    "linkki": "https://www.luontoon.fi/fi/sinivuoren",
    "kuva": null,
    "wikidata": "Q7524462"
@@ -1506,7 +1505,7 @@
     68.24615,
     27.61348
    ],
-   "raja": "data/puistot/sompion-luonnonpuisto.geojson?v=54a9421561",
+   "raja": "data/puistot/sompion-luonnonpuisto.geojson?v=13db0d675d",
    "linkki": "https://www.luontoon.fi/fi/kohteet/sompion-luonnonpuisto",
    "kuva": null,
    "wikidata": "Q11894078"
@@ -1528,7 +1527,7 @@
     66.38534,
     29.01904
    ],
-   "raja": "data/puistot/sukerijarven-luonnonpuisto.geojson?v=bf793ad573",
+   "raja": "data/puistot/sukerijarven-luonnonpuisto.geojson?v=939797c09d",
    "linkki": "https://www.luontoon.fi/fi/sukerijarven",
    "kuva": null,
    "wikidata": "Q7635754"
@@ -1550,7 +1549,7 @@
     63.9929,
     30.45744
    ],
-   "raja": "data/puistot/ulvinsalon-luonnonpuisto.geojson?v=9363dddab8",
+   "raja": "data/puistot/ulvinsalon-luonnonpuisto.geojson?v=1dbaff3f81",
    "linkki": "https://www.luontoon.fi/fi/ulvinsalon",
    "kuva": null,
    "wikidata": "Q7880868"
@@ -1572,7 +1571,7 @@
     60.87458,
     22.30675
    ],
-   "raja": "data/puistot/vaskijarven-luonnonpuisto.geojson?v=c88257b6c3",
+   "raja": "data/puistot/vaskijarven-luonnonpuisto.geojson?v=6681e348b8",
    "linkki": "https://www.luontoon.fi/fi/kohteet/vaskijarven-luonnonpuisto",
    "kuva": null,
    "wikidata": "Q11900619"
@@ -1594,7 +1593,7 @@
     61.35866,
     25.11678
    ],
-   "raja": "data/puistot/vesijaon-luonnonpuisto.geojson?v=c9f7f36fc3",
+   "raja": "data/puistot/vesijaon-luonnonpuisto.geojson?v=e02b1a6f8a",
    "linkki": "https://www.luontoon.fi/fi/vesijaon",
    "kuva": null,
    "wikidata": "Q5489464"
@@ -1614,10 +1613,10 @@
    "bbox": [
     67.66359,
     29.4675,
-    67.81639,
+    67.8163,
     29.79982
    ],
-   "raja": "data/puistot/varrion-luonnonpuisto.geojson?v=5f6091831e",
+   "raja": "data/puistot/varrion-luonnonpuisto.geojson?v=b6f291d53c",
    "linkki": null,
    "kuva": {
     "src": "img/puistot/varrion-luonnonpuisto.jpg?v=ea4354ae3a",
@@ -1632,21 +1631,16 @@
    "id": "evon-retkeilyalue",
    "nimi": "Evon retkeilyalue",
    "tyyppi": "retkeilyalue",
-   "ha": 4934,
+   "ha": null,
    "perustettu": null,
    "kunnat": [
     "Hämeenlinna",
     "Padasjoki"
    ],
-   "lat": 61.23918,
-   "lon": 25.1339,
-   "bbox": [
-    61.17074,
-    25.00143,
-    61.2695,
-    25.25925
-   ],
-   "raja": "data/puistot/evon-retkeilyalue.geojson?v=7a83c4563f",
+   "lat": 61.228,
+   "lon": 25.1,
+   "bbox": null,
+   "raja": null,
    "linkki": "https://www.luontoon.fi/fi/kohteet/evon-retkeilyalue",
    "kuva": {
     "src": "img/puistot/evon-retkeilyalue.jpg?v=731fa4bb66",
@@ -1656,98 +1650,6 @@
     "tiedosto": "Lago Valkea Mustajärvi y zona de Senderismo de Evo (Finlandia) 11.jpg"
    },
    "wikidata": "Q11859216"
-  },
-  {
-   "id": "iso-syotteen-retkeilyalue",
-   "nimi": "Iso-Syötteen retkeilyalue",
-   "tyyppi": "retkeilyalue",
-   "ha": 1142,
-   "perustettu": null,
-   "kunnat": [],
-   "lat": 65.61565,
-   "lon": 27.57224,
-   "bbox": [
-    65.5916,
-    27.53478,
-    65.63942,
-    27.61708
-   ],
-   "raja": "data/puistot/iso-syotteen-retkeilyalue.geojson?v=b7a7b6f18d",
-   "linkki": "https://www.luontoon.fi/fi/kohteet/iso-syotteen-retkeilyalue",
-   "kuva": null,
-   "wikidata": null
-  },
-  {
-   "id": "kylmaluoman-retkeilyalue",
-   "nimi": "Kylmäluoman retkeilyalue",
-   "tyyppi": "retkeilyalue",
-   "ha": 7519,
-   "perustettu": null,
-   "kunnat": [
-    "Taivalkoski"
-   ],
-   "lat": 65.58404,
-   "lon": 28.76676,
-   "bbox": [
-    65.54862,
-    28.56516,
-    65.62129,
-    28.95321
-   ],
-   "raja": "data/puistot/kylmaluoman-retkeilyalue.geojson?v=0f76350350",
-   "linkki": "https://www.luontoon.fi/fi/kohteet/kylmaluoman-retkeilyalue",
-   "kuva": null,
-   "wikidata": "Q18682102"
-  },
-  {
-   "id": "oulujarven-retkeilyalue",
-   "nimi": "Oulujärven retkeilyalue",
-   "tyyppi": "retkeilyalue",
-   "ha": 2067,
-   "perustettu": null,
-   "kunnat": [
-    "Vaala",
-    "Kajaani",
-    "Paltamo"
-   ],
-   "lat": 64.39261,
-   "lon": 27.03146,
-   "bbox": [
-    64.36652,
-    26.95883,
-    64.41925,
-    27.10041
-   ],
-   "raja": "data/puistot/oulujarven-retkeilyalue.geojson?v=52825bbb84",
-   "linkki": "https://www.luontoon.fi/fi/kohteet/oulujarven-retkeilyalue",
-   "kuva": {
-    "src": "img/puistot/oulujarven-retkeilyalue.jpg?v=7b7b784ef5",
-    "tekija": "SeppVei",
-    "lisenssi": "Public domain",
-    "lahde": "https://commons.wikimedia.org/wiki/File:Paltaselk%C3%A4.JPG",
-    "tiedosto": "Paltaselkä.JPG"
-   },
-   "wikidata": "Q580019"
-  },
-  {
-   "id": "ruunaan-retkeilyalue",
-   "nimi": "Ruunaan retkeilyalue",
-   "tyyppi": "retkeilyalue",
-   "ha": 3155,
-   "perustettu": null,
-   "kunnat": [],
-   "lat": 63.37303,
-   "lon": 30.52245,
-   "bbox": [
-    63.33425,
-    30.40046,
-    63.41472,
-    30.59043
-   ],
-   "raja": "data/puistot/ruunaan-retkeilyalue.geojson?v=1dcbb8cb23",
-   "linkki": "https://www.luontoon.fi/fi/kohteet/ruunaan-retkeilyalue",
-   "kuva": null,
-   "wikidata": "Q56398812"
   }
  ]
 }
