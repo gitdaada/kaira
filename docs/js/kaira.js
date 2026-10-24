@@ -1301,6 +1301,7 @@
       'Metsätieto: Luonnonvarakeskus, MVMI (CC BY 4.0). Suojelualueet: Syke / Metsähallitus (CC BY 4.0). Uudet hakkuut: Suomen metsäkeskus (CC BY 4.0).',
       'Vesitilanne: Suomen ympäristökeskus (Syke), Hydrologiarajapinta, CC BY 4.0, ja Ilmatieteen laitos, CC BY 4.0. Jokien uomat: © OpenStreetMapin tekijät, ODbL. Kosket ja suvannot: Maanmittauslaitos, maastotietokanta ja nimistö (CC BY 4.0), ja © OpenStreetMapin tekijät (ODbL).',
       'Autiotuvat, laavut ja tulipaikat: © OpenStreetMapin tekijät, ODbL. Tarkista ajantasaiset tiedot ylläpitäjältä (useimmiten Metsähallitus, luontoon.fi).',
+      'Kansallis- ja luonnonpuistot: Syke, valtion luonnonsuojelualueet, CC BY 4.0. Retkeilyalueiden rajat: © OpenStreetMapin tekijät, ODbL. Perustiedot ja linkit: Wikidata, CC0. Kuvat: Wikimedia Commons, tekijät ja lisenssit kohteittain.',
       'Perhokuvat: Wikimedia Commons, tekijät ja lisenssit kuvien yhteydessä. Solmujen vaiheet: Orvis, Animated Knots ja Bass Pro; animaatiot ovat omia piirroksia.',
       'Metsätieto on satelliittikuviin perustuva arvio, ja lupa-alueiden rajat on piirretty käsin. Viralliset rajat ovat eräluvat.fi:n kartoissa.'
     ].forEach(function (t) { body.appendChild(h('p', { class: 'small', text: t })); });

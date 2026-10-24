@@ -251,7 +251,10 @@ def osm_query(q):
     last = None
     for ep in OVERPASS:
         try:
-            return get(ep, data={"data": q}, timeout=200, tries=2).get("elements", [])
+            j = get(ep, data={"data": q}, timeout=200, tries=2)
+            if j.get("remark") and not j.get("elements"):
+                raise RuntimeError("Overpass: " + str(j["remark"])[:200])
+            return j.get("elements", [])
         except Exception as e:  # noqa: BLE001
             last = e
             note("Overpass %s: %r" % (ep.split("/")[2], e))
@@ -284,6 +287,45 @@ def osm_areas(names=None, kinds=None):
         if name not in best or g.area > best[name][0].area:
             best[name] = (g, t.get("wikidata"), t.get("website") or t.get("url"))
     return best
+
+
+def osm_hiking(names):
+    """Valtion retkeilyalueet OpenStreetMapista: ensin nimet (kevyt haku), sitten valittujen rajat.
+    Palauttaa {haluttu nimi: (geometria EPSG:3067, wikidata, verkkosivu)}."""
+    from shapely.geometry import Polygon
+    from shapely.ops import transform, unary_union
+    base = '[out:json][timeout:120];area["ISO3166-1"="FI"][admin_level=2]->.fi;'
+    els = osm_query(base + '(relation["name"~"retkeily",i](area.fi);way["name"~"retkeily",i](area.fi););out tags;')
+    cands = [(e["type"], e["id"], (e.get("tags") or {})) for e in els if e.get("type") in ("relation", "way")]
+    gh("notice", "OSM retkeily-nimet: %s" % sorted({(t.get("name:fi") or t.get("name") or "") + " [" + ",".join("%s=%s" % (k, t[k]) for k in ("boundary", "leisure", "protect_class", "tourism", "landuse") if k in t) + "]"
+                                                    for _, _, t in cands})[:40])
+    pick = {}
+    for want in names:
+        stem = want.split()[0][:5].casefold()
+        best = None
+        for typ, oid, t in cands:
+            nm = (t.get("name:fi") or t.get("name") or "")
+            if nm.casefold() == want.casefold() or (nm.casefold().startswith(stem) and "retkeily" in nm.casefold()):
+                score = (nm.casefold() == want.casefold(), typ == "relation", "boundary" in t or "leisure" in t)
+                if best is None or score > best[0]:
+                    best = (score, typ, oid, t)
+        if best:
+            pick[want] = best[1:]
+    if not pick:
+        return {}
+    ids = "".join("%s(%d);" % (typ, oid) for typ, oid, _ in pick.values())
+    geo = {(e["type"], e["id"]): e for e in osm_query(base.replace('area["ISO3166-1"="FI"][admin_level=2]->.fi;', "") + "(" + ids + ");out geom;")}
+    fwd, _ = to_3067()
+    out = {}
+    for want, (typ, oid, t) in pick.items():
+        el = geo.get((typ, oid))
+        polys = [Polygon(r) for r in rings_from_osm(el or {}) if len(r) >= 4]
+        if not polys:
+            note("%s: OpenStreetMapin kohteella %s/%d ei ole aluetta" % (want, typ, oid))
+            continue
+        g = transform(fwd.transform, unary_union([p.buffer(0) for p in polys]))
+        out[want] = (g, t.get("wikidata"), t.get("website") or t.get("url"))
+    return out
 
 
 def boundary_feature(name, kind, g3067):
@@ -417,13 +459,7 @@ def main():
     hiking = extra.get("retkeilyalueet", [])
     found = {}
     try:
-        osm_all = osm_areas(kinds=["retkeilyalue"])
-        for name in hiking:
-            stem = name.split()[0][:5].casefold()
-            hit = osm_all.get(name) or next((v for k, v in osm_all.items() if k.casefold().startswith(stem)), None)
-            if hit:
-                found[name] = hit
-        gh("notice", "OSM retkeilyalueet: %s" % sorted(osm_all)[:40])
+        found = osm_hiking(hiking)
     except Exception as e:  # noqa: BLE001
         gh("warning", "Retkeilyalueiden rajoja ei saatu: %r" % e)
     for name in hiking:

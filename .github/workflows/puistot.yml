@@ -11,6 +11,7 @@ on:
       - "pipeline/puistot.py"
       - "pipeline/data/puistot_lisat.json"
       - ".github/workflows/puistot.yml"
+      - "tests/test_puistot.py"
 permissions:
   contents: write
 concurrency:
@@ -39,6 +40,8 @@ jobs:
           key: puistot-${{ github.run_id }}
           restore-keys: |
             puistot-
+      - name: Testit
+        run: python3 tests/test_puistot.py
       - name: Hae puistot
         run: python3 pipeline/puistot.py
       - name: Tallenna muutokset
