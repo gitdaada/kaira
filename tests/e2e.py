@@ -214,7 +214,15 @@ def parks_fixture(site):
         {"id": "testin-retkeilyalue", "nimi": "Testin retkeilyalue", "tyyppi": "retkeilyalue", "lat": 62.0, "lon": 25.0, "ha": 3100, "kunnat": ["Toinen"]},
         {"id": "huono", "nimi": "Huono linkki", "tyyppi": "kansallispuisto", "lat": 69.5, "lon": 27.0, "linkki": "javascript:alert(1)",
          "kuva": {"src": "https://evil.example/x.jpg"}, "raja": "../../etc/passwd"},
+        {"id": "lipas-123", "nimi": "Testin ulkoilualue", "tyyppi": "ulkoilualue", "lat": 63.47, "lon": 25.9, "ha": 140, "kunnat": ["Testikunta"],
+         "raja": "data/ulkoilualueet/c-630-25.geojson?v=abc123", "www": "https://www.testikunta.fi/ulkoilu", "kuvaus": "Valaistu latu ja kota.\nPysäköinti tien päässä.",
+         "yllapitaja": "kunta", "lipas": 123},
         {"id": "muu", "nimi": "Tuntematon tyyppi", "tyyppi": "muu", "lat": 63.0, "lon": 26.0}]}
+    (site / "data" / "ulkoilualueet").mkdir(parents=True, exist_ok=True)
+    (site / "data" / "ulkoilualueet" / "c-630-25.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {"id": "lipas-123", "nimi": "Testin ulkoilualue", "tyyppi": "alue"}, "geometry": {"type": "Polygon", "coordinates": [square(63.47, 25.9, 0.01)]}},
+        {"type": "Feature", "properties": {"id": "lipas-124", "nimi": "Naapurialue", "tyyppi": "alue"}, "geometry": {"type": "Polygon", "coordinates": [square(63.4, 25.8, 0.01)]}}]}),
+        encoding="utf-8")
     (site / "data" / "puistot.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
 
 
@@ -507,16 +515,33 @@ def main():
         pg.locator("#sheetBody .seg-tabs button", has_text="Puistot").click()
         pg.wait_for_function("document.querySelectorAll('#sheetBody .park-list .list-row').length >= 3", timeout=10000)
         rows = pg.evaluate("Array.from(document.querySelectorAll('#sheetBody .park-list .list-row b')).map(function (b) { return b.textContent; })")
-        check(rows == ["Testin kansallispuisto", "Testin retkeilyalue", "Testin luonnonpuisto", "Huono linkki"], "puistot etäisyyden mukaan, tuntematon tyyppi pois (%s)" % rows)
+        check(rows == ["Testin ulkoilualue", "Testin kansallispuisto", "Testin retkeilyalue", "Testin luonnonpuisto", "Huono linkki"], "puistot etäisyyden mukaan, tuntematon tyyppi pois (%s)" % rows)
         bad = pg.evaluate("K.parks.P.data.filter(function (e) { return e.id === 'huono'; })[0]")
         check(bad["linkki"] is None and bad["kuva"] is None and bad["raja"] is None, "kelpaamaton linkki, kuva ja raja hylätään")
         pg.locator("#sheetBody .seg-wrap button", has_text="Luonnonpuistot").click()
         pg.wait_for_function("document.querySelectorAll('#sheetBody .park-list .list-row').length === 1")
         check(pg.locator("#sheetBody .park-list .list-row b").inner_text() == "Testin luonnonpuisto", "suodatus tyypin mukaan")
+        pg.locator("#sheetBody .seg-wrap button", has_text="Ulkoilualueet").click()
+        pg.wait_for_function("document.querySelectorAll('#sheetBody .park-list .list-row').length === 1")
+        pg.locator("#sheetBody .park-list .list-row").first.click()
+        pg.wait_for_function("document.getElementById('sheetTitle').innerText === 'Testin ulkoilualue'")
+        body = pg.locator("#sheetBody").inner_text()
+        link = pg.locator("#sheetBody a.btn-primary")
+        check("Valaistu latu ja kota." in body and "ylläpitäjä: kunta" in body and "LIPAS" in body and link.inner_text() == "Ylläpitäjän sivu"
+              and link.get_attribute("href") == "https://www.testikunta.fi/ulkoilu", "ulkoilualueen kuvaus, ylläpitäjä ja sivu (LIPAS)")
+        pg.locator("#sheetBody button", has_text="Näytä kartalla").click()
+        pg.wait_for_function("K.parks.P.layer.getLayers().length === 2", timeout=10000)
+        check(pg.evaluate("K.parks.P.layer.getLayers()[0].getLayers().length") == 1, "ryhmätiedostosta vain kohteen oma raja")
+        pg.wait_for_timeout(1500)
+        pg.locator("#toast button", has_text="Piilota").click()
+        pg.locator("#navMain").click()
+        pg.wait_for_selector("#sheetBody .seg-wrap")
         pg.locator("#sheetBody .seg-wrap button", has_text="Kaikki").click()
         pg.locator("#sheetBody input[type=search]").fill("testikunta")
+        pg.wait_for_function("document.querySelectorAll('#sheetBody .park-list .list-row').length === 2")
+        check(pg.locator("#sheetBody .park-list .list-row b").nth(1).inner_text() == "Testin kansallispuisto", "haku nimellä tai kunnalla")
+        pg.locator("#sheetBody input[type=search]").fill("testin kansallis")
         pg.wait_for_function("document.querySelectorAll('#sheetBody .park-list .list-row').length === 1")
-        check(pg.locator("#sheetBody .park-list .list-row b").inner_text() == "Testin kansallispuisto", "haku nimellä tai kunnalla")
         pg.screenshot(path=str(SHOTS / "06d-puistot.png"))
         pg.locator("#sheetBody .park-list .list-row").first.click()
         pg.wait_for_function("document.getElementById('sheetTitle').innerText === 'Testin kansallispuisto'")

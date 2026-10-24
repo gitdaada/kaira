@@ -570,3 +570,4 @@ textarea.input { min-height: 72px; resize: vertical; font: inherit; }
 .park-type { font-weight: 700; margin: 4px 0 2px; }
 .park-inside { margin-top: 8px; }
 .park-list { margin-top: 4px; }
+.park-desc { white-space: pre-line; line-height: 1.45; }

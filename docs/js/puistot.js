@@ -1,6 +1,6 @@
 /*
- * Kaira / Eränkäynti: kansallispuistot, luonnonpuistot ja valtion retkeilyalueet listana (Kohteet → Puistot ja
- * retkialueet). Kohteen sivulla perustiedot, kuva, linkki Metsähallituksen sivulle, raja kartalle ja alueen
+ * Kaira / Eränkäynti: kansallispuistot, luonnonpuistot, valtion ja seudulliset retkeilyalueet sekä kuntien
+ * ulkoilualueet listana (Kohteet → Puistot ja retkialueet). Kohteen sivulla perustiedot, kuva, linkki Metsähallituksen sivulle, raja kartalle ja alueen
  * tuvat ja laavut. Aineisto: data/puistot.json (pipeline/puistot.py); rajat ja kuvat haetaan vasta pyydettäessä.
  */
 (function () {
@@ -11,10 +11,14 @@
   var TYPES = {
     kansallispuisto: { nimi: 'Kansallispuisto', mon: 'Kansallispuistot', color: '#2f8f4e' },
     luonnonpuisto: { nimi: 'Luonnonpuisto', mon: 'Luonnonpuistot', color: '#8a5a2b' },
-    retkeilyalue: { nimi: 'Valtion retkeilyalue', mon: 'Retkeilyalueet', color: '#2f6f9a' }
+    retkeilyalue: { nimi: 'Valtion retkeilyalue', mon: 'Retkeilyalueet', color: '#2f6f9a' },
+    seuturetkeily: { nimi: 'Retkeilyalue', mon: 'Retkeilyalueet', color: '#4f7fb0' },
+    ulkoilualue: { nimi: 'Ulkoilualue', mon: 'Ulkoilualueet', color: '#0f766e' }
   };
-  var FILTERS = [['kaikki', 'Kaikki'], ['kansallispuisto', 'Kansallispuistot'], ['luonnonpuisto', 'Luonnonpuistot'], ['retkeilyalue', 'Retkeilyalueet']];
-  var RE_ID = /^[a-z0-9-]{1,60}$/, RE_RAJA = /^data\/puistot\/[a-z0-9-]{1,60}\.geojson(\?v=[a-f0-9]{6,16})?$/;
+  var FILTERS = [['kaikki', 'Kaikki'], ['kansallispuisto', 'Kansallispuistot'], ['luonnonpuisto', 'Luonnonpuistot'], ['retkeilyalue', 'Retkeilyalueet'], ['ulkoilualue', 'Ulkoilualueet']];
+  var MAX_ROWS = 100, ORGS = ['kunta', 'kuntayhtymä', 'yhdistys', 'yritys', 'säätiö', 'valtio', 'seurakunta'];
+  var RE_ID = /^[a-z0-9-]{1,60}$/, RE_RAJA = /^data\/(puistot\/[a-z0-9-]{1,60}|ulkoilualueet\/c-\d{3,4}-\d{1,3})\.geojson(\?v=[a-f0-9]{6,16})?$/;
+  var RE_WWW = /^https?:\/\/[a-z0-9-]+(\.[a-z0-9-]+)+(:\d{2,5})?(\/[^\s"'<>]{0,280})?$/i;
   var RE_KUVA = /^img\/puistot\/[a-z0-9-]{1,60}\.jpg(\?v=[a-f0-9]{6,16})?$/, RE_COMMONS = /^https:\/\/commons\.wikimedia\.org\/[^\s"'<>]{1,300}$/;
   var RE_LINK = /^https:\/\/(www\.)?(luontoon\.fi|nationalparks\.fi|metsa\.fi)(\/[^\s"'<>]{0,280})?$/i;
   var P = { data: null, loading: null, failed: false, filter: 'kaikki', q: '', cur: null, shown: null, geo: {}, inside: null,
@@ -27,7 +31,7 @@
     return ((j && Array.isArray(j.kohteet)) ? j.kohteet : []).filter(function (e) {
       return e && RE_ID.test(e.id) && TYPES[e.tyyppi] && typeof e.nimi === 'string' && num(e.lat) !== null && num(e.lon) !== null &&
         Math.abs(e.lat) <= 90 && Math.abs(e.lon) <= 180;
-    }).slice(0, 300).map(function (e) {
+    }).slice(0, 5000).map(function (e) {
       var k = e.kuva && typeof e.kuva === 'object' && RE_KUVA.test(e.kuva.src) ? e.kuva : null;
       var b = Array.isArray(e.bbox) && e.bbox.length === 4 && e.bbox.every(function (x) { return num(x) !== null; }) ? e.bbox : null;
       return {
@@ -36,6 +40,8 @@
         kunnat: (Array.isArray(e.kunnat) ? e.kunnat : []).filter(function (x) { return typeof x === 'string'; }).slice(0, 4).map(function (x) { return x.slice(0, 40); }),
         bbox: b, raja: typeof e.raja === 'string' && RE_RAJA.test(e.raja) ? e.raja : null,
         linkki: typeof e.linkki === 'string' && RE_LINK.test(e.linkki) ? e.linkki : null,
+        www: typeof e.www === 'string' && RE_WWW.test(e.www) ? e.www : null,
+        kuvaus: str(e.kuvaus, 800), yllapitaja: ORGS.indexOf(e.yllapitaja) >= 0 ? e.yllapitaja : null, lipas: num(e.lipas) !== null,
         kuva: k ? { src: k.src, tekija: str(k.tekija, 80) || 'Tuntematon', lisenssi: str(k.lisenssi, 40), lahde: typeof k.lahde === 'string' && RE_COMMONS.test(k.lahde) ? k.lahde : null } : null
       };
     });
@@ -70,7 +76,8 @@
 
   // --- Luettelo (Kohteet-paneelin välilehti) ---
   function matches(e) {
-    if (P.filter !== 'kaikki' && e.tyyppi !== P.filter) return false;
+    var t = e.tyyppi === 'seuturetkeily' ? 'retkeilyalue' : e.tyyppi;
+    if (P.filter !== 'kaikki' && t !== P.filter) return false;
     if (!P.q) return true;
     var q = P.q.toLocaleLowerCase('fi');
     return e.nimi.toLocaleLowerCase('fi').indexOf(q) >= 0 || e.kunnat.some(function (k) { return k.toLocaleLowerCase('fi').indexOf(q) >= 0; });
@@ -79,13 +86,15 @@
     box.textContent = '';
     var items = (P.data || []).filter(matches).map(function (e) { return { e: e, t: distText(e, p) }; }).sort(function (a, b) { return a.t.d - b.t.d; });
     if (!items.length) { box.appendChild(h('p', { class: 'muted', text: P.q ? 'Ei osumia haulla "' + P.q + '".' : 'Ei kohteita.' })); return; }
-    items.forEach(function (it) {
+    var more = items.length - MAX_ROWS;
+    items.slice(0, MAX_ROWS).forEach(function (it) {
       var e = it.e;
       box.appendChild(h('button', { type: 'button', class: 'list-row', onclick: function () { openPark(e); } },
         h('span', { class: 'lr-ico' }, icon(e.tyyppi)),
         h('span', { class: 'lr-txt' }, h('b', { text: e.nimi }), h('small', { text: TYPES[e.tyyppi].nimi + (e.ha ? ' · ' + fmtArea(e.ha) : '') })),
         h('span', { class: 'lr-dist' }, it.t.dist, h('small', { text: it.t.dir }))));
     });
+    if (more > 0) box.appendChild(h('p', { class: 'muted small', text: 'Näytetään ' + MAX_ROWS + ' lähintä, ' + K.fmtInt(more) + ' muuta. Hae nimellä tai kunnalla.' }));
   }
   function renderList(body) {
     if (!P.data) {
@@ -103,7 +112,7 @@
     body.appendChild(h('p', { class: 'muted small', text: p.src === 'gps' ? 'Lähimmät sijainnistasi' : 'Lähimmät kartan keskeltä. Laita sijainti päälle, niin etäisyydet lasketaan sinusta.' }));
     body.appendChild(list);
     fillList(list, p);
-    body.appendChild(h('p', { class: 'muted small', text: 'Lähteet: Syke (CC BY 4.0), © OpenStreetMapin tekijät (ODbL), Wikidata (CC0). Tarkista ajantasaiset tiedot ja säännöt Metsähallituksen sivuilta.' }));
+    body.appendChild(h('p', { class: 'muted small', text: 'Lähteet: Syke (CC BY 4.0), LIPAS / Jyväskylän yliopisto (CC BY 4.0), © OpenStreetMapin tekijät (ODbL), Wikidata (CC0). Tarkista ajantasaiset tiedot ja säännöt ylläpitäjän sivuilta.' }));
   }
 
   // --- Kohteen sivu ---
@@ -123,23 +132,33 @@
     }
     var facts = [TYPES[e.tyyppi].nimi, e.ha ? fmtArea(e.ha) : '', e.perustettu ? 'perustettu ' + e.perustettu : ''].filter(Boolean);
     body.appendChild(h('p', { class: 'park-type', text: facts.join(' · ') }));
-    if (e.kunnat.length) body.appendChild(h('p', { class: 'small muted', text: e.kunnat.join(', ') }));
+    var who = [e.kunnat.join(', '), e.yllapitaja ? 'ylläpitäjä: ' + e.yllapitaja : ''].filter(Boolean).join(' · ');
+    if (who) body.appendChild(h('p', { class: 'small muted', text: who }));
+    if (e.kuvaus) body.appendChild(h('p', { class: 'small park-desc', text: e.kuvaus }));
     var p = K.wherePoint(10 * 60000), t = distText(e, p);
     body.appendChild(h('p', { class: 'small', text: (p.src === 'gps' ? 'Sinusta ' : 'Kartan keskeltä ') + t.dist + ', ' + t.dir }));
     if (e.tyyppi === 'luonnonpuisto') body.appendChild(h('div', { class: 'notice', text: 'Luonnonpuistoissa liikkumista on rajoitettu: monissa saa liikkua vain merkityillä reiteillä tai luvalla. Tarkista säännöt ennen retkeä.' }));
     var row = h('div', { class: 'btn-row' });
-    if (e.linkki) row.appendChild(h('a', { class: 'btn btn-primary', href: e.linkki, target: '_blank', rel: 'noopener noreferrer', text: linkLabel(e.linkki) }));
-    row.appendChild(h('button', { type: 'button', class: 'btn' + (e.linkki ? '' : ' btn-primary'), text: 'Näytä kartalla', onclick: function () { showOnMap(e); } }));
+    var url = e.linkki || e.www;
+    if (url) row.appendChild(h('a', { class: 'btn btn-primary', href: url, target: '_blank', rel: 'noopener noreferrer', text: e.linkki ? linkLabel(e.linkki) : 'Ylläpitäjän sivu' }));
+    row.appendChild(h('button', { type: 'button', class: 'btn' + (url ? '' : ' btn-primary'), text: 'Näytä kartalla', onclick: function () { showOnMap(e); } }));
     row.appendChild(h('button', { type: 'button', class: 'btn', 'aria-expanded': P.inside ? 'true' : 'false', text: 'Tuvat ja laavut alueella', onclick: function () { listInside(e); } }));
     body.appendChild(row);
     if (P.inside) renderInside(body, e);
-    body.appendChild(h('p', { class: 'small muted', text: (e.raja ? 'Raja: ' + (e.tyyppi === 'retkeilyalue' ? '© OpenStreetMapin tekijät (ODbL)' : 'Syke (CC BY 4.0)') + '. ' : '') +
+    body.appendChild(h('p', { class: 'small muted', text: e.lipas ? 'Tiedot ja raja: LIPAS, Jyväskylän yliopisto (CC BY 4.0). Tarkista ajantasaiset tiedot ja palvelut ylläpitäjältä.' :
+      (e.raja ? 'Raja: ' + (e.tyyppi === 'retkeilyalue' ? '© OpenStreetMapin tekijät (ODbL)' : 'Syke (CC BY 4.0)') + '. ' : '') +
       'Perustiedot: Wikidata (CC0). Ajantasaiset palvelut, reitit ja säännöt löytyvät Metsähallituksen sivulta.' }));
   }
   function boundary(e) {
     if (!e.raja) return Promise.resolve(null);
     if (P.geo[e.id]) return Promise.resolve(P.geo[e.id]);
-    return K.fetchJSON(e.raja).then(function (gj) { P.geo[e.id] = JG.cleanGeoJSON(gj); return P.geo[e.id]; });
+    // LIPASin rajat ovat ruuduittain samassa tiedostossa: vain tämän kohteen alue
+    return K.fetchJSON(e.raja).then(function (gj) {
+      var fs = gj && Array.isArray(gj.features) ? gj.features : [];
+      if (fs.some(function (f) { return f && f.properties && f.properties.id; })) fs = fs.filter(function (f) { return f && f.properties && f.properties.id === e.id; });
+      P.geo[e.id] = JG.cleanGeoJSON({ type: 'FeatureCollection', features: fs });
+      return P.geo[e.id];
+    });
   }
   function showOnMap(e) {
     boundary(e).then(function (gj) {
