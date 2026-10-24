@@ -147,8 +147,8 @@
       if (!map.hasLayer(P.layer)) P.layer.addTo(map);
       var c = TYPES[e.tyyppi].color;
       if (gj) {
-        L.geoJSON(gj, { pane: 'boundaryPane', interactive: false, style: { color: c, weight: 3, dashArray: '8 6', fillColor: c, fillOpacity: 0.07 } }).addTo(P.layer);
-        L.geoJSON(gj, { pane: 'boundaryPane', interactive: false, style: { color: '#ffffff', weight: 6, opacity: 0.35, fill: false } }).addTo(P.layer);
+        L.geoJSON(gj, { pane: 'boundaryPane', interactive: false, style: { color: '#ffffff', weight: 5, opacity: 0.5, fill: false } }).addTo(P.layer);
+        L.geoJSON(gj, { pane: 'boundaryPane', interactive: false, style: { color: c, weight: 2.5, fillColor: c, fillOpacity: 0.1 } }).addTo(P.layer);
       }
       P.shown = e.id;
       K.closeSheet();

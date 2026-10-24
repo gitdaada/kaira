@@ -335,7 +335,10 @@ def boundary_feature(name, kind, g3067):
     _, back = to_3067()
     ha = g3067.area / 1e4
     tol = 20 if ha < 5000 else 40 if ha < 50000 else 80
-    simple = g3067.simplify(tol, preserve_topology=True)
+    # Näyttöön: vierekkäiset palstat yhdeksi (sulkeminen 40 m), sitten yksinkertaistus. Pinta-ala lasketaan alkuperäisestä.
+    simple = g3067.buffer(40).buffer(-40).simplify(tol, preserve_topology=True)
+    if simple.is_empty:
+        simple = g3067.simplify(tol, preserve_topology=True)
     pt = transform(back.transform, g3067.representative_point())
     g = transform(back.transform, simple)
     s, w, n, e = g.bounds[1], g.bounds[0], g.bounds[3], g.bounds[2]
