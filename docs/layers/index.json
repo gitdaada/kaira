@@ -8,6 +8,15 @@
    "versio": "a24d9b02b5"
   },
   {
+   "id": "kirkkonummi",
+   "nimi": "Kirkkonummi",
+   "tiedosto": "kirkkonummi.geojson",
+   "piirretty": true,
+   "versio": "afff14ea49",
+   "syvyys": "kirkkonummi-syvyys.geojson",
+   "syvyys_versio": "eebac12b15"
+  },
+  {
    "id": "tenomuotka",
    "nimi": "Tenomuotka",
    "tiedosto": "tenomuotka.geojson",

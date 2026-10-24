@@ -1,5 +1,5 @@
 {
- "paivitetty": "2026-10-24T04:53:07Z",
+ "paivitetty": "2026-10-24T08:11:20Z",
  "joet": [
   {
    "id": "hossajoki-hossanjoki",
@@ -616,6 +616,146 @@
    }
   },
   {
+   "id": "kirkkonummi-lakatbackrn",
+   "nimi": "Lakatbäckrn",
+   "alue": "kirkkonummi",
+   "luokka": "normaali",
+   "menetelma": "sade",
+   "sade14": {
+    "mm": 28.4,
+    "asema": "Siuntio Sjundby",
+    "etaisyys_km": 13.4,
+    "p25": 21.2,
+    "p75": 50.8,
+    "vuodet": 9,
+    "jakso": [
+     "2026-10-10",
+     "2026-10-23"
+    ],
+    "luokka": "normaali"
+   }
+  },
+  {
+   "id": "kirkkonummi-sperrings-sund",
+   "nimi": "Sperrings sund",
+   "alue": "kirkkonummi",
+   "luokka": "normaali",
+   "menetelma": "sade",
+   "sade14": {
+    "mm": 28.4,
+    "asema": "Siuntio Sjundby",
+    "etaisyys_km": 14.1,
+    "p25": 21.2,
+    "p75": 50.8,
+    "vuodet": 9,
+    "jakso": [
+     "2026-10-10",
+     "2026-10-23"
+    ],
+    "luokka": "normaali"
+   }
+  },
+  {
+   "id": "kirkkonummi-frasibacken",
+   "nimi": "Frasibäcken",
+   "alue": "kirkkonummi",
+   "luokka": "normaali",
+   "menetelma": "sade",
+   "sade14": {
+    "mm": 28.4,
+    "asema": "Siuntio Sjundby",
+    "etaisyys_km": 13.6,
+    "p25": 21.2,
+    "p75": 50.8,
+    "vuodet": 9,
+    "jakso": [
+     "2026-10-10",
+     "2026-10-23"
+    ],
+    "luokka": "normaali"
+   }
+  },
+  {
+   "id": "kirkkonummi-rutisundet",
+   "nimi": "Rutisundet",
+   "alue": "kirkkonummi",
+   "luokka": "normaali",
+   "menetelma": "sade",
+   "sade14": {
+    "mm": 28.4,
+    "asema": "Siuntio Sjundby",
+    "etaisyys_km": 13.8,
+    "p25": 21.2,
+    "p75": 50.8,
+    "vuodet": 9,
+    "jakso": [
+     "2026-10-10",
+     "2026-10-23"
+    ],
+    "luokka": "normaali"
+   }
+  },
+  {
+   "id": "kirkkonummi-varnas-sund",
+   "nimi": "Värnäs sund",
+   "alue": "kirkkonummi",
+   "luokka": "normaali",
+   "menetelma": "sade",
+   "sade14": {
+    "mm": 28.4,
+    "asema": "Siuntio Sjundby",
+    "etaisyys_km": 14.4,
+    "p25": 21.2,
+    "p75": 50.8,
+    "vuodet": 9,
+    "jakso": [
+     "2026-10-10",
+     "2026-10-23"
+    ],
+    "luokka": "normaali"
+   }
+  },
+  {
+   "id": "kirkkonummi-rutisund",
+   "nimi": "Rutisund",
+   "alue": "kirkkonummi",
+   "luokka": "normaali",
+   "menetelma": "sade",
+   "sade14": {
+    "mm": 28.4,
+    "asema": "Siuntio Sjundby",
+    "etaisyys_km": 16.5,
+    "p25": 21.2,
+    "p75": 50.8,
+    "vuodet": 9,
+    "jakso": [
+     "2026-10-10",
+     "2026-10-23"
+    ],
+    "luokka": "normaali"
+   }
+  },
+  {
+   "id": "kirkkonummi-rutibacken",
+   "nimi": "Rutibäcken",
+   "alue": "kirkkonummi",
+   "luokka": "normaali",
+   "menetelma": "sade",
+   "sade14": {
+    "mm": 28.4,
+    "asema": "Siuntio Sjundby",
+    "etaisyys_km": 14.1,
+    "p25": 21.2,
+    "p75": 50.8,
+    "vuodet": 9,
+    "jakso": [
+     "2026-10-10",
+     "2026-10-23"
+    ],
+    "luokka": "normaali"
+   }
+  },
+  {
    "id": "tenomuotka-poroeno",
    "nimi": "Poroeno",
    "alue": "tenomuotka",
@@ -638,6 +778,7 @@
  ],
  "geometriat": [
   "layers/hossajoki-joet.geojson",
+  "layers/kirkkonummi-joet.geojson",
   "layers/tenomuotka-joet.geojson"
  ],
  "lahteet": [
@@ -646,11 +787,51 @@
   "Uomat © OpenStreetMapin tekijät (ODbL)"
  ],
  "loki": [
+  "kirkkonummi: Maanmittauslaitoksen koskia ei saatu (MML URLError)",
+  "kirkkonummi: aluetaso kirjoitettu (0 koskea, 0 suvantoa; lähteet osm)",
   "hossajoki: 5 Syken asemaa rajauksella",
   "hossajoki-hossanjoki/Virtaama: asemaehdokkaat Hossanjärvi - luusua 0.0 km",
   "hossajoki-hossanjoki/Vedenkorkeus: asemaehdokkaat ei yhtään",
   "hossajoki-hossanjoki: sadeasema Suomussalmi Pesiö (60 km), 14 vrk 7.5 mm",
   "hossajoki-hossanjoki: korkea (mittaus)",
+  "kirkkonummi: 31 uomaa haettu",
+  "kirkkonummi: 6 Syken asemaa rajauksella",
+  "kirkkonummi-lakatbackrn/Virtaama: asemaehdokkaat ei yhtään",
+  "kirkkonummi-lakatbackrn/Vedenkorkeus: asemaehdokkaat ei yhtään",
+  "kirkkonummi-lakatbackrn/LampoPintavesi: asemaehdokkaat ei yhtään",
+  "kirkkonummi-lakatbackrn: sadeasema Siuntio Sjundby (13 km), 14 vrk 28.4 mm",
+  "kirkkonummi-lakatbackrn: normaali (sade)",
+  "kirkkonummi-sperrings-sund/Virtaama: asemaehdokkaat ei yhtään",
+  "kirkkonummi-sperrings-sund/Vedenkorkeus: asemaehdokkaat ei yhtään",
+  "kirkkonummi-sperrings-sund/LampoPintavesi: asemaehdokkaat ei yhtään",
+  "kirkkonummi-sperrings-sund: sadeasema Siuntio Sjundby (14 km), 14 vrk 28.4 mm",
+  "kirkkonummi-sperrings-sund: normaali (sade)",
+  "kirkkonummi-frasibacken/Virtaama: asemaehdokkaat ei yhtään",
+  "kirkkonummi-frasibacken/Vedenkorkeus: asemaehdokkaat Niittylampi 1.5 km",
+  "Syke Niittylampi/Vedenkorkeus: viimeisin arvo 2006-10-02, liian vanha",
+  "kirkkonummi-frasibacken/LampoPintavesi: asemaehdokkaat ei yhtään",
+  "kirkkonummi-frasibacken: sadeasema Siuntio Sjundby (14 km), 14 vrk 28.4 mm",
+  "kirkkonummi-frasibacken: normaali (sade)",
+  "kirkkonummi-rutisundet/Virtaama: asemaehdokkaat ei yhtään",
+  "kirkkonummi-rutisundet/Vedenkorkeus: asemaehdokkaat ei yhtään",
+  "kirkkonummi-rutisundet/LampoPintavesi: asemaehdokkaat ei yhtään",
+  "kirkkonummi-rutisundet: sadeasema Siuntio Sjundby (14 km), 14 vrk 28.4 mm",
+  "kirkkonummi-rutisundet: normaali (sade)",
+  "kirkkonummi-varnas-sund/Virtaama: asemaehdokkaat ei yhtään",
+  "kirkkonummi-varnas-sund/Vedenkorkeus: asemaehdokkaat ei yhtään",
+  "kirkkonummi-varnas-sund/LampoPintavesi: asemaehdokkaat ei yhtään",
+  "kirkkonummi-varnas-sund: sadeasema Siuntio Sjundby (14 km), 14 vrk 28.4 mm",
+  "kirkkonummi-varnas-sund: normaali (sade)",
+  "kirkkonummi-rutisund/Virtaama: asemaehdokkaat ei yhtään",
+  "kirkkonummi-rutisund/Vedenkorkeus: asemaehdokkaat ei yhtään",
+  "kirkkonummi-rutisund/LampoPintavesi: asemaehdokkaat ei yhtään",
+  "kirkkonummi-rutisund: sadeasema Siuntio Sjundby (16 km), 14 vrk 28.4 mm",
+  "kirkkonummi-rutisund: normaali (sade)",
+  "kirkkonummi-rutibacken/Virtaama: asemaehdokkaat ei yhtään",
+  "kirkkonummi-rutibacken/Vedenkorkeus: asemaehdokkaat ei yhtään",
+  "kirkkonummi-rutibacken/LampoPintavesi: asemaehdokkaat ei yhtään",
+  "kirkkonummi-rutibacken: sadeasema Siuntio Sjundby (14 km), 14 vrk 28.4 mm",
+  "kirkkonummi-rutibacken: normaali (sade)",
   "tenomuotka: 2 Syken asemaa rajauksella",
   "tenomuotka-poroeno/Virtaama: asemaehdokkaat ei yhtään",
   "tenomuotka-poroeno/Vedenkorkeus: asemaehdokkaat Rommaeno 0.1 km",

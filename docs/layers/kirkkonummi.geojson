@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"nimi":"Kirkkonummi","tyyppi":"alue"},"geometry":{"type":"Polygon","coordinates":[[[24.32,60.1],[24.36,59.95],[24.61,59.99],[24.62,60.07],[24.32,60.1]]]}}],"properties":{"alue_hash":"c5f167479eaf","kosket_haettu":false,"koskilahteet":["osm"],"lahde":"Kosket ja suvannot © OpenStreetMapin tekijät, ODbL"}}
