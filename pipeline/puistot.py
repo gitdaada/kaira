@@ -501,7 +501,7 @@ def main():
     out, keep_geo, keep_img = [], set(), set()
     for it in sorted(items, key=lambda x: (TYPES.index(x["kind"]), x["name"])):
         pid, claims = it["id"], it["claims"]
-        entry = {"id": pid, "nimi": it["name"][:80], "tyyppi": it["kind"], "ha": None, "perustettu": it["year"] or wd_year(claims),
+        entry = {"id": pid, "nimi": it["name"][:80], "tyyppi": it["kind"], "ha": None, "perustettu": wd_year(claims),  # Syken voimaantulo on viimeisin päätös, ei perustaminen
                  "kunnat": [], "lat": None, "lon": None, "bbox": None, "raja": None, "linkki": None, "kuva": None, "wikidata": it["wd"]}
         if it["g"] is not None and not it["g"].is_empty:
             fc, info = boundary_feature(it["name"], it["kind"], it["g"])
