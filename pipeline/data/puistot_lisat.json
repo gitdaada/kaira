@@ -1,0 +1,14 @@
+{
+  "_ohje": "Käsin ylläpidettävät lisätiedot puistolistaan (pipeline/puistot.py). retkeilyalueet: valtion retkeilyalueet (ulkoilulaki), joita ei ole luonnonsuojelualueaineistossa. wikidata ja linkit: korjaukset, jos automaattinen haku ei löydä oikeaa kohdetta tai luontoon.fi-sivua (avain = kohteen tunnus).",
+  "retkeilyalueet": [
+    "Evon retkeilyalue",
+    "Iso-Syötteen retkeilyalue",
+    "Kylmäluoman retkeilyalue",
+    "Napapiirin retkeilyalue",
+    "Oulujärven retkeilyalue",
+    "Ruunaan retkeilyalue"
+  ],
+  "wikidata": {},
+  "linkit": {},
+  "ohita": []
+}
