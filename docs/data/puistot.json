@@ -1,5 +1,5 @@
 {
- "paivitetty": "2026-10-24T18:28:12Z",
+ "paivitetty": "2026-10-24T18:33:35Z",
  "lahteet": [
   "Kansallis- ja luonnonpuistojen rajat: Syke, valtion luonnonsuojelualueet (CC BY 4.0)",
   "Retkeilyalueiden rajat: © OpenStreetMapin tekijät (ODbL)",
@@ -1777,32 +1777,6 @@
    "lipas": 606689
   },
   {
-   "id": "lipas-621453",
-   "nimi": "kuhankuono v3",
-   "tyyppi": "ulkoilualue",
-   "ha": 931,
-   "perustettu": null,
-   "kunnat": [
-    "Pöytyä"
-   ],
-   "lat": 60.73981,
-   "lon": 22.42014,
-   "bbox": [
-    60.43609,
-    22.12521,
-    60.89933,
-    22.55138
-   ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
-   "linkki": null,
-   "www": null,
-   "kuvaus": null,
-   "yllapitaja": "yhdistys",
-   "kuva": null,
-   "wikidata": null,
-   "lipas": 621453
-  },
-  {
    "id": "lipas-72541",
    "nimi": "Iso-Valkeen ulkoilualue",
    "tyyppi": "ulkoilualue",
@@ -2651,7 +2625,7 @@
     65.96886,
     29.20257
    ],
-   "raja": "data/ulkoilualueet/c-655-29.geojson?v=2f9ee6236d",
+   "raja": "data/ulkoilualueet/c-655-29.geojson?v=8044f90a22",
    "linkki": null,
    "www": "http://www.kuusamo.fi/",
    "kuvaus": "Keskusurheilukenttä, Kelanrannan uimaranta, kevyenliikenteen väylä, talvella osa ympäryslatua.",
@@ -2677,7 +2651,7 @@
     65.97466,
     29.20483
    ],
-   "raja": "data/ulkoilualueet/c-655-29.geojson?v=2f9ee6236d",
+   "raja": "data/ulkoilualueet/c-655-29.geojson?v=8044f90a22",
    "linkki": null,
    "www": null,
    "kuvaus": "Kevyenliikenteen väylästö, jossa kaksi isoa siltaa, talvella osa taajaman ympäryslatua, matonpesupaikka, Kolvankojokisuussa iso katoskeinu.",
@@ -2703,7 +2677,7 @@
     65.96245,
     29.21114
    ],
-   "raja": "data/ulkoilualueet/c-655-29.geojson?v=2f9ee6236d",
+   "raja": "data/ulkoilualueet/c-655-29.geojson?v=8044f90a22",
    "linkki": null,
    "www": "http://www.kuusamo.fi/",
    "kuvaus": "Kevyenliikenteen väylästö Torankijärven keskustan puoleisella rannalla, sisältää puistoalueita mm. Porkkatörmällä, huvimajan, näköalatasanteita ja kotiseutumuseon. Talvella osa taajaman ympäryslatua.",
@@ -5313,32 +5287,6 @@
    "lipas": 600252
   },
   {
-   "id": "lipas-600318",
-   "nimi": "Testialue",
-   "tyyppi": "ulkoilualue",
-   "ha": 4,
-   "perustettu": null,
-   "kunnat": [
-    "Oulu"
-   ],
-   "lat": 65.20381,
-   "lon": 26.29408,
-   "bbox": [
-    65.20272,
-    26.28956,
-    65.20498,
-    26.29641
-   ],
-   "raja": "data/ulkoilualueet/c-650-26.geojson?v=27eaaf1f15",
-   "linkki": null,
-   "www": null,
-   "kuvaus": null,
-   "yllapitaja": "valtio",
-   "kuva": null,
-   "wikidata": null,
-   "lipas": 600318
-  },
-  {
    "id": "lipas-600442",
    "nimi": "Vilkaharju Itäinen",
    "tyyppi": "ulkoilualue",
@@ -6039,32 +5987,6 @@
    "kuva": null,
    "wikidata": null,
    "lipas": 603584
-  },
-  {
-   "id": "lipas-604255",
-   "nimi": "testialue",
-   "tyyppi": "ulkoilualue",
-   "ha": 4,
-   "perustettu": null,
-   "kunnat": [
-    "Kemi"
-   ],
-   "lat": 65.9803,
-   "lon": 29.16224,
-   "bbox": [
-    65.97927,
-    29.15771,
-    65.98138,
-    29.16453
-   ],
-   "raja": "data/ulkoilualueet/c-655-29.geojson?v=2f9ee6236d",
-   "linkki": null,
-   "www": null,
-   "kuvaus": null,
-   "yllapitaja": "säätiö",
-   "kuva": null,
-   "wikidata": null,
-   "lipas": 604255
   },
   {
    "id": "lipas-604284",
@@ -8277,32 +8199,6 @@
    "lipas": 612666
   },
   {
-   "id": "lipas-612791",
-   "nimi": "UTP-testikohde Vidskars fjärden",
-   "tyyppi": "ulkoilualue",
-   "ha": 166,
-   "perustettu": null,
-   "kunnat": [
-    "Parainen"
-   ],
-   "lat": 59.88701,
-   "lon": 21.45101,
-   "bbox": [
-    59.8811,
-    21.43743,
-    59.89409,
-    21.46472
-   ],
-   "raja": "data/ulkoilualueet/c-595-21.geojson?v=b00085ecb4",
-   "linkki": null,
-   "www": null,
-   "kuvaus": "Huom! Tämä on testikohde, eikä ole olemassa oikeasti kyseisessä paikassa. Kohde poistetaan Lipaksesta, kun siihen liittyvien tietojen toimivuus on varmistettu ulkoisessa palvelussa. Kohde on syötetty 5.3.2024.",
-   "yllapitaja": null,
-   "kuva": null,
-   "wikidata": null,
-   "lipas": 612791
-  },
-  {
    "id": "lipas-612933",
    "nimi": "Petikon luontovirkistysalue",
    "tyyppi": "ulkoilualue",
@@ -8379,32 +8275,6 @@
    "kuva": null,
    "wikidata": null,
    "lipas": 613196
-  },
-  {
-   "id": "lipas-613634",
-   "nimi": "Testialue",
-   "tyyppi": "ulkoilualue",
-   "ha": 242,
-   "perustettu": null,
-   "kunnat": [
-    "Enontekiö"
-   ],
-   "lat": 67.57001,
-   "lon": 24.35609,
-   "bbox": [
-    67.56083,
-    24.33552,
-    67.57908,
-    24.38426
-   ],
-   "raja": "data/ulkoilualueet/c-675-24.geojson?v=dfe763e0f6",
-   "linkki": null,
-   "www": null,
-   "kuvaus": null,
-   "yllapitaja": null,
-   "kuva": null,
-   "wikidata": null,
-   "lipas": 613634
   },
   {
    "id": "lipas-613646",
@@ -8891,7 +8761,7 @@
     60.74305,
     22.41466
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": null,
    "kuvaus": null,
@@ -9021,7 +8891,7 @@
     60.54903,
     22.14073
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": null,
    "kuvaus": null,
@@ -9151,7 +9021,7 @@
     60.99253,
     22.67149
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": "https://harjureitti.fi/",
    "kuvaus": "Pikkulappina tunnettu reitistö sijaitsee Varsinais-Suomen ja Satakunnan raja-alueella keskellä Lounais-Suomen ainoaa yhtenäistä harjujaksoa Säkylänharjun-Virttaankankaan alueella. Reitistö kulkee harjun päällä kuivassa kangasmetsässä ja tarjoaa hienoja maisemia. Reiteillä voit liikkua kävellen, maastopyörällä tai talvella hiihtäen.\nHarjureitti on vuonna 1998 perustettu n. 28 km pitkä ulkoilureitti, joka sai vuonna 2016 virallisen ulkoreittistatuksen. Harjureitin varrella on useita eri reittivaihtoehtoja opasteineen, laavuja nuotiopaikkoineen sekä palveluja.\nHarjureitin kunnossapidosta vastaavat Loimaan ja Huittisten kaupungit sekä Oripään ja Säkylän kunnat.",
@@ -9463,7 +9333,7 @@
     60.50656,
     22.21581
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": "https://raisio.fi/fi/ulkoilureitit",
    "kuvaus": null,
@@ -9515,7 +9385,7 @@
     60.58007,
     23.04675
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": "https://heikolankylaseura.com/",
    "kuvaus": "Eräreitistö sijaitsee nimensä mukaisesti Marttilan Korvessa. Se kulkee lähes erämaisessa maastossa karujen soiden ja metsäsaarekkeiden mosaiikkimaisessa maisemassa. Siellä kulkija voi kohdata luonnon ihmeet kaikin aistein ja kaikkina vuodenaikoina. Reitin varrella voi löytää merkkejä jääkaudesta, yöpyä laavussa, nähdä maakotkan liitelevän taivaalla tai levähtää ikipetäjän kainalossa.\nReitin lähtöpisteet lähtöpisteet ovat Palaisten uimaranta pohjoisessa ja Huhtaanmäki etelässä. Maastossa reitit on merkitty valkoisin nauhoin sekä muiden valkoisten merkkien avulla. Reitistöllä on nuotiopaikkoja ja laavuja. Vuokrattavana on myös Huhtaanmaja sauna-, kokous- tai virkistyskäyttöön.",
@@ -9541,7 +9411,7 @@
     60.52621,
     22.20652
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": "https://kuhankuono.fi/reitit/kullaanpolku/",
    "kuvaus": "Osa Kuhankuonon retkeilyreitistöä. Kuhankuonon reitistön polut kulkevat Etelä-Suomen oloissa poikkeuksellisen laajoilla ja yhtenäisillä metsäalueilla, kallioilla ja keidassoilla. Osa reitistöstä on Metsähallituksen ja osa Kuhankuonon retkeilyreitistöyhdistyksen ylläpitämää.\nOranssi nauha + 3 sinistä täplää = rengasreitti. Oranssi nauha + 3 valkoista täplää = yhdysreitti.\nReitti kulkee: Raisio, Rusko.\nKullaanpolku on retkeilyreitistön osareiteistä kaikkein kaupunkimaisin, onhan sen toinen lähtöpaikka Raision kaupungin Kerttulan liikuntakeskuksessa. Siitä huolimatta reitin varrelle mahtuu hyvinkin luonnontilaisia osia, etenkin Kullavuoren luonnonsuojelualueella. Kullaanpolun maisemallista…",
@@ -9567,7 +9437,7 @@
     60.5468,
     22.17829
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": "https://kuhankuono.fi/reitit/karevan-kierto-2/",
    "kuvaus": "Osa Kuhankuonon retkeilyreitistöä. Kuhankuonon reitistön polut kulkevat Etelä-Suomen oloissa poikkeuksellisen laajoilla ja yhtenäisillä metsäalueilla, kallioilla ja keidassoilla. Osa reitistöstä on Metsähallituksen ja osa Kuhankuonon retkeilyreitistöyhdistyksen ylläpitämää.\nOranssi nauha + 3 sinistä täplää = rengasreitti. Oranssi nauha + 3 valkoista täplää = yhdysreitti.\nReitti kulkee: Rusko, Masku, Raisio.\nKarevan kierrolle lähdetään Maskun Rivieralta, Ruskontien varrelta. Reitin pituus on lähes 12 kilometriä, ja maastoltaan se on pääosin mäntykangasta ja avokalliota ja mahtuupa mukaan myös Karevansuo, joka ylitetään pitkospuita pitkin. Vaikka reitin alueella on paljon asutusta, on…",
@@ -9593,7 +9463,7 @@
     60.86051,
     22.31385
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": "https://kuhankuono.fi/reitit/vaskijarven-reitti/",
    "kuvaus": "Osa Kuhankuonon retkeilyreitistöä. Kuhankuonon reitistön polut kulkevat Etelä-Suomen oloissa poikkeuksellisen laajoilla ja yhtenäisillä metsäalueilla, kallioilla ja keidassoilla. Osa reitistöstä on Metsähallituksen ja osa Kuhankuonon retkeilyreitistöyhdistyksen ylläpitämää.\nOranssi nauha + 3 sinistä täplää = rengasreitti. Oranssi nauha + 3 valkoista täplää = yhdysreitti.\nReitti kulkee: Pöytyä.\nVaskijärven reitti kulkee Vaskijärven luonnonpuiston upeissa suo-, metsä- ja kalliomaisemissa. Reitin varrella on avaria soita, vanhaa kuusikkoa, jäkäläisiä kallioita ja pieniä suolampia. Luonnonpuistossa polulta poikkeaminen on kielletty.\nReitin varrella on kaksi taukopaikkaa: Valastenmaa…",
@@ -9619,7 +9489,7 @@
     60.66631,
     22.35699
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": "https://kuhankuono.fi/reitit/kangenmiekan-kierros/",
    "kuvaus": "Osa Kuhankuonon retkeilyreitistöä. Kuhankuonon reitistön polut kulkevat Etelä-Suomen oloissa poikkeuksellisen laajoilla ja yhtenäisillä metsäalueilla, kallioilla ja keidassoilla. Osa reitistöstä on Metsähallituksen ja osa Kuhankuonon retkeilyreitistöyhdistyksen ylläpitämää.\nOranssi nauha + 3 sinistä täplää = rengasreitti. Oranssi nauha + 3 valkoista täplää = yhdysreitti.\nReitti kulkee: Rusko.\nKangenmiekan kierros on pääosin Ruskon kunnan alueella kulkeva ympyräreitti, jonka maisemaa hallitsevat kuivat harjumänniköt ja karut kalliot. Helppo reitti.",
@@ -9645,7 +9515,7 @@
     60.7449,
     22.43101
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": "https://kuhankuono.fi/reitit/vajosuon-vaellus/",
    "kuvaus": "Osa Kuhankuonon retkeilyreitistöä. Kuhankuonon reitistön polut kulkevat Etelä-Suomen oloissa poikkeuksellisen laajoilla ja yhtenäisillä metsäalueilla, kallioilla ja keidassoilla. Osa reitistöstä on Metsähallituksen ja osa Kuhankuonon retkeilyreitistöyhdistyksen ylläpitämää.\nOranssi nauha + 3 sinistä täplää = rengasreitti. Oranssi nauha + 3 valkoista täplää = yhdysreitti.\nReitti kulkee: Nousiainen, Rusko, Turku, Aura, Pöytyä.\nVajosuon lähes 30 kilometrin mittainen vaellus on monelle kokeneellekin kävelijälle kahden päivän retki, joten reitti kannattaa suunnitella yöpymispaikkojen mukaan. Hyviä lähtöpaikkoja ovat Rantapiha ja Kurjenpesä pohjoisessa sekä Vajosuon parkkipaikka etelässä.\nReitti…",
@@ -9671,7 +9541,7 @@
     60.74708,
     22.3877
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": "https://kuhankuono.fi/reitit/pukkipalon-reitti/",
    "kuvaus": "Osa Kuhankuonon retkeilyreitistöä. Kuhankuonon reitistön polut kulkevat Etelä-Suomen oloissa poikkeuksellisen laajoilla ja yhtenäisillä metsäalueilla, kallioilla ja keidassoilla. Osa reitistöstä on Metsähallituksen ja osa Kuhankuonon retkeilyreitistöyhdistyksen ylläpitämää.\nOranssi nauha + 3 sinistä täplää = rengasreitti. Oranssi nauha + 3 valkoista täplää = yhdysreitti.\nReitti kulkee: Nousiainen, Mynämäki.",
@@ -9697,7 +9567,7 @@
     60.75236,
     22.42029
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": "https://kuhankuono.fi/reitit/savojarven-kierros/",
    "kuvaus": "Osa Kuhankuonon retkeilyreitistöä. Kuhankuonon reitistön polut kulkevat Etelä-Suomen oloissa poikkeuksellisen laajoilla ja yhtenäisillä metsäalueilla, kallioilla ja keidassoilla. Osa reitistöstä on Metsähallituksen ja osa Kuhankuonon retkeilyreitistöyhdistyksen ylläpitämää.\nOranssi nauha + 3 sinistä täplää = rengasreitti. Oranssi nauha + 3 valkoista täplää = yhdysreitti.\nReitti kulkee: Pöytyä, Nousiainen, Mynämäki, Rusko, Turku.",
@@ -9723,7 +9593,7 @@
     60.89969,
     22.36534
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": "https://kuhankuono.fi/reitit/kahden-jarven-kierros/",
    "kuvaus": "Osa Kuhankuonon retkeilyreitistöä. Kuhankuonon reitistön polut kulkevat Etelä-Suomen oloissa poikkeuksellisen laajoilla ja yhtenäisillä metsäalueilla, kallioilla ja keidassoilla. Osa reitistöstä on Metsähallituksen ja osa Kuhankuonon retkeilyreitistöyhdistyksen ylläpitämää.\nOranssi nauha + 3 sinistä täplää = rengasreitti. Oranssi nauha + 3 valkoista täplää = yhdysreitti.\nReitti kulkee: Pöytyä.\nLähtöpiste osoitteessa Valasrannantie 354, joukkoliikenteellä lähin pysäkki Valasranta th P josta kävelymatkan reitin lähtöpisteeseen noin 3,8 kilometriä.",
@@ -9749,7 +9619,7 @@
     60.90092,
     22.541
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": "https://kuhankuono.fi/",
    "kuvaus": "Osa Kuhankuonon retkeilyreitistöä. Kuhankuonon reitistön polut kulkevat Etelä-Suomen oloissa poikkeuksellisen laajoilla ja yhtenäisillä metsäalueilla, kallioilla ja keidassoilla.\nOsa reitistöstä on Metsähallituksen ja osa Kuhankuonon retkeilyreitistöyhdistyksen ylläpitämää.\nOranssi nauha + 3 sinistä palloa = kiertävä reitti. Oranssi nauha + 3 valkoista palloa = yhdysreitti.",
@@ -9775,7 +9645,7 @@
     60.53558,
     22.58651
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": null,
    "kuvaus": null,
@@ -9801,7 +9671,7 @@
     60.53577,
     22.5866
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": "http://www.liedonparma.fi/parmaharju",
    "kuvaus": "Luontopolkuja on kolme: 2 km minilenkki sekä 6 km ja 9 km lenkit. Kolme levähdyspaikkaa ja yksi grillikatos.",
@@ -9931,7 +9801,7 @@
     60.89708,
     22.56357
    ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
+   "raja": "data/ulkoilualueet/c-605-22.geojson?v=ef37315c1e",
    "linkki": null,
    "www": null,
    "kuvaus": null,
@@ -10069,32 +9939,6 @@
    "kuva": null,
    "wikidata": null,
    "lipas": 621332
-  },
-  {
-   "id": "lipas-621386",
-   "nimi": "kuhankuono v2",
-   "tyyppi": "ulkoilualue",
-   "ha": 3359,
-   "perustettu": null,
-   "kunnat": [
-    "Pöytyä"
-   ],
-   "lat": 60.8916,
-   "lon": 22.33037,
-   "bbox": [
-    60.49958,
-    22.12463,
-    60.90108,
-    22.55149
-   ],
-   "raja": "data/ulkoilualueet/c-605-22.geojson?v=d4055fbbd4",
-   "linkki": null,
-   "www": null,
-   "kuvaus": null,
-   "yllapitaja": "yhdistys",
-   "kuva": null,
-   "wikidata": null,
-   "lipas": 621386
   },
   {
    "id": "lipas-621420",
