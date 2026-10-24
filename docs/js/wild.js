@@ -189,7 +189,12 @@
     if (listFilter === 'kaikki') return typeOn(f.tyyppi);
     return TYPES[f.tyyppi].file === listFilter;
   }
+  var view = 'lahella';
   function renderKohteet(body) {
+    // Välilehdet: lähimmät tuvat, laavut ja tulipaikat tai kansallispuistot ja retkeilyalueet (puistot.js)
+    if (K.parks) body.appendChild(K.seg([['lahella', 'Lähellä'], ['puistot', 'Puistot ja retkialueet']], view, function (v) { view = v; K.renderSheet(); },
+      { cls: 'seg-tabs', label: 'Kohteiden näkymä' }));
+    if (view === 'puistot' && K.parks) { K.parks.renderList(body); return; }
     var p = K.wherePoint(10 * 60000);
     body.appendChild(K.seg(FILTERS, listFilter, function (v) {
       listFilter = v;
@@ -213,7 +218,7 @@
   }
   function openKohteet() {
     wantedFiles().forEach(loadFile);
-    K.openSheet('kohteet', 'Tuvat, laavut ja tulipaikat', renderKohteet);
+    K.openSheet('kohteet', 'Kohteet', renderKohteet);
   }
   K.on('pos', function () { if (K.sheetName() === 'kohteet' && Date.now() - (renderKohteet.last || 0) > 5000) { renderKohteet.last = Date.now(); K.renderSheet(); } });
 
@@ -398,5 +403,5 @@
   K.on('leave', function (sec) { if (sec === SEC) leave(); });
 
   K.kohdeIcon = iconSvg;
-  K.wild = { D: D, routes: function () { return routes; }, openKohde: openKohde };
+  K.wild = { D: D, routes: function () { return routes; }, openKohde: openKohde, typeName: function (t) { return (TYPES[t] || {}).nimi || ''; } };
 })();

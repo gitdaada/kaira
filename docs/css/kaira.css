@@ -559,3 +559,14 @@ textarea.input { min-height: 72px; resize: vertical; font: inherit; }
 .berry-sw { display: inline-block; width: 14px; height: 14px; border-radius: 4px; margin-right: 8px; vertical-align: -2px; opacity: 0.85; }
 .berry-area { flex: 1 1 100%; color: var(--muted-on-dark); }
 .berry-notice { display: grid; gap: 2px; margin-top: 6px; padding: 6px 10px; border-left: 4px solid #7b2cbf; background: rgba(123, 44, 191, 0.14); border-radius: 8px; font-size: 13.5px; }
+
+/* Eränkäynti: puistot ja retkialueet */
+.seg-tabs { margin-bottom: 12px; }
+.seg-tabs button { font-size: 14.5px; }
+.park-fig { margin: 0 0 12px; }
+.park-fig img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; background: var(--surface-3); }
+.park-cap { margin-top: 6px; font-size: 12.5px; color: var(--muted-on-dark); }
+.park-cap a { color: inherit; }
+.park-type { font-weight: 700; margin: 4px 0 2px; }
+.park-inside { margin-top: 8px; }
+.park-list { margin-top: 4px; }

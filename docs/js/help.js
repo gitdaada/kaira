@@ -119,6 +119,7 @@
         ]),
         block('Vinkit', [
           row(null, 'Kohteen kompassi', 'Napauta kohdetta. Pidä puhelinta vaakatasossa: kun nuoli osoittaa ylös, kohde on edessäsi.'),
+          row(null, 'Puistot ja retkialueet', 'Kohteet → Puistot ja retkialueet: kansallispuistot, luonnonpuistot ja valtion retkeilyalueet etäisyyden mukaan. Kohteen sivulla perustiedot, kuva, linkki luontoon.fi:hin, raja kartalle ja alueen tuvat ja laavut. Luettelo toimii ilman verkkoa, kun se on kerran avattu.'),
           row(null, 'Suunnistus', 'Suunnista tänne jättää suunnan ja katkoviivan näkyviin, vaikka sulkisit paneelin.'),
           row(null, 'Etäisyysrenkaat', 'Tasot → Apuvälineet: 1, 5 ja 20 km sijainnistasi.'),
           row(null, 'Tietojen tarkistus', 'Kohteet ovat OpenStreetMapista. Tarkista tupien kunto ja säännöt ylläpitäjältä (useimmiten luontoon.fi).')

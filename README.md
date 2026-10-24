@@ -64,6 +64,7 @@ Käyttäjä valitsee osion aloitusnäkymässä tai yläpalkista. Kartta, tasot j
 **Eränkäynti**
 
 - Autiotuvat, autiokammit, päivätuvat, kodat, laavut ja tulipaikat koko Suomesta (OpenStreetMap, päivittyy viikoittain)
+- Kansallispuistot, luonnonpuistot ja valtion retkeilyalueet listana (Kohteet → Puistot ja retkialueet): etäisyys, tyyppisuodatus ja haku; kohteen sivulla kuva, perustiedot, linkki luontoon.fi:hin, raja kartalle pyydettäessä ja alueen tuvat ja laavut
 - Lähimmät kohteet etäisyyden mukaan, kohteen kompassi ja *Suunnista tänne*
 - GPX-reittien tuonti, näyttö, offline-tallennus ja suunnistus reitin alkuun
 - Voimassa olevat maastopalovaroitukset: alueet kartalla, avotulikielto laavun ja tulipaikan tiedoissa
@@ -92,6 +93,7 @@ Julkaisu: Cloudflare Pages julkaisee `docs/`-kansion automaattisesti jokaisesta 
   - `js/weather.js`: sää, sadetutka ja aurinko kaikissa osioissa
   - `js/tools.js`: mittaus, alueen piirto, etäisyysrenkaat, omat tasot, näkymän tallennus
   - `js/hunt.js`, `js/fish.js`, `js/wild.js`: osioiden toiminnot
+  - `js/puistot.js`: kansallispuistot, luonnonpuistot ja retkeilyalueet (eränkäynti)
   - `js/palo.js`: maastopalovaroitukset (metsästys ja eränkäynti)
   - `js/havainnot.js`: salamahavainnot ja lumensyvyys (kaikki osiot)
   - `js/marjat.js`: marjojen ja sienten kasvupaikat (eränkäynti; mustikka ja puolukka myös metsästyksessä)
@@ -105,6 +107,7 @@ Julkaisu: Cloudflare Pages julkaisee `docs/`-kansion automaattisesti jokaisesta 
 | Rakenna metsäkartat (`build.py`) | Maanantaisin ja kun `areas/metsastys/` tai `areas/erankaynti/` muuttuu | `docs/data/<alue>/` (myös marjat.png ja sienet.png), `docs/data/areas.json` |
 | Vesitilanne (`syvyys.py`, `vesitilanne.py`) | Päivittäin ja kun `areas/kalastus/` muuttuu | `docs/data/vesitilanne.json`, `docs/data/jaa.json`, `docs/layers/` |
 | Kohteet (`kohteet.py`) | Viikoittain | `docs/data/kohteet/{tuvat,laavut,tulipaikat}.geojson` |
+| Puistot (`puistot.py`) | Kuukausittain ja lisätietojen muuttuessa | `docs/data/puistot.json`, `docs/data/puistot/*.geojson`, `docs/img/puistot/*.jpg` |
 | Maastopalovaroitukset (`maastopalo.py`) | Huhti–syyskuussa tunnin välein, loka–maaliskuussa 6 tunnin välein; tallennus vain muutoksesta | `docs/data/maastopalo.json` |
 | Testit | Jokaisessa muutoksessa | – (myös riippuvuuksien haavoittuvuudet ja Cloudflaren rajat) |
 | Rajapintojen tarkistus (`tarkistus.py`) | Käsin | Vain lokimerkinnät: rajapintojen vastausten rakenne oikealla datalla |
@@ -137,6 +140,7 @@ Ajon voi käynnistää käsin: *Actions → ajo → Run workflow*. GitHub keskey
 - Järvien syvyysalueet ja syvyyskäyrät: Syke, CC BY 4.0 (vain mitatut järvet).
 - Kosket ja suvannot kalastusalueilla: Maanmittauslaitos, maastotietokanta (kohdeluokka Koski) ja nimistö, CC BY 4.0, sekä © OpenStreetMapin tekijät, ODbL.
 - Tuvat, laavut ja tulipaikat: © OpenStreetMapin tekijät, ODbL. Varaus- ja vuokratuvat jätetään pois. Tarkista ajantasaiset tiedot ylläpitäjältä (useimmiten luontoon.fi).
+- Kansallis- ja luonnonpuistot: Syke, valtion luonnonsuojelualueet, CC BY 4.0. Valtion retkeilyalueet (luettelo `pipeline/data/puistot_lisat.json`) ja niiden rajat: © OpenStreetMapin tekijät, ODbL. Perustamisvuosi, kunnat ja linkit Metsähallituksen sivuille: Wikidata, CC0. Kuvat: Wikimedia Commons, vain vapaat lisenssit (CC0, public domain, CC BY, CC BY-SA); tekijä ja lisenssi näkyvät kuvan alla ja tiedostossa `docs/data/puistot.json`. Metsähallituksen tekstejä ja kuvia ei kopioida, vaan niihin linkitetään.
 - Perhosuositukset ovat lähtötaulukko yleisesti käytetyistä perhoista. Perhojen valokuvat: Wikimedia Commons, tekijät ja lisenssit sovelluksessa ja tiedostossa `docs/img/perhot/kuvat/lahteet.json`.
 - Solmujen vaiheet: Orvis, Animated Knots ja Bass Pro. Animaatiot ovat tämän sovelluksen omia piirroksia (`docs/js/solmut.js`).
 - Kirjastot ja fontit: Leaflet 1.9 (BSD 2-Clause), Inter ja Montserrat (SIL Open Font License 1.1, `docs/fonts/`).
@@ -151,6 +155,7 @@ python3 tests/test_encoding.py     # metsäkartan koodaus
 python3 tests/test_cuts.py         # hakkuutunnistus
 python3 tests/test_habitat.py      # elinympäristömalli
 python3 tests/test_marjat.py       # marja- ja sienimalli
+python3 tests/test_puistot.py      # puistoluettelon haku
 node tests/jcore.test.js           # laskentaydin
 python3 tests/e2e.py docs /tmp/kuvat   # selaintesti (Playwright)
 ```
